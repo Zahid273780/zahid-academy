@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>User Entry Form - Zahid Academy</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; min-height: 100vh; padding: 20px; color: #1e293b; }
+    .top-bar { margin-bottom: 1.2rem; }
+    .back-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; background: linear-gradient(135deg,#1e40af,#2563eb); color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .card { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+    h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
+    .lead { color: #64748b; font-size: 0.85rem; margin-bottom: 1.2rem; }
+    .form-row { display: grid; grid-template-columns: 80px 1fr 1fr 1fr 120px auto; gap: 10px; align-items: end; margin-bottom: 14px; }
+    @media (max-width: 768px) { .form-row { grid-template-columns: 1fr 1fr; } }
+    .form-group label { display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .form-group input, .form-group select {
+      width: 100%; padding: 9px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; background: #f8fafc; transition: border-color 0.15s;
+    }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #2563eb; background: #fff; }
+    .btn { padding: 9px 18px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: all 0.15s; }
+    .btn-add { background: #16a34a; color: #fff; align-self: end; }
+    .btn-add:hover { background: #15803d; }
+    .btn-export { background: linear-gradient(135deg,#1e40af,#2563eb); color: #fff; }
+    .btn-export:hover { opacity: 0.9; }
+    .btn-clear { background: #dc2626; color: #fff; }
+    .btn-clear:hover { background: #b91c1c; }
+    .btn-remove { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 1.1rem; font-weight: 800; padding: 4px 8px; }
+    .btn-remove:hover { color: #991b1b; }
+    .actions { display: flex; gap: 10px; margin: 18px 0 14px; flex-wrap: wrap; align-items: center; }
+    .count { font-size: 0.85rem; color: #64748b; font-weight: 600; margin-left: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead { background: #f8fafc; }
+    th { text-align: left; padding: 10px 12px; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; }
+    td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }
+    .role-badge { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: capitalize; }
+    .role-student { background: #dbeafe; color: #1e40af; }
+    .role-teacher { background: #dcfce7; color: #166534; }
+    .role-admin { background: #fef2f2; color: #991b1b; }
+    .role-accountant { background: #f3e8ff; color: #6b21a8; }
+    .empty { text-align: center; color: #94a3b8; padding: 40px 20px; font-size: 0.9rem; }
+    .msg { padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; }
+    .msg.ok { background: #dcfce7; color: #166534; }
+    .msg.err { background: #fef2f2; color: #991b1b; }
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 36px; }
+    .gen-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: #e2e8f0; border: none; border-radius: 4px; font-size: 0.65rem; padding: 3px 6px; cursor: pointer; color: #475569; font-weight: 700; }
+    .gen-btn:hover { background: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true}},true);</script>
+
+  <div class="top-bar">
+    <a href="dashboard.html" class="back-btn">&#8592; Back to Dashboard</a>
+  </div>
+
+  <div class="card">
+    <h1>User Entry Form</h1>
+    <p class="lead">Fill in user details one by one. When done, export as CSV and import it into the Bulk Import page.</p>
+
+    <div id="msg"></div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="fRoll">Roll #</label>
+        <input type="number" id="fRoll" placeholder="101" min="1">
+      </div>
+      <div class="form-group">
+        <label for="fName">Full Name</label>
+        <input type="text" id="fName" placeholder="Ali Khan" required>
+      </div>
+      <div class="form-group">
+        <label for="fEmail">Email <span style="font-weight:400;text-transform:none;color:#94a3b8;">(auto-filled)</span></label>
+        <input type="email" id="fEmail" placeholder="ali@zahidacademy.com" required>
+      </div>
+      <div class="form-group">
+        <label for="fPassword">Password <span style="font-weight:400;text-transform:none;color:#94a3b8;">(auto-generated)</span></label>
+        <div class="password-wrap">
+          <input type="text" id="fPassword" placeholder="123456" required>
+          <button type="button" class="gen-btn" id="genPwdBtn" title="Generate new password">GEN</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="fRole">Role</label>
+        <select id="fRole">
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+          <option value="admin">Admin</option>
+          <option value="accountant">Accountant</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>&nbsp;</label>
+        <button type="button" class="btn btn-add" id="addBtn">+ Add</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-export" id="exportBtn" disabled>Export CSV</button>
+      <button type="button" class="btn btn-clear" id="clearBtn" disabled>Clear All</button>
+      <span class="count" id="countLabel">0 entries</span>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Roll</th><th>Name</th><th>Email</th><th>Password</th><th>Role</th><th></th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="empty" id="emptyMsg">No entries yet. Fill the form above and click <strong>+ Add</strong>.</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initAuthGuard } from './auth-guard.js';
+    await initAuthGuard();
+
+    var entries = JSON.parse(localStorage.getItem('userFormEntries') || '[]');
+
+    var fRoll = document.getElementById('fRoll');
+    var fName = document.getElementById('fName');
+    var fEmail = document.getElementById('fEmail');
+    var fPassword = document.getElementById('fPassword');
+    var fRole = document.getElementById('fRole');
+    var tbody = document.getElementById('tbody');
+    var emptyMsg = document.getElementById('emptyMsg');
+    var countLabel = document.getElementById('countLabel');
+    var exportBtn = document.getElementById('exportBtn');
+    var clearBtn = document.getElementById('clearBtn');
+    var msgEl = document.getElementById('msg');
+
+    function save() {
+      localStorage.setItem('userFormEntries', JSON.stringify(entries));
+    }
+
+    function render() {
+      if (entries.length === 0) {
+        tbody.innerHTML = '';
+        emptyMsg.style.display = '';
+        exportBtn.disabled = true;
+        clearBtn.disabled = true;
+        countLabel.textContent = '0 entries';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+      exportBtn.disabled = false;
+      clearBtn.disabled = false;
+      countLabel.textContent = entries.length + ' entr' + (entries.length === 1 ? 'y' : 'ies');
+
+      tbody.innerHTML = entries.map(function (e, i) {
+        return '<tr>'
+          + '<td>' + (i + 1) + '</td>'
+          + '<td>' + (e.roll || '—') + '</td>'
+          + '<td>' + esc(e.name) + '</td>'
+          + '<td>' + esc(e.email) + '</td>'
+          + '<td><code>' + esc(e.password) + '</code></td>'
+          + '<td><span class="role-badge role-' + e.role + '">' + e.role + '</span></td>'
+          + '<td><button class="btn-remove" data-idx="' + i + '" title="Remove">&times;</button></td>'
+          + '</tr>';
+      }).join('');
+
+      tbody.querySelectorAll('.btn-remove').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var idx = parseInt(btn.dataset.idx, 10);
+          entries.splice(idx, 1);
+          save();
+          render();
+        });
+      });
+    }
+
+    function esc(s) {
+      var d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function showMsg(text, type) {
+      msgEl.textContent = text;
+      msgEl.className = 'msg ' + type;
+      setTimeout(function () { msgEl.textContent = ''; msgEl.className = ''; }, 3000);
+    }
+
+    function generatePassword() {
+      var pw = '';
+      for (var i = 0; i < 6; i++) pw += Math.floor(Math.random() * 10);
+      return pw;
+    }
+
+    function nameToEmail(name) {
+      return name.toLowerCase().replace(/\s+/g, '') + '@zahidacademy.com';
+    }
+
+    var emailManuallyEdited = false;
+
+    fName.addEventListener('input', function () {
+      var name = fName.value.trim();
+      if (name && !emailManuallyEdited) {
+        fEmail.value = nameToEmail(name);
+      }
+      if (!name) {
+        fEmail.value = '';
+        emailManuallyEdited = false;
+      }
+      if (!fPassword.value) {
+        fPassword.value = generatePassword();
+      }
+    });
+
+    fEmail.addEventListener('input', function () {
+      emailManuallyEdited = true;
+    });
+
+    document.getElementById('genPwdBtn').addEventListener('click', function () {
+      fPassword.value = generatePassword();
+    });
+
+    document.getElementById('addBtn').addEventListener('click', function () {
+      var name = fName.value.trim();
+      var email = fEmail.value.trim();
+      var password = fPassword.value.trim();
+      var role = fRole.value;
+      var roll = fRoll.value.trim() ? parseInt(fRoll.value, 10) : null;
+
+      if (!name) { showMsg('Name is required.', 'err'); fName.focus(); return; }
+      if (!email) { showMsg('Email is required.', 'err'); fEmail.focus(); return; }
+      if (!password) { showMsg('Password is required.', 'err'); fPassword.focus(); return; }
+
+      var dup = entries.find(function (e) { return e.email.toLowerCase() === email.toLowerCase(); });
+      if (dup) { showMsg('Email "' + email + '" already exists in the list.', 'err'); return; }
+
+      entries.push({ roll: roll, name: name, email: email, password: password, role: role });
+      save();
+      render();
+
+      fRoll.value = roll ? roll + 1 : '';
+      fName.value = '';
+      fEmail.value = '';
+      fPassword.value = '';
+      emailManuallyEdited = false;
+      fName.focus();
+      showMsg('Added ' + name + ' (' + email + ')', 'ok');
+    });
+
+    fPassword.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); document.getElementById('addBtn').click(); }
+    });
+    fRole.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); document.getElementById('addBtn').click(); }
+    });
+
+    exportBtn.addEventListener('click', function () {
+      if (entries.length === 0) return;
+
+      var lines = ['roll,name,email,password,role'];
+      entries.forEach(function (e) {
+        lines.push(
+          (e.roll || '') + ','
+          + csvField(e.name) + ','
+          + csvField(e.email) + ','
+          + csvField(e.password) + ','
+          + e.role
+        );
+      });
+
+      var csv = lines.join('\r\n');
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      var now = new Date();
+      var ts = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      a.download = 'users_' + ts + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showMsg('CSV exported with ' + entries.length + ' entries.', 'ok');
+    });
+
+    clearBtn.addEventListener('click', function () {
+      if (!confirm('Clear all ' + entries.length + ' entries? This cannot be undone.')) return;
+      entries = [];
+      save();
+      render();
+    });
+
+    function csvField(val) {
+      if (/[,"\r\n]/.test(val)) return '"' + val.replace(/"/g, '""') + '"';
+      return val;
+    }
+
+    render();
+  </script>
+</body>
+</html>

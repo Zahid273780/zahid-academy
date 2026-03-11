@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Role-Based Access - Zahid Academy</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; min-height: 100vh; color: #1e293b; }
+    .page { max-width: 78rem; margin: 0 auto; padding: 2rem 1rem; }
+    .nav-bar { margin-bottom: 1.5rem; font-size: 0.875rem; color: #475569; }
+    .nav-bar a { color: #2563eb; text-decoration: none; }
+    .nav-bar a:hover { text-decoration: underline; }
+
+    .card { background: #fff; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .card h1 { margin: 0 0 0.25rem; font-size: 1.35rem; font-weight: 700; }
+    .card .lead { color: #64748b; font-size: 0.875rem; margin-bottom: 1rem; }
+
+    .tabs { display: flex; gap: 0; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.5rem; }
+    .tab {
+      padding: 0.65rem 1.4rem; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      border: none; background: none; color: #64748b; border-bottom: 3px solid transparent;
+      margin-bottom: -2px; transition: all 0.15s;
+    }
+    .tab:hover { color: #2563eb; }
+    .tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ---- Dashboard ---- */
+    .dash { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 1.5rem; }
+    .dash-card { background: #fff; border-radius: 12px; padding: 18px 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
+    .dash-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+    .dash-card.red::before { background: #dc2626; }
+    .dash-card.blue::before { background: #2563eb; }
+    .dash-card.green::before { background: #16a34a; }
+    .dash-card.purple::before { background: #7c3aed; }
+    .dash-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: #64748b; margin-bottom: 4px; }
+    .dash-val { font-size: 1.6rem; font-weight: 800; color: #1e293b; }
+
+    /* ---- Permissions Matrix ---- */
+    .perm-wrap { overflow-x: auto; }
+    .perm-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 800px; }
+    .perm-table th, .perm-table td { padding: 0.55rem 0.5rem; border-bottom: 1px solid #e2e8f0; }
+    .perm-table th { background: #f1f5f9; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.3px; position: sticky; top: 0; z-index: 1; }
+    .perm-table th:first-child { text-align: left; }
+    .perm-table tr:hover { background: #f8fafc; }
+
+    .role-col-head { text-align: center; min-width: 150px; }
+    .rwd-header { display: flex; justify-content: center; gap: 6px; margin-top: 4px; }
+    .rwd-header span {
+      display: inline-block; width: 28px; height: 18px; border-radius: 4px;
+      font-size: 0.65rem; font-weight: 800; line-height: 18px; text-align: center; color: #fff;
+    }
+    .rwd-r { background: #16a34a; }
+    .rwd-w { background: #2563eb; }
+    .rwd-d { background: #dc2626; }
+
+    .table-label { font-weight: 700; color: #1e293b; }
+    .table-desc { font-weight: 400; color: #94a3b8; font-size: 0.76rem; display: block; margin-top: 1px; }
+
+    .perm-cell { text-align: center; }
+    .rwd-group { display: flex; justify-content: center; gap: 6px; }
+
+    .cb-wrap {
+      width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+      border-radius: 6px; cursor: pointer; transition: all 0.15s; border: 2px solid transparent;
+    }
+    .cb-wrap:hover { transform: scale(1.1); }
+    .cb-wrap input { display: none; }
+    .cb-wrap .cb-box {
+      width: 20px; height: 20px; border-radius: 4px; border: 2px solid #cbd5e1;
+      display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+      font-size: 0.7rem; font-weight: 900; color: #fff;
+    }
+    .cb-wrap input:checked + .cb-box { border-color: transparent; }
+    .cb-wrap.cb-view input:checked + .cb-box { background: #7c3aed; }
+    .cb-wrap.cb-read input:checked + .cb-box { background: #16a34a; }
+    .cb-wrap.cb-write input:checked + .cb-box { background: #2563eb; }
+    .cb-wrap.cb-delete input:checked + .cb-box { background: #dc2626; }
+    .cb-wrap.cb-disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+
+    .cat-header td {
+      background: #f1f5f9; padding: 10px 12px 6px; font-weight: 700;
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px;
+      color: #475569; border-bottom: 2px solid #cbd5e1;
+    }
+
+    .btn-save {
+      padding: 0.6rem 1.5rem; border-radius: 0.5rem; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; border: none; background: #2563eb; color: #fff; transition: all 0.15s;
+    }
+    .btn-save:hover { background: #1d4ed8; }
+    .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #msg { display: inline-block; margin-left: 12px; padding: 0.35rem 0.75rem; border-radius: 0.4rem; font-size: 0.85rem; font-weight: 600; }
+    #msg.err { background: #fef2f2; color: #b91c1c; }
+    #msg.ok { background: #dcfce7; color: #16a34a; }
+
+    /* ---- Users Tab ---- */
+    .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+    .user-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 18px;
+      display: flex; align-items: center; gap: 14px; transition: box-shadow 0.15s;
+    }
+    .user-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .user-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1rem; color: #fff; flex-shrink: 0;
+    }
+    .avatar-admin { background: #dc2626; }
+    .avatar-teacher { background: #2563eb; }
+    .avatar-student { background: #16a34a; }
+    .avatar-accountant { background: #7c3aed; }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-email { font-size: 0.8rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role-select {
+      padding: 5px 8px; border: 2px solid #e2e8f0; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 600; background: #f8fafc; cursor: pointer; flex-shrink: 0;
+    }
+    .user-role-select:focus { outline: none; border-color: #2563eb; }
+
+    .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem; align-items: center; }
+    .filters input, .filters select {
+      padding: 0.45rem 0.7rem; border: 2px solid #e2e8f0; border-radius: 0.5rem;
+      font-size: 0.88rem; background: #fff;
+    }
+    .filters input:focus, .filters select:focus { outline: none; border-color: #2563eb; }
+    .filters input { flex: 1; min-width: 180px; }
+    .count-label { font-size: 0.82rem; color: #64748b; font-weight: 600; }
+
+    /* ---- Legend ---- */
+    .legend { display: flex; gap: 18px; align-items: center; margin-bottom: 1rem; font-size: 0.82rem; font-weight: 600; color: #475569; }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-dot { width: 14px; height: 14px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true}},true);</script>
+  <div class="page">
+    <p style="margin-bottom:1rem;">
+      <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">&#8592; Back to Dashboard</a>
+    </p>
+
+    <div class="card">
+      <h1>Role-Based Access Control</h1>
+      <p class="lead">Control View, Read, Write &amp; Delete permissions per page for each role. View controls page access; R/W/D controls database operations (grayed out for pages with no database table).</p>
+    </div>
+
+    <div class="dash">
+      <div class="dash-card red">
+        <div class="dash-label">Admins</div>
+        <div class="dash-val" id="statAdmin">--</div>
+      </div>
+      <div class="dash-card blue">
+        <div class="dash-label">Teachers</div>
+        <div class="dash-val" id="statTeacher">--</div>
+      </div>
+      <div class="dash-card green">
+        <div class="dash-label">Students</div>
+        <div class="dash-val" id="statStudent">--</div>
+      </div>
+      <div class="dash-card purple">
+        <div class="dash-label">Accountants</div>
+        <div class="dash-val" id="statAccountant">--</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="permissions">Permissions Matrix</button>
+      <button class="tab" data-tab="users">Manage Users</button>
+    </div>
+
+    <!-- ==================== Permissions Tab ==================== -->
+    <div class="section active" id="sec-permissions">
+      <div class="card">
+        <div class="legend">
+          <span style="color:#64748b; font-weight:400;">Legend:</span>
+          <div class="legend-item"><div class="legend-dot" style="background:#7c3aed;"></div> View (can see page)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#16a34a;"></div> Read (SELECT)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#2563eb;"></div> Write (INSERT + UPDATE)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#dc2626;"></div> Delete (DELETE)</div>
+        </div>
+
+        <div class="perm-wrap">
+          <table class="perm-table">
+            <thead>
+              <tr>
+                <th style="min-width:200px; text-align:left;">Page / Resource</th>
+                <th class="role-col-head">
+                  Admin
+                  <div class="rwd-header"><span class="rwd-r" style="background:#7c3aed;">V</span><span class="rwd-r">R</span><span class="rwd-w">W</span><span class="rwd-d">D</span></div>
+                </th>
+                <th class="role-col-head">
+                  Teacher
+                  <div class="rwd-header"><span class="rwd-r" style="background:#7c3aed;">V</span><span class="rwd-r">R</span><span class="rwd-w">W</span><span class="rwd-d">D</span></div>
+                </th>
+                <th class="role-col-head">
+                  Student
+                  <div class="rwd-header"><span class="rwd-r" style="background:#7c3aed;">V</span><span class="rwd-r">R</span><span class="rwd-w">W</span><span class="rwd-d">D</span></div>
+                </th>
+                <th class="role-col-head">
+                  Accountant
+                  <div class="rwd-header"><span class="rwd-r" style="background:#7c3aed;">V</span><span class="rwd-r">R</span><span class="rwd-w">W</span><span class="rwd-d">D</span></div>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="permBody"></tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 1.2rem; display: flex; align-items: center;">
+          <button class="btn-save" id="savePermsBtn">Save Permissions</button>
+          <span id="msg"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== Users Tab ==================== -->
+    <div class="section" id="sec-users">
+      <div class="card">
+        <div class="filters">
+          <input type="text" id="userSearch" placeholder="Search by name or email...">
+          <select id="userRoleFilter">
+            <option value="">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="teacher">Teacher</option>
+            <option value="student">Student</option>
+            <option value="accountant">Accountant</option>
+          </select>
+          <span class="count-label" id="userCount"></span>
+        </div>
+        <div class="user-grid" id="userGrid"></div>
+        <p id="userEmpty" style="display:none; text-align:center; color:#94a3b8; padding:2rem;">No users match your search.</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase, initAuthGuard } from './auth-guard.js';
+    await initAuthGuard();
+
+    var ROLES = ['admin', 'teacher', 'student', 'accountant'];
+
+    var TABLES = [
+      { key: 'page:login',            label: 'Student Login',    desc: 'Student login page',           dbTable: null,              category: 'Student Portal' },
+      { key: 'page:portal',           label: 'Student Portal',   desc: 'Student dashboard & portal',   dbTable: null,              category: 'Student Portal' },
+      { key: 'page:practice-test',    label: 'Practice Test',    desc: 'Navigate & select tests',      dbTable: null,              category: 'Student Portal' },
+      { key: 'page:give-test',        label: 'Give Test',        desc: 'Take a test',                  dbTable: null,              category: 'Student Portal' },
+
+      { key: 'page:admission',        label: 'Admission',        desc: 'Student admission form',       dbTable: 'admission_form',  category: 'Students' },
+      { key: 'page:students',         label: 'Student List',     desc: 'View all students',            dbTable: 'admission_form',  category: 'Students' },
+
+      { key: 'page:import-mcqs',      label: 'Import MCQs',      desc: 'Bulk import questions',        dbTable: 'mcqs',            category: 'Exams' },
+      { key: 'page:manage-mcqs',      label: 'Manage MCQs',      desc: 'View & edit questions',        dbTable: 'mcqs',            category: 'Exams' },
+      { key: 'page:publisher',        label: 'Publisher',        desc: 'Publish tests',                dbTable: 'mcqs',            category: 'Exams' },
+      { key: 'page:results',          label: 'Results',          desc: 'Test results & scores',        dbTable: 'studentpractice', category: 'Exams' },
+
+      { key: 'page:course-structure', label: 'Course Structure', desc: 'Course/class hierarchy',       dbTable: 'coursestructure',  category: 'Curriculum' },
+      { key: 'page:subjects',         label: 'Subjects',         desc: 'Subject definitions',          dbTable: 'subjects',        category: 'Curriculum' },
+
+      { key: 'page:user-form',        label: 'User Entry Form',  desc: 'Add/edit a single user',       dbTable: 'users',           category: 'Settings' },
+      { key: 'page:import-users',     label: 'Import Users',     desc: 'Bulk import users',            dbTable: 'users',           category: 'Settings' },
+      { key: 'page:users',            label: 'Users',            desc: 'User accounts & profiles',     dbTable: 'users',           category: 'Settings' },
+      { key: 'page:subscriptions',    label: 'Subscriptions',    desc: 'Student subscription & quota', dbTable: 'subscriptions',   category: 'Settings' },
+      { key: 'page:attendance',       label: 'Attendance',       desc: 'Mark attendance by subject',   dbTable: 'attendance',      category: 'Students' },
+      { key: 'page:rbac',             label: 'Access Control',   desc: 'This access control page',     dbTable: 'role_permissions', category: 'Settings' },
+      { key: 'page:dashboard',        label: 'Dashboard',        desc: 'Admin dashboard',              dbTable: null,              category: 'Settings' },
+    ];
+
+    var DB_TABLES = ['users', 'admission_form', 'mcqs', 'studentpractice', 'subjects', 'coursestructure', 'role_permissions', 'subscriptions', 'attendance'];
+
+    var permissions = {};
+    var allUsers = [];
+
+    var msgEl = document.getElementById('msg');
+    function showMsg(text, type) {
+      msgEl.textContent = text;
+      msgEl.className = type || '';
+      if (type === 'ok') setTimeout(function () { msgEl.textContent = ''; msgEl.className = ''; }, 3000);
+    }
+
+    function esc(s) {
+      var d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+
+    // ========== Tabs ==========
+    document.querySelectorAll('.tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
+        document.querySelectorAll('.section').forEach(function (s) { s.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById('sec-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ========== Load permissions ==========
+    async function loadPermissions() {
+      var { data, error } = await supabase.from('role_permissions').select('*');
+
+      permissions = {};
+      ROLES.forEach(function (role) {
+        permissions[role] = {};
+        TABLES.forEach(function (t) {
+          permissions[role][t.key] = { can_view: false, can_read: false, can_write: false, can_delete: false };
+        });
+      });
+
+      if (!error && data) {
+        var dbPerms = {};
+        data.forEach(function (row) {
+          var r = (row.role || '').toLowerCase();
+          if (!dbPerms[r]) dbPerms[r] = {};
+          dbPerms[r][row.table_name] = {
+            can_view: row.can_view !== undefined ? !!row.can_view : true,
+            can_read: !!row.can_read,
+            can_write: !!row.can_write,
+            can_delete: !!row.can_delete,
+          };
+        });
+
+        ROLES.forEach(function (role) {
+          TABLES.forEach(function (t) {
+            var p = dbPerms[role] && dbPerms[role][t.key];
+            if (p) {
+              permissions[role][t.key] = p;
+            } else if (t.dbTable && dbPerms[role] && dbPerms[role][t.dbTable]) {
+              var db = dbPerms[role][t.dbTable];
+              permissions[role][t.key] = {
+                can_view: db.can_view !== undefined ? db.can_view : db.can_read,
+                can_read: db.can_read,
+                can_write: db.can_write,
+                can_delete: db.can_delete,
+              };
+            }
+          });
+        });
+      }
+
+      TABLES.forEach(function (t) {
+        permissions['admin'][t.key] = { can_view: true, can_read: true, can_write: true, can_delete: true };
+      });
+    }
+
+    function makeCheckbox(role, tableKey, perm, checked, isAdmin, noDb) {
+      var permClass = perm === 'can_view' ? 'cb-view' : perm === 'can_read' ? 'cb-read' : perm === 'can_write' ? 'cb-write' : 'cb-delete';
+      var letter = perm === 'can_view' ? 'V' : perm === 'can_read' ? 'R' : perm === 'can_write' ? 'W' : 'D';
+      var off = isAdmin || noDb;
+      var disabled = off ? ' cb-disabled' : '';
+      var checkedAttr = checked ? ' checked' : '';
+
+      return '<label class="cb-wrap ' + permClass + disabled + '">'
+        + '<input type="checkbox" data-role="' + role + '" data-table="' + tableKey + '" data-perm="' + perm + '"' + checkedAttr + (off ? ' disabled' : '') + '>'
+        + '<div class="cb-box">' + letter + '</div>'
+        + '</label>';
+    }
+
+    function renderPermissions() {
+      var body = document.getElementById('permBody');
+      var html = '';
+      var lastCat = '';
+
+      TABLES.forEach(function (t) {
+        if (t.category !== lastCat) {
+          lastCat = t.category;
+          html += '<tr class="cat-header"><td colspan="5">' + esc(t.category) + '</td></tr>';
+        }
+
+        var noDb = !t.dbTable;
+        var cells = ROLES.map(function (role) {
+          var p = permissions[role][t.key];
+          var isAdmin = role === 'admin';
+          return '<td class="perm-cell"><div class="rwd-group">'
+            + makeCheckbox(role, t.key, 'can_view', p.can_view, isAdmin)
+            + makeCheckbox(role, t.key, 'can_read', p.can_read, isAdmin, noDb)
+            + makeCheckbox(role, t.key, 'can_write', p.can_write, isAdmin, noDb)
+            + makeCheckbox(role, t.key, 'can_delete', p.can_delete, isAdmin, noDb)
+            + '</div></td>';
+        }).join('');
+
+        html += '<tr>'
+          + '<td><span class="table-label">' + esc(t.label) + '</span><span class="table-desc">' + esc(t.desc) + '</span></td>'
+          + cells
+          + '</tr>';
+      });
+
+      body.innerHTML = html;
+
+      body.querySelectorAll('input[type="checkbox"]:not([disabled])').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+          var role = cb.dataset.role;
+          var table = cb.dataset.table;
+          var perm = cb.dataset.perm;
+          permissions[role][table][perm] = cb.checked;
+        });
+      });
+    }
+
+    // ========== Save permissions ==========
+    document.getElementById('savePermsBtn').addEventListener('click', async function () {
+      var btn = this;
+      btn.disabled = true;
+      showMsg('Saving...', '');
+
+      var rows = [];
+      ROLES.forEach(function (role) {
+        TABLES.forEach(function (t) {
+          var p = permissions[role][t.key];
+          rows.push({
+            role: role,
+            table_name: t.key,
+            can_view: p.can_view,
+            can_read: t.dbTable ? p.can_read : false,
+            can_write: t.dbTable ? p.can_write : false,
+            can_delete: t.dbTable ? p.can_delete : false,
+          });
+        });
+
+        DB_TABLES.forEach(function (dbTable) {
+          var cr = false, cw = false, cd = false;
+          TABLES.forEach(function (t) {
+            if (t.dbTable === dbTable) {
+              var p = permissions[role][t.key];
+              cr = cr || p.can_read;
+              cw = cw || p.can_write;
+              cd = cd || p.can_delete;
+            }
+          });
+          rows.push({
+            role: role,
+            table_name: dbTable,
+            can_view: true,
+            can_read: cr,
+            can_write: cw,
+            can_delete: cd,
+          });
+        });
+      });
+
+      var { error: delError } = await supabase.from('role_permissions').delete().neq('role', '___none___');
+      if (delError) {
+        showMsg('Clear failed: ' + delError.message, 'err');
+        btn.disabled = false;
+        return;
+      }
+
+      var { error: insertError } = await supabase.from('role_permissions').insert(rows);
+      if (insertError) {
+        showMsg('Save failed: ' + insertError.message, 'err');
+        btn.disabled = false;
+        return;
+      }
+
+      showMsg('Permissions saved! RLS enforced immediately.', 'ok');
+      btn.disabled = false;
+    });
+
+    // ========== Users ==========
+    async function loadUsers() {
+      var { data, error } = await supabase.from('users').select('id, name, email, role, roll').order('name');
+      if (error) return;
+      allUsers = data || [];
+      updateStats();
+      renderUsers();
+    }
+
+    function updateStats() {
+      var counts = { admin: 0, teacher: 0, student: 0, accountant: 0 };
+      allUsers.forEach(function (u) {
+        var r = (u.role || '').toLowerCase();
+        if (counts[r] !== undefined) counts[r]++;
+      });
+      document.getElementById('statAdmin').textContent = counts.admin;
+      document.getElementById('statTeacher').textContent = counts.teacher;
+      document.getElementById('statStudent').textContent = counts.student;
+      document.getElementById('statAccountant').textContent = counts.accountant;
+    }
+
+    function getFilteredUsers() {
+      var q = document.getElementById('userSearch').value.trim().toLowerCase();
+      var role = document.getElementById('userRoleFilter').value;
+      return allUsers.filter(function (u) {
+        if (role && (u.role || '').toLowerCase() !== role) return false;
+        if (q) {
+          var name = (u.name || '').toLowerCase();
+          var email = (u.email || '').toLowerCase();
+          if (name.indexOf(q) === -1 && email.indexOf(q) === -1) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderUsers() {
+      var list = getFilteredUsers();
+      var grid = document.getElementById('userGrid');
+      var empty = document.getElementById('userEmpty');
+      var countLabel = document.getElementById('userCount');
+
+      countLabel.textContent = list.length + ' user' + (list.length !== 1 ? 's' : '');
+      empty.style.display = list.length === 0 ? 'block' : 'none';
+
+      if (list.length === 0) { grid.innerHTML = ''; return; }
+
+      grid.innerHTML = list.map(function (u) {
+        var r = (u.role || '').toLowerCase();
+        var initials = ((u.name || u.email || '??').substring(0, 2)).toUpperCase();
+        var avatarClass = 'avatar-' + (ROLES.indexOf(r) !== -1 ? r : 'student');
+
+        var options = ROLES.map(function (role) {
+          return '<option value="' + role + '"' + (r === role ? ' selected' : '') + '>'
+            + role.charAt(0).toUpperCase() + role.slice(1) + '</option>';
+        }).join('');
+
+        return '<div class="user-card">'
+          + '<div class="user-avatar ' + avatarClass + '">' + esc(initials) + '</div>'
+          + '<div class="user-info">'
+          + '<div class="user-name">' + esc(u.name || 'No name') + '</div>'
+          + '<div class="user-email">' + esc(u.email || '--') + (u.roll ? ' | Roll: ' + u.roll : '') + '</div>'
+          + '</div>'
+          + '<select class="user-role-select" data-id="' + u.id + '">' + options + '</select>'
+          + '</div>';
+      }).join('');
+
+      grid.querySelectorAll('.user-role-select').forEach(function (sel) {
+        sel.addEventListener('change', async function () {
+          var userId = sel.dataset.id;
+          var newRole = sel.value;
+          sel.disabled = true;
+
+          var { error } = await supabase.from('users').update({ role: newRole }).eq('id', userId);
+          if (error) {
+            alert('Failed to update role: ' + error.message);
+            sel.disabled = false;
+            return;
+          }
+
+          var user = allUsers.find(function (u) { return u.id === userId; });
+          if (user) user.role = newRole;
+          updateStats();
+          sel.disabled = false;
+
+          var card = sel.closest('.user-card');
+          var avatar = card.querySelector('.user-avatar');
+          ROLES.forEach(function (role) { avatar.classList.remove('avatar-' + role); });
+          avatar.classList.add('avatar-' + newRole);
+        });
+      });
+    }
+
+    document.getElementById('userSearch').addEventListener('input', renderUsers);
+    document.getElementById('userRoleFilter').addEventListener('change', renderUsers);
+
+    // ========== Init ==========
+    async function init() {
+      await Promise.all([loadPermissions(), loadUsers()]);
+      renderPermissions();
+    }
+
+    init();
+  </script>
+</body>
+</html>

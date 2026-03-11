@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage MCQs - Zahid Academy</title>
+  <style>
+    * { box-sizing: border-box; }
+    .hidden { display: none !important; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; min-height: 100vh; color: #1e293b; }
+    .page { max-width: 62rem; margin: 0 auto; padding: 2rem 1rem; }
+    .nav { margin-bottom: 1.5rem; font-size: 0.875rem; color: #475569; }
+    .nav a { color: #2563eb; text-decoration: none; }
+    .nav a:hover { text-decoration: underline; }
+    .card { background: #fff; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .card h1 { margin: 0 0 0.5rem; font-size: 1.35rem; color: #1e293b; }
+    .card h2 { margin: 0 0 1rem; font-size: 1.1rem; color: #334155; }
+    .card .lead { color: #64748b; font-size: 0.875rem; margin-bottom: 1rem; }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem; }
+    input, select, textarea { width: 100%; padding: 0.5rem 0.6rem; border: 2px solid #e2e8f0; border-radius: 0.375rem; font-size: 0.9rem; font-family: inherit; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #2563eb; }
+    textarea { min-height: 2.5rem; resize: vertical; }
+    .btn { padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-ghost { background: #f1f5f9; color: #475569; }
+    .btn-ghost:hover { background: #e2e8f0; }
+    .btn-sm { padding: 0.3rem 0.5rem; font-size: 0.8rem; }
+    .btn-danger { background: #fef2f2; color: #b91c1c; border: none; }
+    .btn-danger:hover { background: #fee2e2; }
+    #msg { margin-top: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 0.875rem; }
+    #msg.err { background: #fef2f2; color: #b91c1c; }
+    #msg.ok { background: #dcfce7; color: #16a34a; }
+    .muted { font-size: 0.8rem; color: #94a3b8; }
+    .cascade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem 1rem; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .toolbar .count { font-size: 0.875rem; color: #475569; font-weight: 600; }
+    .mcq-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; margin-bottom: 0.75rem; }
+    .mcq-card-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.75rem; border-bottom: 1px solid #e5e7eb; }
+    .mcq-card-head .mcq-num { font-weight: 700; font-size: 0.8rem; color: #2563eb; min-width: 1.8rem; }
+    .mcq-card-head .card-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
+    .btn-edit { padding: 0.25rem 0.5rem; font-size: 0.75rem; background: #dbeafe; color: #1d4ed8; border: none; border-radius: 0.25rem; cursor: pointer; }
+    .btn-edit:hover { background: #bfdbfe; }
+    .btn-remove { padding: 0.25rem 0.5rem; font-size: 0.75rem; background: #fef2f2; color: #b91c1c; border: none; border-radius: 0.25rem; cursor: pointer; }
+    .btn-remove:hover { background: #fee2e2; }
+    .btn-hide { padding: 0.25rem 0.5rem; font-size: 0.75rem; border: none; border-radius: 0.25rem; cursor: pointer; }
+    .btn-hide.is-visible { background: #dcfce7; color: #166534; }
+    .btn-hide.is-hidden { background: #fef3c7; color: #92400e; }
+    .btn-hide:hover { opacity: 0.8; }
+    .mcq-card.mcq-hidden { opacity: 0.55; }
+    .mcq-card.mcq-hidden .mcq-card-head { background: #fef3c7; }
+    .mcq-card-body { padding: 0.55rem 0.85rem 0.7rem 2.5rem; font-size: 0.85rem; color: #475569; }
+    .mcq-q-main { font-size: 0.9rem; font-weight: 600; color: #111827; margin-bottom: 0.25rem; }
+    .mcq-meta { font-size: 0.78rem; color: #6b7280; margin-bottom: 0.35rem; }
+    .mcq-opt { padding: 0.15rem 0; display: flex; gap: 0.3rem; }
+    .mcq-opt .letter { font-weight: 600; min-width: 1.2rem; }
+    .mcq-opt.correct { color: #16a34a; font-weight: 600; }
+    .mcq-opt.correct .letter::after { content: ' \2713'; }
+    .mcq-edit { padding: 0.5rem 0.75rem 0.75rem 2.5rem; display: none; border-top: 1px solid #e2e8f0; }
+    .mcq-edit.active { display: block; }
+    .mcq-edit label { font-size: 0.75rem; margin-bottom: 0.15rem; }
+    .mcq-edit input, .mcq-edit textarea { font-size: 0.85rem; padding: 0.35rem 0.5rem; margin-bottom: 0.4rem; }
+    .mcq-edit .opt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .mcq-edit .correct-row { display: flex; gap: 0.75rem; align-items: center; margin-top: 0.25rem; }
+    .mcq-edit .correct-row label { margin: 0; font-weight: 400; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; }
+    .mcq-edit .save-row { margin-top: 0.5rem; }
+    #emptyMsg { text-align: center; padding: 2rem 1rem; color: #94a3b8; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true}},true);</script>
+  <div class="page">
+    <p class="nav" style="margin-bottom:1rem;">
+      <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">&#8592; Back to Dashboard</a>
+    </p>
+
+    <div class="card">
+      <h1>Manage MCQs</h1>
+      <p class="lead">Browse, edit and delete saved MCQs. Select filters to narrow down.</p>
+
+      <div class="cascade-grid">
+        <div>
+          <label for="selCourse">Course</label>
+          <select id="selCourse"><option value="">— All Courses —</option></select>
+        </div>
+        <div>
+          <label for="selClassExam">Class/Exam</label>
+          <select id="selClassExam" disabled><option value="">— All —</option></select>
+        </div>
+        <div>
+          <label for="selSubject">Subject</label>
+          <select id="selSubject" disabled><option value="">— All —</option></select>
+        </div>
+        <div>
+          <label for="selUnit">Unit</label>
+          <select id="selUnit" disabled><option value="">— All —</option></select>
+        </div>
+        <div>
+          <label for="selCategory">Category</label>
+          <select id="selCategory" disabled><option value="">— All —</option></select>
+        </div>
+        <div>
+          <label for="selTestNumber">Test #</label>
+          <select id="selTestNumber" disabled><option value="">— All —</option></select>
+        </div>
+      </div>
+      <div id="msg"></div>
+    </div>
+
+    <div class="card" id="resultsCard" style="display:none;">
+      <div class="toolbar">
+        <label class="select-all-wrap" style="display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;font-size:0.875rem;font-weight:600;color:#475569;">
+          <input type="checkbox" id="selectAllMcqs" title="Select all visible MCQs"> Select all
+        </label>
+        <span class="count" id="countLabel"></span>
+        <button type="button" class="btn btn-danger btn-sm" id="deleteSelectedBtn" style="display:none;">Delete selected</button>
+      </div>
+      <div id="mcqList"></div>
+      <div id="emptyMsg" class="hidden">No MCQs match your filters.</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase, initAuthGuard } from './auth-guard.js';
+    await initAuthGuard();
+    const TABLE = 'mcqs';
+
+    const selCourse = document.getElementById('selCourse');
+    const selClassExam = document.getElementById('selClassExam');
+    const selSubject = document.getElementById('selSubject');
+    const selUnit = document.getElementById('selUnit');
+    const selCategory = document.getElementById('selCategory');
+    const selTestNumber = document.getElementById('selTestNumber');
+    const resultsCard = document.getElementById('resultsCard');
+    const countLabel = document.getElementById('countLabel');
+    const mcqList = document.getElementById('mcqList');
+    const emptyMsg = document.getElementById('emptyMsg');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const selectAllMcqs = document.getElementById('selectAllMcqs');
+    const msgEl = document.getElementById('msg');
+
+    let allMcqs = [];
+    let editingId = null;
+    let selectedIds = new Set();
+
+    function showMsg(text, type) {
+      msgEl.textContent = text;
+      msgEl.className = type || '';
+      if (type === 'ok') setTimeout(() => { msgEl.textContent = ''; msgEl.className = ''; }, 3000);
+    }
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    function distinct(arr, key) {
+      const seen = new Set();
+      return arr.reduce((out, x) => {
+        const v = key(x);
+        if (v == null || v === '' || seen.has(v)) return out;
+        seen.add(v);
+        out.push(v);
+        return out;
+      }, []).sort((a, b) => String(a).localeCompare(String(b)));
+    }
+
+    function fillSelect(sel, values, placeholder) {
+      sel.innerHTML = `<option value="">${placeholder}</option>` +
+        values.map(v => `<option value="${escapeHtml(String(v))}">${escapeHtml(String(v))}</option>`).join('');
+    }
+
+    async function loadMcqs() {
+      showMsg('Loading…', '');
+      const { data, error } = await supabase.from(TABLE).select('*').order('created_at', { ascending: false });
+      if (error) { showMsg('Error: ' + error.message, 'err'); return; }
+      allMcqs = data || [];
+      showMsg('', '');
+      buildCascade();
+    }
+
+    function filtered() {
+      return allMcqs.filter(r => {
+        if (selCourse.value && r.Course !== selCourse.value) return false;
+        if (selClassExam.value && r['Class/Exam'] !== selClassExam.value) return false;
+        if (selSubject.value && r.Subject !== selSubject.value) return false;
+        if (selUnit.value && r.Unit !== selUnit.value) return false;
+        if (selCategory.value && (r.Category || '') !== selCategory.value) return false;
+        if (selTestNumber.value && r['Test Number'] !== parseInt(selTestNumber.value, 10)) return false;
+        return true;
+      });
+    }
+
+    function buildCascade() {
+      const course = selCourse.value;
+      const classExam = selClassExam.value;
+      const subject = selSubject.value;
+      const unit = selUnit.value;
+      const category = selCategory.value;
+      const testNum = selTestNumber.value;
+
+      fillSelect(selCourse, distinct(allMcqs, r => r.Course), '— All Courses —');
+      selCourse.value = course;
+
+      const byCourse = course ? allMcqs.filter(r => r.Course === course) : allMcqs;
+      fillSelect(selClassExam, distinct(byCourse, r => r['Class/Exam']), '— All —');
+      selClassExam.disabled = !course;
+      selClassExam.value = classExam;
+
+      const byClass = classExam ? byCourse.filter(r => r['Class/Exam'] === classExam) : byCourse;
+      fillSelect(selSubject, distinct(byClass, r => r.Subject), '— All —');
+      selSubject.disabled = !classExam;
+      selSubject.value = subject;
+
+      const bySubject = subject ? byClass.filter(r => r.Subject === subject) : byClass;
+      fillSelect(selUnit, distinct(bySubject, r => r.Unit), '— All —');
+      selUnit.disabled = !subject;
+      selUnit.value = unit;
+
+      const byUnit = unit ? bySubject.filter(r => r.Unit === unit) : bySubject;
+      fillSelect(selCategory, distinct(byUnit, r => r.Category ?? ''), '— All —');
+      selCategory.disabled = !unit;
+      selCategory.value = category;
+
+      const byCat = category ? byUnit.filter(r => (r.Category || '') === category) : byUnit;
+      fillSelect(selTestNumber, distinct(byCat, r => r['Test Number']), '— All —');
+      selTestNumber.disabled = !unit;
+      selTestNumber.value = testNum;
+
+      renderList();
+    }
+
+    selCourse.addEventListener('change', () => { selClassExam.value = ''; selSubject.value = ''; selUnit.value = ''; selCategory.value = ''; selTestNumber.value = ''; buildCascade(); });
+    selClassExam.addEventListener('change', () => { selSubject.value = ''; selUnit.value = ''; selCategory.value = ''; selTestNumber.value = ''; buildCascade(); });
+    selSubject.addEventListener('change', () => { selUnit.value = ''; selCategory.value = ''; selTestNumber.value = ''; buildCascade(); });
+    selUnit.addEventListener('change', () => { selCategory.value = ''; selTestNumber.value = ''; buildCascade(); });
+    selCategory.addEventListener('change', () => { selTestNumber.value = ''; buildCascade(); });
+    selTestNumber.addEventListener('change', buildCascade);
+
+    function renderList() {
+      const rows = filtered();
+      selectedIds = new Set();
+      resultsCard.style.display = '';
+      deleteSelectedBtn.style.display = 'none';
+      if (selectAllMcqs) {
+        selectAllMcqs.checked = false;
+        selectAllMcqs.indeterminate = false;
+        selectAllMcqs.disabled = rows.length === 0;
+      }
+
+      if (rows.length === 0) {
+        countLabel.textContent = '';
+        mcqList.innerHTML = '';
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+      countLabel.textContent = `${rows.length} MCQ${rows.length !== 1 ? 's' : ''}`;
+
+      const letters = ['A', 'B', 'C', 'D'];
+
+      mcqList.innerHTML = rows.map((r, i) => {
+        const opts = [r['Option A'], r['Option B'], r['Option C'], r['Option D']];
+        const isEditing = editingId === r.id;
+        const contextParts = [
+          r.Course,
+          r['Class/Exam'],
+          r.Subject,
+          r.Unit,
+          r.Category,
+          r['Test Number'] != null ? `Test ${r['Test Number']}` : null,
+        ].filter(Boolean);
+
+        const optionsHtml = opts.map((o, oi) => {
+          const isCorrect = letters[oi] === r['Correct Answer'];
+          return `<div class="mcq-opt ${isCorrect ? 'correct' : ''}"><span class="letter">${letters[oi]})</span> ${escapeHtml(o || '')}</div>`;
+        }).join('');
+
+        const editHtml = `
+          <div class="mcq-edit ${isEditing ? 'active' : ''}" data-id="${r.id}">
+            <label>Question</label>
+            <textarea data-field="Question">${escapeHtml(r.Question || '')}</textarea>
+            <div class="opt-row">
+              <div><label>A)</label><input type="text" data-field="Option A" value="${escapeHtml(r['Option A'] || '')}"></div>
+              <div><label>B)</label><input type="text" data-field="Option B" value="${escapeHtml(r['Option B'] || '')}"></div>
+              <div><label>C)</label><input type="text" data-field="Option C" value="${escapeHtml(r['Option C'] || '')}"></div>
+              <div><label>D)</label><input type="text" data-field="Option D" value="${escapeHtml(r['Option D'] || '')}"></div>
+            </div>
+            <div class="correct-row">
+              <span style="font-size:0.75rem;font-weight:600;color:#475569;">Correct:</span>
+              ${letters.map(l => `<label><input type="radio" name="correct_${r.id}" value="${l}" ${r['Correct Answer'] === l ? 'checked' : ''}> ${l}</label>`).join('')}
+            </div>
+            <label style="margin-top:0.35rem;">Explanation</label>
+            <textarea data-field="Explanation" style="min-height:2rem;">${escapeHtml(r.Explanation || '')}</textarea>
+            <div class="save-row">
+              <button type="button" class="btn btn-primary btn-sm" data-save="${r.id}">Save</button>
+              <button type="button" class="btn btn-ghost btn-sm" data-cancel="${r.id}" style="margin-left:0.35rem;">Cancel</button>
+            </div>
+          </div>`;
+
+        const isHidden = r.hide === true;
+
+        return `<div class="mcq-card ${isHidden ? 'mcq-hidden' : ''}" data-id="${r.id}">
+          <div class="mcq-card-head">
+            <input type="checkbox" data-select="${r.id}" title="Select for bulk delete">
+            <span class="mcq-num">#${i + 1}</span>
+            <div class="card-actions">
+              <button type="button" class="btn-hide ${isHidden ? 'is-hidden' : 'is-visible'}" data-toggle="${r.id}" title="${isHidden ? 'Click to show in student portal' : 'Click to hide from student portal'}">${isHidden ? 'Hidden' : 'Visible'}</button>
+              <button type="button" class="btn-edit" data-edit="${r.id}">Edit</button>
+              <button type="button" class="btn-remove" data-del="${r.id}">Delete</button>
+            </div>
+          </div>
+          <div class="mcq-card-body">
+            <div class="mcq-q-main">${escapeHtml(r.Question || '')}</div>
+            <div class="mcq-meta">${escapeHtml(contextParts.join(' · '))}</div>
+            ${optionsHtml}
+          </div>
+          ${editHtml}
+        </div>`;
+      }).join('');
+
+      mcqList.querySelectorAll('[data-select]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          if (cb.checked) selectedIds.add(cb.dataset.select);
+          else selectedIds.delete(cb.dataset.select);
+          deleteSelectedBtn.style.display = selectedIds.size > 0 ? '' : 'none';
+          deleteSelectedBtn.textContent = `Delete selected (${selectedIds.size})`;
+          const allCbs = mcqList.querySelectorAll('[data-select]');
+          const n = allCbs.length;
+          const checkedCount = [...allCbs].filter(c => c.checked).length;
+          if (selectAllMcqs) {
+            selectAllMcqs.checked = n > 0 && checkedCount === n;
+            selectAllMcqs.indeterminate = checkedCount > 0 && checkedCount < n;
+          }
+        });
+      });
+
+      if (selectAllMcqs) {
+        selectAllMcqs.onchange = () => {
+          const allCbs = mcqList.querySelectorAll('[data-select]');
+          if (selectAllMcqs.checked) {
+            allCbs.forEach(cb => { cb.checked = true; selectedIds.add(cb.dataset.select); });
+          } else {
+            allCbs.forEach(cb => { cb.checked = false; });
+            selectedIds.clear();
+          }
+          deleteSelectedBtn.style.display = selectedIds.size > 0 ? '' : 'none';
+          deleteSelectedBtn.textContent = selectedIds.size > 0 ? `Delete selected (${selectedIds.size})` : 'Delete selected';
+          selectAllMcqs.indeterminate = false;
+        };
+      }
+
+      mcqList.querySelectorAll('[data-edit]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          editingId = editingId === btn.dataset.edit ? null : btn.dataset.edit;
+          renderList();
+        });
+      });
+
+      mcqList.querySelectorAll('[data-del]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('Delete this MCQ?')) return;
+          const { error } = await supabase.from(TABLE).delete().eq('id', btn.dataset.del);
+          if (error) { showMsg('Delete failed: ' + error.message, 'err'); return; }
+          allMcqs = allMcqs.filter(r => r.id !== btn.dataset.del);
+          editingId = null;
+          showMsg('Deleted.', 'ok');
+          buildCascade();
+        });
+      });
+
+      mcqList.querySelectorAll('[data-toggle]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.toggle;
+          const row = allMcqs.find(r => r.id === id);
+          if (!row) return;
+          const newVal = !row.hide;
+          const { error } = await supabase.from(TABLE).update({ hide: newVal }).eq('id', id);
+          if (error) { showMsg('Toggle failed: ' + error.message, 'err'); return; }
+          row.hide = newVal;
+          showMsg(newVal ? 'MCQ hidden from students.' : 'MCQ visible to students.', 'ok');
+          renderList();
+        });
+      });
+
+      mcqList.querySelectorAll('[data-save]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.save;
+          const card = mcqList.querySelector(`.mcq-edit[data-id="${id}"]`);
+          const question = card.querySelector('[data-field="Question"]').value.trim();
+          const optA = card.querySelector('[data-field="Option A"]').value.trim();
+          const optB = card.querySelector('[data-field="Option B"]').value.trim();
+          const optC = card.querySelector('[data-field="Option C"]').value.trim();
+          const optD = card.querySelector('[data-field="Option D"]').value.trim();
+          const correctRadio = card.querySelector(`input[name="correct_${id}"]:checked`);
+          const correct = correctRadio ? correctRadio.value : null;
+          const explanation = card.querySelector('[data-field="Explanation"]').value.trim() || null;
+
+          if (!question || !optA || !optB || !optC || !optD || !correct) {
+            showMsg('Fill in question, all options, and select the correct answer.', 'err');
+            return;
+          }
+
+          const payload = {
+            'Question': question,
+            'Option A': optA,
+            'Option B': optB,
+            'Option C': optC,
+            'Option D': optD,
+            'Correct Answer': correct,
+            'Explanation': explanation,
+          };
+
+          showMsg('Saving…', '');
+          const { error } = await supabase.from(TABLE).update(payload).eq('id', id);
+          if (error) { showMsg('Save failed: ' + error.message, 'err'); return; }
+
+          const row = allMcqs.find(r => r.id === id);
+          if (row) Object.assign(row, payload);
+          editingId = null;
+          showMsg('Saved.', 'ok');
+          renderList();
+        });
+      });
+
+      mcqList.querySelectorAll('[data-cancel]').forEach(btn => {
+        btn.addEventListener('click', () => { editingId = null; renderList(); });
+      });
+    }
+
+    deleteSelectedBtn.addEventListener('click', async () => {
+      const ids = [...selectedIds];
+      if (ids.length === 0) return;
+      if (!confirm(`Delete ${ids.length} selected MCQ(s)?`)) return;
+      showMsg(`Deleting ${ids.length}…`, '');
+      const { error } = await supabase.from(TABLE).delete().in('id', ids);
+      if (error) { showMsg('Delete failed: ' + error.message, 'err'); return; }
+      allMcqs = allMcqs.filter(r => !selectedIds.has(r.id));
+      selectedIds.clear();
+      editingId = null;
+      showMsg('Deleted.', 'ok');
+      buildCascade();
+    });
+
+    loadMcqs();
+  </script>
+</body>
+</html>

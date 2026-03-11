@@ -1,0 +1,134 @@
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1e40af;
+  --success: #059669;
+  --amber: #d97706;
+  --error: #dc2626;
+  --text: #1e293b;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
+  padding: 20px;
+  color: var(--text);
+}
+
+.container {
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+  width: 100%;
+  max-width: 700px;
+  margin: 60px auto;
+  border-top: 6px solid var(--primary);
+}
+
+.header { text-align: center; margin-bottom: 10px; }
+.header h1 { color: var(--primary-dark); font-size: 2rem; letter-spacing: -1px; }
+.header p { color: #64748b; margin-top: 5px; font-weight: 500; }
+
+.user-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 30px;
+}
+.user-bar .email { font-size: 0.85rem; color: #64748b; font-weight: 500; }
+.logout-btn {
+  border: none; background: none; color: var(--error); cursor: pointer;
+  font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;
+}
+.logout-btn:hover { text-decoration: underline; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.portal-card {
+  background: #fff;
+  border: 2px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 35px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  position: relative;
+  overflow: hidden;
+}
+.portal-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+}
+.portal-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.15);
+}
+
+.portal-card.practice::before { background: var(--primary); }
+.portal-card.practice:hover { border-color: var(--primary); }
+
+.portal-card.givetest::before { background: var(--amber); }
+.portal-card.givetest:hover { border-color: var(--amber); }
+
+.portal-card.mistake-bucket::before { background: #7c3aed; }
+.portal-card.mistake-bucket:hover { border-color: #7c3aed; }
+.portal-card.mistake-bucket .portal-icon { background: #ede9fe; color: #7c3aed; }
+
+.portal-card.results::before { background: var(--success); }
+.portal-card.results:hover { border-color: var(--success); }
+
+.subscription-section { margin-bottom: 28px; }
+.subscription-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.subscription-heading i { color: var(--primary); }
+
+.portal-icon {
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 18px;
+  font-size: 28px;
+}
+.portal-card.practice .portal-icon { background: #eff6ff; color: var(--primary); }
+.portal-card.givetest .portal-icon { background: #fffbeb; color: var(--amber); }
+.portal-card.results .portal-icon { background: #ecfdf5; color: var(--success); }
+
+.portal-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+.portal-card p { font-size: 0.82rem; color: #64748b; line-height: 1.4; }
+
+#loader {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: white; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; z-index: 9999;
+}
+.spinner {
+  border: 5px solid #f3f3f3; border-top: 5px solid var(--primary);
+  border-radius: 50%; width: 50px; height: 50px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.sub-bar { display: none; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; padding: 14px 18px; margin-bottom: 24px; }
+.sub-bar.show { display: block; }
+.sub-bar .sub-message { margin: 10px 0 0; font-size: 0.85rem; color: #0c4a6e; font-weight: 600; display: none; }
+.sub-bar.sub-err { background: #fef2f2; border-color: #fecaca; }
+
+@media (max-width: 480px) {
+  .container { padding: 1.5rem; margin: 30px auto; }
+  .cards { grid-template-columns: 1fr; }
+}

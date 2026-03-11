@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Course Structure - Zahid Academy</title>
+  <style>
+    * { box-sizing: border-box; }
+    .hidden { display: none !important; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; min-height: 100vh; color: #1e293b; }
+    .page { max-width: 64rem; margin: 0 auto; padding: 2rem 1rem; }
+    .nav { margin-bottom: 1.5rem; font-size: 0.875rem; color: #475569; }
+    .nav a { color: #2563eb; text-decoration: none; }
+    .nav a:hover { text-decoration: underline; }
+    .card { background: #fff; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .card h1 { margin: 0 0 0.5rem; font-size: 1.35rem; color: #1e293b; }
+    .card h2 { margin: 0 0 1rem; font-size: 1.1rem; color: #334155; }
+    .card .lead { color: #64748b; font-size: 0.875rem; margin-bottom: 1rem; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem 1rem; align-items: end; }
+    .form-grid .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem; }
+    input, select { width: 100%; padding: 0.5rem 0.6rem; border: 2px solid #e2e8f0; border-radius: 0.375rem; font-size: 0.9rem; }
+    input:focus, select:focus { outline: none; border-color: #2563eb; }
+    .btn { padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-ghost { background: #f1f5f9; color: #475569; }
+    .btn-ghost:hover { background: #e2e8f0; }
+    .btn-danger { background: #fef2f2; color: #b91c1c; }
+    .btn-danger:hover { background: #fee2e2; }
+    .btn-copy { background: #eff6ff; color: #1d4ed8; }
+    .btn-copy:hover { background: #dbeafe; }
+    .btn-sm { padding: 0.3rem 0.5rem; font-size: 0.8rem; }
+    .table-wrap { overflow-x: auto; margin-top: 1rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f1f5f9; color: #475569; font-weight: 600; }
+    tr:hover { background: #f8fafc; }
+    .actions { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    #msg { margin-top: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 0.875rem; }
+    #msg.err { background: #fef2f2; color: #b91c1c; }
+    #msg.ok { background: #dcfce7; color: #16a34a; }
+    .muted { color: #94a3b8; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true}},true);</script>
+  <div class="page">
+    <p class="nav" style="margin-bottom:1rem;">
+      <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">&#8592; Back to Dashboard</a>
+    </p>
+
+    <div class="card">
+      <h1>Course Structure</h1>
+      <p class="lead">Add and edit course structure: Course, Class/Exam, Subject, Unit, Category, Range, Test Number.</p>
+
+      <h2 id="formTitle">Add new</h2>
+      <form id="form">
+        <div class="form-grid">
+          <div>
+            <label for="fieldCourse">Course *</label>
+            <input type="text" id="fieldCourse" required placeholder="e.g. Math, Science">
+          </div>
+          <div>
+            <label for="fieldClassExam">Class/Exam *</label>
+            <input type="text" id="fieldClassExam" required placeholder="e.g. Class 5, Midterm">
+          </div>
+          <div>
+            <label for="fieldSubject">Subject *</label>
+            <input type="text" id="fieldSubject" required placeholder="e.g. Algebra">
+          </div>
+          <div>
+            <label for="fieldUnit">Unit *</label>
+            <input type="text" id="fieldUnit" required placeholder="e.g. Unit 1">
+          </div>
+          <div>
+            <label for="fieldCategory">Category</label>
+            <input type="text" id="fieldCategory" placeholder="e.g. MCQ, Theory">
+          </div>
+          <div>
+            <label for="fieldRange">Range</label>
+            <input type="text" id="fieldRange" placeholder="e.g. 1-10">
+          </div>
+          <div>
+            <label for="fieldTestNumber">Test Number</label>
+            <input type="number" id="fieldTestNumber" placeholder="e.g. 1" min="0" step="1">
+          </div>
+          <div class="full">
+            <button type="submit" class="btn btn-primary" id="submitBtn">Save</button>
+            <button type="button" class="btn btn-ghost" id="cancelEdit" style="margin-left:0.5rem;">Cancel</button>
+          </div>
+        </div>
+      </form>
+      <div id="msg"></div>
+    </div>
+
+    <div class="card">
+      <h2>All course structures</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Class/Exam</th>
+              <th>Subject</th>
+              <th>Unit</th>
+              <th>Category</th>
+              <th>Range</th>
+              <th>Test Number</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <p id="empty" class="hidden muted">No course structures yet. Add one above.</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase, initAuthGuard } from './auth-guard.js';
+    await initAuthGuard();
+    const TABLE = 'coursestructure';
+
+    const form = document.getElementById('form');
+    const formTitle = document.getElementById('formTitle');
+    let editingRow = null;
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelEdit = document.getElementById('cancelEdit');
+    const tbody = document.getElementById('tbody');
+    const emptyEl = document.getElementById('empty');
+    const msgEl = document.getElementById('msg');
+
+    function showMsg(text, type) {
+      msgEl.textContent = text;
+      msgEl.className = type || '';
+    }
+
+    function clearForm() {
+      editingRow = null;
+      formTitle.textContent = 'Add new';
+      submitBtn.textContent = 'Save';
+      cancelEdit.classList.add('hidden');
+      form.reset();
+    }
+
+    function getRowPayload() {
+      const tn = document.getElementById('fieldTestNumber').value.trim();
+      return {
+        'Course': document.getElementById('fieldCourse').value.trim(),
+        'Class/Exam': document.getElementById('fieldClassExam').value.trim(),
+        'Subject': document.getElementById('fieldSubject').value.trim(),
+        'Unit': document.getElementById('fieldUnit').value.trim(),
+        'Category': document.getElementById('fieldCategory').value.trim() || null,
+        'Range': document.getElementById('fieldRange').value.trim() || null,
+        'Test Number': tn === '' ? null : parseInt(tn, 10),
+      };
+    }
+
+    function fillFormFromRow(row) {
+      document.getElementById('fieldCourse').value = row.Course || '';
+      document.getElementById('fieldClassExam').value = row['Class/Exam'] || '';
+      document.getElementById('fieldSubject').value = row.Subject || '';
+      document.getElementById('fieldUnit').value = row.Unit || '';
+      document.getElementById('fieldCategory').value = row.Category || '';
+      document.getElementById('fieldRange').value = row.Range || '';
+      document.getElementById('fieldTestNumber').value = row['Test Number'] != null ? row['Test Number'] : '';
+    }
+
+    function setEdit(row) {
+      editingRow = row;
+      fillFormFromRow(row);
+      formTitle.textContent = 'Edit';
+      submitBtn.textContent = 'Update';
+      cancelEdit.classList.remove('hidden');
+    }
+
+    function copyToForm(row) {
+      editingRow = null;
+      fillFormFromRow(row);
+      formTitle.textContent = 'Add new';
+      submitBtn.textContent = 'Save';
+      cancelEdit.classList.remove('hidden');
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showMsg('Form filled. Change any fields and click Save to add a new entry.', 'ok');
+      setTimeout(() => showMsg('', ''), 3000);
+    }
+
+    async function load() {
+      const { data, error } = await supabase.from(TABLE).select('*').order('Course');
+      if (error) {
+        showMsg('Error loading: ' + error.message, 'err');
+        tbody.innerHTML = '';
+        return;
+      }
+      const rows = (data || []).map(r => ({
+        'Course': r.Course,
+        'Class/Exam': r['Class/Exam'],
+        'Subject': r.Subject,
+        'Unit': r.Unit,
+        'Category': r.Category,
+        'Range': r.Range,
+        'Test Number': r['Test Number'],
+      }));
+      if (rows.length === 0) {
+        tbody.innerHTML = '';
+        emptyEl.classList.remove('hidden');
+        return;
+      }
+      emptyEl.classList.add('hidden');
+      tbody.innerHTML = rows.map(r => {
+        const tn = r['Test Number'] != null ? r['Test Number'] : '—';
+        return `
+          <tr>
+            <td>${escapeHtml(r.Course || '—')}</td>
+            <td>${escapeHtml(r['Class/Exam'] || '—')}</td>
+            <td>${escapeHtml(r.Subject || '—')}</td>
+            <td>${escapeHtml(r.Unit || '—')}</td>
+            <td>${escapeHtml(r.Category || '—')}</td>
+            <td>${escapeHtml(r.Range || '—')}</td>
+            <td>${tn}</td>
+            <td>
+              <div class="actions">
+                <button type="button" class="btn btn-copy btn-sm" data-copy title="Copy to form">Copy</button>
+                <button type="button" class="btn btn-ghost btn-sm" data-edit>Edit</button>
+                <button type="button" class="btn btn-danger btn-sm" data-delete>Delete</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('[data-copy]').forEach((btn, i) => {
+        btn.addEventListener('click', () => copyToForm(rows[i]));
+      });
+      tbody.querySelectorAll('[data-edit]').forEach((btn, i) => {
+        btn.addEventListener('click', () => setEdit(rows[i]));
+      });
+      tbody.querySelectorAll('[data-delete]').forEach((btn, i) => {
+        btn.addEventListener('click', () => {
+          if (!confirm('Delete this course structure?')) return;
+          deleteRow(rows[i]);
+        });
+      });
+    }
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    async function deleteRow(row) {
+      const colClassExam = '"Class/Exam"';
+      const colTestNumber = '"Test Number"';
+      let q = supabase.from(TABLE).delete().eq('Course', row.Course).eq(colClassExam, row['Class/Exam']).eq('Subject', row.Subject).eq('Unit', row.Unit);
+      if (row.Category != null) q = q.eq('Category', row.Category); else q = q.is('Category', null);
+      if (row.Range != null) q = q.eq('Range', row.Range); else q = q.is('Range', null);
+      if (row['Test Number'] != null) q = q.eq(colTestNumber, row['Test Number']); else q = q.is(colTestNumber, null);
+      const { error } = await q;
+      if (error) {
+        showMsg('Delete failed: ' + error.message, 'err');
+        return;
+      }
+      showMsg('Deleted.', 'ok');
+      load();
+      setTimeout(() => showMsg('', ''), 2000);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = getRowPayload();
+
+      if (editingRow) {
+        const colClassExam = '"Class/Exam"';
+        const colTestNumber = '"Test Number"';
+        let q = supabase.from(TABLE).update(payload).eq('Course', editingRow.Course).eq(colClassExam, editingRow['Class/Exam']).eq('Subject', editingRow.Subject).eq('Unit', editingRow.Unit);
+        if (editingRow.Category != null) q = q.eq('Category', editingRow.Category); else q = q.is('Category', null);
+        if (editingRow.Range != null) q = q.eq('Range', editingRow.Range); else q = q.is('Range', null);
+        if (editingRow['Test Number'] != null) q = q.eq(colTestNumber, editingRow['Test Number']); else q = q.is(colTestNumber, null);
+        const { error } = await q;
+        if (error) {
+          showMsg('Update failed: ' + error.message, 'err');
+          return;
+        }
+        showMsg('Updated.', 'ok');
+      } else {
+        const { error } = await supabase.from(TABLE).insert(payload);
+        if (error) {
+          showMsg('Save failed: ' + error.message, 'err');
+          return;
+        }
+        showMsg('Saved.', 'ok');
+      }
+      clearForm();
+      load();
+      setTimeout(() => showMsg('', ''), 2000);
+    });
+
+    cancelEdit.addEventListener('click', clearForm);
+
+    load();
+  </script>
+</body>
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zahid Academy | My MCQ Analytics</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root { --primary: #059669; --primary-dark: #047857; --success: #059669; --error: #dc2626; --text: #1e293b; --amber: #d97706; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: linear-gradient(135deg, #ecfdf5 0%, #f1f5f9 100%); min-height: 100vh; padding: 20px; color: var(--text); }
+        .container { background: #fff; padding: 2.5rem; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-width: 960px; margin: 40px auto; border-top: 6px solid var(--primary); }
+        .hidden { display: none !important; }
+        .academy-header { text-align: center; margin-bottom: 30px; }
+        .academy-header h1 { color: var(--primary-dark); font-size: 2rem; }
+        .academy-header p { color: #64748b; margin-top: 5px; }
+        .user-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 25px; }
+        .user-bar .email { font-size: 13px; color: #64748b; }
+        .nav-link { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .nav-link:hover { text-decoration: underline; }
+        .logout-btn { border: none; background: none; color: var(--error); cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+        .logout-btn:hover { text-decoration: underline; }
+        .dash { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 1.5rem; }
+        .dash-card { background: #f8fafc; border-radius: 12px; padding: 18px; border-left: 4px solid var(--primary); }
+        .dash-card.blue { border-left-color: #2563eb; }
+        .dash-card.green { border-left-color: var(--success); }
+        .dash-card.amber { border-left-color: var(--amber); }
+        .dash-card.purple { border-left-color: #7c3aed; }
+        .dash-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: #64748b; margin-bottom: 4px; }
+        .dash-val { font-size: 1.6rem; font-weight: 800; color: #1e293b; line-height: 1; }
+        .dash-sub { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
+        .section-title { font-size: 1rem; font-weight: 700; color: #334155; margin: 1.5rem 0 0.75rem; padding-bottom: 0.35rem; border-bottom: 2px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f1f5f9; color: #475569; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; }
+        tr:hover { background: #f8fafc; }
+        .pct-high { color: #16a34a; font-weight: 700; }
+        .pct-mid { color: #d97706; font-weight: 700; }
+        .pct-low { color: #dc2626; font-weight: 700; }
+        .type-practice { background: #eff6ff; color: #1d4ed8; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+        .type-mock { background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+        .empty-msg { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.9rem; }
+        .bucket-card { background: #f5f3ff; border: 2px solid #c4b5fd; border-radius: 12px; padding: 1.25rem; margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+        .bucket-card a { background: #7c3aed; color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        .bucket-card a:hover { opacity: 0.9; }
+        .weak-list { list-style: none; padding: 0; margin: 0; }
+        .weak-list li { padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9; color: #64748b; font-size: 0.9rem; }
+        .trend-line { font-size: 0.9rem; color: #475569; margin-top: 0.5rem; }
+        .chart-wrap { position: relative; height: 220px; margin: 0.75rem 0; max-width: 100%; }
+        .chart-wrap.wide { height: 260px; }
+        .accuracy-block { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem; margin: 1rem 0; padding: 1.25rem; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border-radius: 12px; border: 1px solid #bbf7d0; }
+        .accuracy-block .accuracy-big { font-size: 2.5rem; font-weight: 800; color: var(--primary-dark); line-height: 1; }
+        .accuracy-block .accuracy-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; font-weight: 600; margin-top: 4px; }
+        .time-analysis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 0.75rem; }
+        .time-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 12px; }
+        .time-card .time-val { font-size: 1.25rem; font-weight: 700; color: #92400e; }
+        .time-card .time-label { font-size: 0.7rem; color: #64748b; margin-top: 2px; }
+        #sessionLoader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
+        .spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+  <script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true}},true);</script>
+<div id="sessionLoader">
+    <div class="spinner"></div>
+    <p style="margin-top:15px; font-weight:600; color:#64748b;">Loading your analytics...</p>
+</div>
+
+<div class="container hidden" id="mainSection">
+    <div class="academy-header">
+        <h1><i class="fas fa-chart-line"></i> My MCQ Analytics</h1>
+        <p>Your test performance at a glance</p>
+    </div>
+    <div class="user-bar">
+        <span class="email" id="userEmail"></span>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <a href="portal.html" class="nav-link"><i class="fas fa-th-large"></i> Portal</a>
+            <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+
+    <div id="noDataMsg" class="empty-msg hidden">
+        <p><strong>No tests yet.</strong> Start with <a href="Navi.html">Practice Test</a> or <a href="givetest.html">Give Test</a> to see your analytics here.</p>
+    </div>
+
+    <div id="analyticsContent" class="hidden">
+        <div class="dash" id="overviewCards"></div>
+
+        <div class="section-title"><i class="fas fa-bullseye"></i> Accuracy rate</div>
+        <div id="accuracySection">
+            <div class="accuracy-block">
+                <div class="chart-wrap" style="width:180px; flex-shrink:0;"><canvas id="chartAccuracy"></canvas></div>
+                <div>
+                    <div class="accuracy-big" id="accuracyBig">—%</div>
+                    <div class="accuracy-label">Correct / Total attempted</div>
+                    <p class="trend-line" style="margin-top:8px;" id="accuracySubtext"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-book"></i> Topic-wise performance</div>
+        <div class="chart-wrap wide"><canvas id="chartTopicBar"></canvas></div>
+        <div class="table-wrap" style="overflow-x:auto;">
+            <table id="bySubjectTable">
+                <thead><tr><th>Subject</th><th>Tests</th><th>Avg %</th><th>Total MCQs</th></tr></thead>
+                <tbody id="bySubjectBody"></tbody>
+            </table>
+        </div>
+        <p id="bySubjectEmpty" class="empty-msg hidden" style="padding:1rem;">No data by subject.</p>
+
+        <div class="section-title"><i class="fas fa-chart-line"></i> Learning curve</div>
+        <p class="trend-line" style="margin-bottom:8px;">Your score over attempts (oldest to newest)</p>
+        <div class="chart-wrap wide"><canvas id="chartLearningCurve"></canvas></div>
+
+        <div class="section-title"><i class="fas fa-clock"></i> Time analysis</div>
+        <div id="timeAnalysisSection"></div>
+
+        <div class="section-title">By test type</div>
+        <div id="byTypeSection"></div>
+
+        <div class="section-title">Recent tests</div>
+        <div class="table-wrap" style="overflow-x:auto;">
+            <table id="recentTable">
+                <thead><tr><th>Date</th><th>Test</th><th>Score</th><th>%</th><th>Grade</th><th>Time</th><th>Type</th></tr></thead>
+                <tbody id="recentBody"></tbody>
+            </table>
+        </div>
+        <p id="recentEmpty" class="empty-msg hidden" style="padding:1rem;">No recent tests.</p>
+
+        <div class="section-title"><i class="fas fa-bucket"></i> Mistake bucket (repeated mistakes)</div>
+        <div id="mistakeBucketSection"></div>
+
+        <div class="section-title" id="weakAreasTitle"><i class="fas fa-exclamation-triangle"></i> Focus areas (weak topics)</div>
+        <div id="weakAreasSection"></div>
+
+        <div class="section-title"><i class="fas fa-arrow-up"></i> Most improved topics</div>
+        <div id="improvedSection"></div>
+
+        <div class="section-title">Last 10 tests (text)</div>
+        <div id="trendSection"></div>
+    </div>
+</div>
+
+<script>
+(function () {
+    function $(id) { return document.getElementById(id); }
+
+    var chartInstances = {};
+
+    function destroyCharts() {
+        Object.keys(chartInstances).forEach(function (id) {
+            if (chartInstances[id]) {
+                chartInstances[id].destroy();
+                chartInstances[id] = null;
+            }
+        });
+    }
+
+    var ANALYTICS_CACHE_KEY = 'za_analytics_cache';
+    var ANALYTICS_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+    function getCachedAnalytics() {
+        try {
+            var raw = sessionStorage.getItem(ANALYTICS_CACHE_KEY);
+            if (!raw) return null;
+            var obj = JSON.parse(raw);
+            if (!obj || obj.fetchedAt == null) return null;
+            if (Date.now() - obj.fetchedAt > ANALYTICS_CACHE_TTL_MS) return null;
+            return obj;
+        } catch (e) { return null; }
+    }
+
+    function setCachedAnalytics(data) {
+        try {
+            var payload = {
+                practice: data.practice || [],
+                mistakeBucketCount: data.mistakeBucketCount != null ? data.mistakeBucketCount : 0,
+                name: data.name || null,
+                email: data.email || null,
+                fetchedAt: Date.now()
+            };
+            sessionStorage.setItem(ANALYTICS_CACHE_KEY, JSON.stringify(payload));
+        } catch (e) {}
+    }
+
+    function logout() {
+        sessionStorage.removeItem('_st');
+        sessionStorage.removeItem('_se');
+        sessionStorage.removeItem(ANALYTICS_CACHE_KEY);
+        window.location.href = 'login.html';
+    }
+
+    function apiCall(endpoint, options) {
+        var token = sessionStorage.getItem('_st');
+        if (!token) { logout(); return Promise.resolve(null); }
+        return fetch(endpoint, Object.assign({
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
+        }, options || {})).then(function (res) {
+            if (res.status === 401 || res.status === 403) { logout(); return null; }
+            return res;
+        });
+    }
+
+    function getTestDate(r) {
+        return r.test_date || r.created_at || null;
+    }
+
+    function toLocalDate(ts) {
+        if (!ts) return null;
+        var d = new Date(ts);
+        return { y: d.getFullYear(), m: d.getMonth(), d: d.getDate(), str: d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') };
+    }
+
+    function formatTime(secs) {
+        if (secs == null || secs === '') return '—';
+        var n = parseInt(secs, 10);
+        var m = Math.floor(n / 60);
+        var s = n % 60;
+        if (m > 0) return m + 'm ' + s + 's';
+        return n + 's';
+    }
+
+    function pctClass(pct) {
+        if (pct >= 70) return 'pct-high';
+        if (pct >= 50) return 'pct-mid';
+        return 'pct-low';
+    }
+
+    function esc(s) {
+        var d = document.createElement('div');
+        d.textContent = s != null ? s : '';
+        return d.innerHTML;
+    }
+
+    function renderAccuracy(practice) {
+        var totalMcqs = practice.reduce(function (sum, r) { return sum + (parseInt(r.total_marks, 10) || 0); }, 0);
+        var totalCorrect = practice.reduce(function (sum, r) { return sum + (parseInt(r.obtained_marks, 10) || 0); }, 0);
+        var totalWrong = totalMcqs - totalCorrect;
+        var accuracyPct = totalMcqs ? Math.round((totalCorrect / totalMcqs) * 1000) / 10 : 0;
+
+        $('accuracyBig').textContent = (totalMcqs ? accuracyPct.toFixed(1) : '—') + '%';
+        $('accuracySubtext').textContent = totalMcqs ? totalCorrect + ' correct, ' + totalWrong + ' incorrect out of ' + totalMcqs + ' MCQs' : 'No attempts yet';
+
+        var canvas = document.getElementById('chartAccuracy');
+        if (!canvas || typeof Chart === 'undefined') return;
+        if (chartInstances.chartAccuracy) { chartInstances.chartAccuracy.destroy(); chartInstances.chartAccuracy = null; }
+        var ctx = canvas.getContext('2d');
+        chartInstances.chartAccuracy = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Correct', 'Incorrect'],
+                datasets: [{ data: [totalCorrect, totalWrong], backgroundColor: ['#059669', '#fecaca'], borderWidth: 0 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { position: 'bottom' } },
+                cutout: '65%'
+            }
+        });
+    }
+
+    function renderTopicBarChart(practice) {
+        var bySubject = {};
+        practice.forEach(function (r) {
+            var s = r.subject || '—';
+            if (!bySubject[s]) bySubject[s] = { count: 0, totalPct: 0, totalMcqs: 0 };
+            bySubject[s].count++;
+            bySubject[s].totalPct += parseFloat(r.percentage) || 0;
+            bySubject[s].totalMcqs += parseInt(r.total_marks, 10) || 0;
+        });
+        var labels = Object.keys(bySubject).sort();
+        var data = labels.map(function (s) {
+            var o = bySubject[s];
+            return o.count ? (o.totalPct / o.count) : 0;
+        });
+        var canvas = document.getElementById('chartTopicBar');
+        if (!canvas || typeof Chart === 'undefined') return;
+        if (chartInstances.chartTopicBar) { chartInstances.chartTopicBar.destroy(); chartInstances.chartTopicBar = null; }
+        var ctx = canvas.getContext('2d');
+        chartInstances.chartTopicBar = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{ label: 'Avg %', data: data, backgroundColor: 'rgba(5, 150, 105, 0.7)', borderColor: '#047857', borderWidth: 1 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 100, title: { display: true, text: 'Avg %' } },
+                    x: { title: { display: true, text: 'Subject' } }
+                }
+            }
+        });
+    }
+
+    function renderLearningCurveChart(practice) {
+        var sorted = practice.slice().sort(function (a, b) {
+            var da = getTestDate(a);
+            var db = getTestDate(b);
+            if (!da) return 1;
+            if (!db) return -1;
+            return new Date(da) - new Date(db);
+        });
+        var labels = sorted.map(function (_, i) { return 'Attempt ' + (i + 1); });
+        var data = sorted.map(function (r) { return parseFloat(r.percentage) || 0; });
+        var canvas = document.getElementById('chartLearningCurve');
+        if (!canvas || typeof Chart === 'undefined') return;
+        if (chartInstances.chartLearningCurve) { chartInstances.chartLearningCurve.destroy(); chartInstances.chartLearningCurve = null; }
+        var ctx = canvas.getContext('2d');
+        chartInstances.chartLearningCurve = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{ label: 'Score %', data: data, borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', fill: true, tension: 0.2 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 100 },
+                    x: { title: { display: true, text: 'Attempt' } }
+                }
+            }
+        });
+    }
+
+    function renderTimeAnalysis(practice) {
+        var totalMcqs = practice.reduce(function (sum, r) { return sum + (parseInt(r.total_marks, 10) || 0); }, 0);
+        var totalTime = practice.reduce(function (sum, r) { return sum + (parseInt(r.total_time_seconds, 10) || 0); }, 0);
+        var avgSecPerQuestion = totalMcqs ? Math.round((totalTime / totalMcqs) * 10) / 10 : 0;
+        var avgPerTest = practice.length ? practice.reduce(function (sum, r) {
+            var t = parseInt(r.total_time_seconds, 10) || 0;
+            var m = parseInt(r.total_marks, 10) || 1;
+            return sum + (t / m);
+        }, 0) / practice.length : 0;
+
+        var html = '<div class="time-analysis-grid">';
+        html += '<div class="time-card"><div class="time-val">' + (avgSecPerQuestion || '—') + 's</div><div class="time-label">Avg time per question (all tests)</div></div>';
+        html += '<div class="time-card"><div class="time-val">' + (totalTime ? formatTime(totalTime) : '—') + '</div><div class="time-label">Total time spent on MCQs</div></div>';
+        html += '<div class="time-card"><div class="time-val">' + (practice.length ? (Math.round(avgPerTest * 10) / 10) + 's' : '—') + '</div><div class="time-label">Avg sec/question (per test avg)</div></div>';
+        html += '</div>';
+        html += '<p class="trend-line" style="margin-top:8px;">Long time + incorrect = weak understanding; short time + correct = mastery. Use this to see where to focus.</p>';
+        $('timeAnalysisSection').innerHTML = html;
+    }
+
+    function renderOverview(practice) {
+        var totalTests = practice.length;
+        var totalMcqs = practice.reduce(function (sum, r) { return sum + (parseInt(r.total_marks, 10) || 0); }, 0);
+        var avgPct = totalTests ? practice.reduce(function (sum, r) { return sum + (parseFloat(r.percentage) || 0); }, 0) / totalTests : 0;
+        var bestPct = totalTests ? Math.max.apply(null, practice.map(function (r) { return parseFloat(r.percentage) || 0; })) : 0;
+        var now = new Date();
+        var weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        var monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        var thisWeek = practice.filter(function (r) {
+            var dt = getTestDate(r);
+            return dt && new Date(dt) >= weekAgo;
+        }).length;
+        var thisMonth = practice.filter(function (r) {
+            var dt = getTestDate(r);
+            return dt && new Date(dt) >= monthAgo;
+        }).length;
+
+        var html = ''
+            + '<div class="dash-card blue"><div class="dash-label">Total tests</div><div class="dash-val">' + totalTests + '</div><div class="dash-sub">all time</div></div>'
+            + '<div class="dash-card green"><div class="dash-label">Total MCQs</div><div class="dash-val">' + totalMcqs + '</div><div class="dash-sub">attempted</div></div>'
+            + '<div class="dash-card"><div class="dash-label">Average %</div><div class="dash-val">' + (totalTests ? avgPct.toFixed(1) : '—') + '%</div><div class="dash-sub">across tests</div></div>'
+            + '<div class="dash-card amber"><div class="dash-label">Best %</div><div class="dash-val">' + (totalTests ? bestPct.toFixed(0) : '—') + '%</div><div class="dash-sub">single test</div></div>'
+            + '<div class="dash-card purple"><div class="dash-label">This week</div><div class="dash-val">' + thisWeek + '</div><div class="dash-sub">tests</div></div>'
+            + '<div class="dash-card purple"><div class="dash-label">This month</div><div class="dash-val">' + thisMonth + '</div><div class="dash-sub">tests</div></div>';
+        $('overviewCards').innerHTML = html;
+    }
+
+    function renderBySubject(practice) {
+        var bySubject = {};
+        practice.forEach(function (r) {
+            var s = r.subject || '—';
+            if (!bySubject[s]) bySubject[s] = { count: 0, totalPct: 0, totalMcqs: 0 };
+            bySubject[s].count++;
+            bySubject[s].totalPct += parseFloat(r.percentage) || 0;
+            bySubject[s].totalMcqs += parseInt(r.total_marks, 10) || 0;
+        });
+        var rows = Object.keys(bySubject).sort().map(function (subj) {
+            var o = bySubject[subj];
+            var avg = o.count ? (o.totalPct / o.count).toFixed(1) : '0';
+            return '<tr><td>' + esc(subj) + '</td><td>' + o.count + '</td><td class="' + pctClass(parseFloat(avg)) + '">' + avg + '%</td><td>' + o.totalMcqs + '</td></tr>';
+        }).join('');
+        $('bySubjectBody').innerHTML = rows;
+        $('bySubjectEmpty').classList.toggle('hidden', rows.length > 0);
+    }
+
+    function renderByType(practice) {
+        var practiceTests = practice.filter(function (r) { return (r.test_type || '').toLowerCase().indexOf('mock') === -1; });
+        var mockTests = practice.filter(function (r) { return (r.test_type || '').toLowerCase().indexOf('mock') !== -1; });
+        function block(label, arr) {
+            var count = arr.length;
+            var avg = count ? (arr.reduce(function (s, r) { return s + (parseFloat(r.percentage) || 0); }, 0) / count).toFixed(1) : '—';
+            return '<div style="display:inline-block; margin-right:24px; margin-bottom:8px;"><span class="type-practice" style="margin-right:8px;">' + esc(label) + '</span> <strong>' + count + '</strong> tests, avg <strong>' + avg + '%</strong></div>';
+        }
+        $('byTypeSection').innerHTML = block('Practice Test', practiceTests) + block('Mock Test', mockTests);
+    }
+
+    function renderRecent(practice, limit) {
+        limit = limit || 20;
+        var sorted = practice.slice().sort(function (a, b) {
+            var da = getTestDate(a);
+            var db = getTestDate(b);
+            if (!da) return 1;
+            if (!db) return -1;
+            return new Date(db) - new Date(da);
+        });
+        var rows = sorted.slice(0, limit).map(function (r) {
+            var dateObj = toLocalDate(getTestDate(r));
+            var dateStr = dateObj ? dateObj.str : '—';
+            var label = [r.course, r.subject, r.unit].filter(Boolean).join(' · ') || '—';
+            var pct = parseFloat(r.percentage) || 0;
+            var isMock = (r.test_type || '').toLowerCase().indexOf('mock') !== -1;
+            var typeBadge = isMock ? '<span class="type-mock">Mock</span>' : '<span class="type-practice">Practice</span>';
+            return '<tr><td>' + dateStr + '</td><td>' + esc(label) + '</td><td>' + (r.obtained_marks || 0) + '/' + (r.total_marks || 0) + '</td><td class="' + pctClass(pct) + '">' + pct + '%</td><td>' + esc(r.grade || '—') + '</td><td>' + formatTime(r.total_time_seconds) + '</td><td>' + typeBadge + '</td></tr>';
+        }).join('');
+        $('recentBody').innerHTML = rows;
+        $('recentEmpty').classList.toggle('hidden', rows.length > 0);
+    }
+
+    function renderMistakeBucket(count) {
+        var html = '<div class="bucket-card"><div><strong>' + count + '</strong> question' + (count !== 1 ? 's' : '') + ' in your mistake bucket. Practice them to improve.</div><a href="mistake-bucket.html"><i class="fas fa-bucket"></i> Open Mistake Bucket</a></div>';
+        $('mistakeBucketSection').innerHTML = html;
+    }
+
+    function renderWeakAreas(practice) {
+        var bySubject = {};
+        practice.forEach(function (r) {
+            var s = r.subject || '—';
+            if (!bySubject[s]) bySubject[s] = { totalPct: 0, count: 0 };
+            bySubject[s].totalPct += parseFloat(r.percentage) || 0;
+            bySubject[s].count++;
+        });
+        var weak = Object.keys(bySubject).filter(function (subj) {
+            var o = bySubject[subj];
+            var avg = o.count ? o.totalPct / o.count : 0;
+            return avg > 0 && avg < 60;
+        }).sort();
+        var listHtml = weak.length ? '<ul class="weak-list">' + weak.map(function (s) { return '<li>Focus on: <strong>' + esc(s) + '</strong></li>'; }).join('') + '</ul>' : '<p class="empty-msg" style="padding:0.5rem 0;">No weak areas (all subjects above 60% avg) or no data yet.</p>';
+        $('weakAreasSection').innerHTML = listHtml;
+    }
+
+    function renderImproved(practice) {
+        var sorted = practice.slice().sort(function (a, b) {
+            var da = getTestDate(a);
+            var db = getTestDate(b);
+            if (!da) return 1;
+            if (!db) return -1;
+            return new Date(da) - new Date(db);
+        });
+        var mid = Math.floor(sorted.length / 2);
+        var firstHalf = sorted.slice(0, mid);
+        var secondHalf = sorted.slice(mid);
+        var bySubjectFirst = {};
+        var bySubjectSecond = {};
+        firstHalf.forEach(function (r) {
+            var s = r.subject || '—';
+            if (!bySubjectFirst[s]) bySubjectFirst[s] = { sum: 0, n: 0 };
+            bySubjectFirst[s].sum += parseFloat(r.percentage) || 0;
+            bySubjectFirst[s].n++;
+        });
+        secondHalf.forEach(function (r) {
+            var s = r.subject || '—';
+            if (!bySubjectSecond[s]) bySubjectSecond[s] = { sum: 0, n: 0 };
+            bySubjectSecond[s].sum += parseFloat(r.percentage) || 0;
+            bySubjectSecond[s].n++;
+        });
+        var improved = [];
+        Object.keys(bySubjectSecond).forEach(function (subj) {
+            var o1 = bySubjectFirst[subj];
+            var o2 = bySubjectSecond[subj];
+            if (!o2 || !o2.n) return;
+            var avg2 = o2.sum / o2.n;
+            var avg1 = o1 && o1.n ? o1.sum / o1.n : 0;
+            if (avg2 > avg1 && (avg2 - avg1) >= 5) improved.push({ subject: subj, from: avg1.toFixed(0), to: avg2.toFixed(0) });
+        });
+        improved.sort(function (a, b) { return (parseFloat(b.to) - parseFloat(b.from)) - (parseFloat(a.to) - parseFloat(a.from)); });
+        var html = improved.length ? '<ul class="weak-list">' + improved.map(function (x) { return '<li><strong>' + esc(x.subject) + '</strong>: ' + x.from + '% → ' + x.to + '% <span class="pct-high">↑</span></li>'; }).join('') + '</ul>' : '<p class="empty-msg" style="padding:0.5rem 0;">Need more attempts to see improvement. Keep practicing!</p>';
+        var el = document.getElementById('improvedSection');
+        if (el) el.innerHTML = html;
+    }
+
+    function renderTrend(practice) {
+        var sorted = practice.slice().sort(function (a, b) {
+            var da = getTestDate(a);
+            var db = getTestDate(b);
+            if (!da) return 1;
+            if (!db) return -1;
+            return new Date(db) - new Date(da);
+        });
+        var last10 = sorted.slice(0, 10).map(function (r) { return (parseFloat(r.percentage) || 0).toFixed(0) + '%'; }).reverse();
+        $('trendSection').innerHTML = last10.length ? '<p class="trend-line">' + last10.join(' → ') + '</p>' : '<p class="empty-msg" style="padding:0.5rem 0;">No tests yet.</p>';
+    }
+
+    function renderAll(practice, mistakeBucketCount) {
+        destroyCharts();
+        renderOverview(practice);
+        renderAccuracy(practice);
+        renderBySubject(practice);
+        renderTopicBarChart(practice);
+        renderLearningCurveChart(practice);
+        renderTimeAnalysis(practice);
+        renderByType(practice);
+        renderRecent(practice, 20);
+        renderMistakeBucket(mistakeBucketCount);
+        renderWeakAreas(practice);
+        renderImproved(practice);
+        renderTrend(practice);
+    }
+
+    function applyAnalyticsData(data) {
+        $('sessionLoader').classList.add('hidden');
+        $('mainSection').classList.remove('hidden');
+
+        if (data.error) {
+            $('noDataMsg').classList.remove('hidden');
+            $('noDataMsg').innerHTML = '<p style="color:var(--error);">' + esc(data.error) + '</p>';
+            return;
+        }
+
+        var practice = data.practice || [];
+        var mistakeBucketCount = data.mistakeBucketCount != null ? data.mistakeBucketCount : 0;
+
+        if (practice.length === 0) {
+            $('noDataMsg').classList.remove('hidden');
+            $('noDataMsg').innerHTML = '<p><strong>No tests yet.</strong> Start with <a href="Navi.html">Practice Test</a> or <a href="givetest.html">Give Test</a> to see your analytics here.</p><div class="section-title" style="margin-top:1.5rem;">Mistake bucket</div><div id="mistakeBucketSection"></div>';
+            renderMistakeBucket(mistakeBucketCount);
+            return;
+        }
+
+        $('analyticsContent').classList.remove('hidden');
+        renderAll(practice, mistakeBucketCount);
+    }
+
+    function init() {
+        var token = sessionStorage.getItem('_st');
+        if (!token) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        var cached = getCachedAnalytics();
+        if (cached) {
+            $('userEmail').textContent = cached.email || sessionStorage.getItem('_se') || '';
+            applyAnalyticsData({
+                practice: cached.practice,
+                mistakeBucketCount: cached.mistakeBucketCount
+            });
+            return;
+        }
+
+        apiCall('/api/verify-student').then(function (res) {
+            if (!res) return;
+            return res.json();
+        }).then(function (data) {
+            if (!data || !data.valid) {
+                logout();
+                return;
+            }
+            $('userEmail').textContent = data.email || sessionStorage.getItem('_se') || '';
+        }).then(function () {
+            return apiCall('/api/student-analytics', { body: JSON.stringify({}) });
+        }).then(function (res) {
+            if (!res) return;
+            return res.json();
+        }).then(function (data) {
+            if (data && !data.error) setCachedAnalytics(data);
+            applyAnalyticsData(data || {});
+        }).catch(function () {
+            $('sessionLoader').classList.add('hidden');
+            $('mainSection').classList.remove('hidden');
+            $('noDataMsg').classList.remove('hidden');
+            $('noDataMsg').innerHTML = '<p style="color:var(--error);">Failed to load analytics. Try again later.</p>';
+        });
+    }
+
+    $('logoutBtn').addEventListener('click', logout);
+    init();
+})();
+</script>
+</body>
+</html>

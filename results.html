@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Student Results - Zahid Academy</title>
+  <link rel="stylesheet" href="results.css">
+</head>
+<body>
+  <script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true}},true);</script>
+  <div class="page">
+    <p class="nav" style="margin-bottom:1rem;">
+      <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">&#8592; Back to Dashboard</a>
+    </p>
+
+    <div class="card">
+      <h1>Student Test Results</h1>
+      <p class="lead">View all test submissions from students. Filter by name, roll, or month.</p>
+    </div>
+
+    <div class="dash">
+      <div class="dash-card blue">
+        <div class="dash-label">Total Tests</div>
+        <div class="dash-val" id="statTotal">--</div>
+        <div class="dash-sub">all time</div>
+      </div>
+      <div class="dash-card green">
+        <div class="dash-label">Today's Tests</div>
+        <div class="dash-val" id="statToday">--</div>
+        <div class="dash-sub" id="statTodaySub"></div>
+      </div>
+      <div class="dash-card amber">
+        <div class="dash-label">This Month</div>
+        <div class="dash-val" id="statMonth">--</div>
+        <div class="dash-sub" id="statMonthSub"></div>
+      </div>
+      <div class="dash-card purple">
+        <div class="dash-label">Avg Percentage</div>
+        <div class="dash-val" id="statAvg">--</div>
+        <div class="dash-sub">across all tests</div>
+      </div>
+      <div class="dash-card red">
+        <div class="dash-label">Unique Students</div>
+        <div class="dash-val" id="statStudents">--</div>
+        <div class="dash-sub">who took tests</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="filters">
+        <input type="text" class="search-name" id="searchName" placeholder="Search by name or father name...">
+        <input type="number" class="search-roll" id="searchRoll" placeholder="Roll #">
+        <input type="month" class="month-picker" id="monthPicker">
+        <select id="gradeFilter" style="width:120px;">
+          <option value="">All Grades</option>
+          <option value="A+">A+ Master</option>
+          <option value="A">A Excellent</option>
+          <option value="B">B Good</option>
+          <option value="C">C Average</option>
+          <option value="D">D Below Avg</option>
+          <option value="F">F Fail</option>
+        </select>
+        <select id="typeFilter" style="width:140px;">
+          <option value="">All Types</option>
+          <option value="Practice Test">Practice Test</option>
+          <option value="Mock Test">Mock Test</option>
+        </select>
+        <span class="count-label" id="countLabel"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Roll</th>
+              <th>Name</th>
+              <th>Father</th>
+              <th>Type</th>
+              <th>Course</th>
+              <th>Class</th>
+              <th>Subject</th>
+              <th>Unit</th>
+              <th>Category</th>
+              <th>Test #</th>
+              <th>Total</th>
+              <th>Obtained</th>
+              <th>%</th>
+              <th>Time</th>
+              <th>Avg/Q</th>
+              <th>Grade</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="19" class="loading-msg">Loading results...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="emptyMsg" class="empty-msg" style="display:none;">No results match your filters.</div>
+    </div>
+  </div>
+
+  <script type="module" src="results.js"></script>
+</body>
+</html>

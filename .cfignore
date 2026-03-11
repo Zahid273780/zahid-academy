@@ -1,0 +1,8 @@
+node_modules/
+.wrangler/
+supabase/
+netlify/
+.dev.vars
+.gitignore
+.cfignore
+package-lock.json

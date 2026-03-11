@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zahid Academy | Student Portal</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="portal.css">
+</head>
+<body>
+
+<div id="loader">
+  <div class="spinner"></div>
+  <p style="margin-top:15px; font-weight:600; color:#64748b;">Zahid Academy - Loading...</p>
+</div>
+
+<div class="container" id="main" style="display:none;">
+  <div class="header">
+    <h1><i class="fas fa-graduation-cap"></i> Zahid Academy</h1>
+    <p>Student Portal</p>
+  </div>
+
+  <div class="user-bar">
+    <span class="email" id="userEmail"></span>
+    <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+
+  <div class="subscription-section" id="subscriptionSection">
+    <h2 class="subscription-heading"><i class="fas fa-ticket-alt"></i> Your package</h2>
+    <div class="sub-bar" id="subBar">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 0.9rem;">
+        <span><strong>Plan:</strong> <span id="subPackage">—</span></span>
+        <span><strong>MCQs:</strong> <span id="subUsed">0</span> / <span id="subLimit">0</span> (<span id="subRemaining">0</span> left)</span>
+        <span><strong>Expires:</strong> <span id="subDays">—</span> days left</span>
+      </div>
+      <p id="subMessage" class="sub-message"></p>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="portal-card practice" onclick="window.location.href='Navi.html'">
+      <div class="portal-icon"><i class="fas fa-book-open"></i></div>
+      <h3>Practice Test</h3>
+      <p>Practice freely with available tests at your own pace</p>
+    </div>
+
+    <div class="portal-card givetest" onclick="window.location.href='givetest.html'">
+      <div class="portal-icon"><i class="fas fa-pen-fancy"></i></div>
+      <h3>Give Test</h3>
+      <p>Take assigned tests published by your teacher</p>
+    </div>
+
+    <div class="portal-card mistake-bucket" onclick="window.location.href='mistake-bucket.html'">
+      <div class="portal-icon"><i class="fas fa-bucket"></i></div>
+      <h3>Mistake Bucket</h3>
+      <p>Re-attempt only the questions you got wrong</p>
+    </div>
+
+    <div class="portal-card results" onclick="window.location.href='student-analytics.html'">
+      <div class="portal-icon"><i class="fas fa-chart-line"></i></div>
+      <h3>Check Results</h3>
+      <p>View your past test scores and performance</p>
+    </div>
+  </div>
+</div>
+
+<script src="portal.js"></script>
+</body>
+</html>

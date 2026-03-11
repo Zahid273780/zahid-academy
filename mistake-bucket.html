@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zahid Academy | Mistake Bucket</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="mistake-bucket.css">
+</head>
+<body>
+<div id="sessionLoader">
+  <div class="spinner"></div>
+  <p style="margin-top:15px; font-weight:600; color:#64748b;">Loading...</p>
+</div>
+
+<div class="container">
+  <div id="startSection" class="hidden">
+    <div class="academy-header"><h1><i class="fas fa-bucket"></i> Mistake Bucket</h1><p>Re-attempt the questions you got wrong</p></div>
+    <div class="user-bar">
+      <span id="userBadge" class="user-badge"></span>
+      <a href="portal.html"><i class="fas fa-th-large"></i> Portal</a>
+      <button id="logoutBtn" type="button"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+    <div id="bucketStartCard" class="start-card hidden">
+      <h2 id="bucketCountText">0 questions in your bucket</h2>
+      <p>Practice only these questions to fix your mistakes.</p>
+      <button type="button" id="startBucketBtn" class="btn-action"><i class="fas fa-play"></i> Start Practice</button>
+    </div>
+    <div id="bucketEmptyCard" class="empty-state hidden">
+      <i class="fas fa-bucket"></i>
+      <h3>Your mistake bucket is empty</h3>
+      <p>After a Practice Test or Give Test, use &quot;Add to Mistake Bucket&quot; on your wrong answers. Those questions will appear here.</p>
+      <a href="portal.html" class="btn-action" style="display:inline-block; width:auto; padding:12px 24px; text-decoration:none;"><i class="fas fa-th-large"></i> Back to Portal</a>
+    </div>
+  </div>
+
+  <div id="quizSection" class="hidden">
+    <div class="quiz-top">
+      <span id="quizProgress" class="quiz-progress"></span>
+      <span id="quizTimer" class="quiz-timer"></span>
+    </div>
+    <h2 id="questionText"></h2>
+    <div id="optionsArea"></div>
+  </div>
+
+  <div id="resultArea" class="hidden">
+    <h2 class="result-head"><i class="fas fa-chart-bar"></i> Performance Report</h2>
+    <div class="result-grid">
+      <div class="res-card"><span class="res-label">Score</span><span id="resScore" class="res-val"></span></div>
+      <div class="res-card"><span class="res-label">Total Time</span><span id="resTotalTime" class="res-val"></span></div>
+      <div class="res-card"><span class="res-label">Avg/Q</span><span id="resAvgTime" class="res-val"></span></div>
+    </div>
+    <div id="mistakeList"></div>
+    <div id="mistakeBucketArea" style="display:none;">
+      <button id="addToMistakeBucketBtn" type="button" class="btn-action" style="background:#7c3aed; margin-bottom:10px;"><i class="fas fa-bucket"></i> Add to Mistake Bucket</button>
+      <p id="mistakeBucketMsg" class="msg"></p>
+    </div>
+    <button id="goHomeBtn" type="button" class="btn-action btn-secondary"><i class="fas fa-home"></i> Back to Mistake Bucket</button>
+  </div>
+</div>
+
+<script src="mistake-bucket.js"></script>
+</body>
+</html>

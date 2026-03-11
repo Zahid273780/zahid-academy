@@ -1,0 +1,11 @@
+{
+  "name": "zahid-academy",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2"
+  },
+  "scripts": {
+    "dev": "npx wrangler pages dev .",
+    "dev:static": "npx --yes serve . -l 3000"
+  }
+}

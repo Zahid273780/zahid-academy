@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zahid Academy | Student Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #eff6ff;
+            --success: #059669;
+            --error: #dc2626;
+            --text: #1e293b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            width: 100%;
+            max-width: 440px;
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            padding: 40px 30px 35px;
+            text-align: center;
+            position: relative;
+        }
+
+        .login-header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: #ffffff;
+            border-radius: 50% 50% 0 0;
+        }
+
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .logo-icon i { font-size: 30px; color: #ffffff; }
+
+        .login-header h1 {
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .login-header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .login-body { padding: 25px 35px 35px; }
+
+        .welcome-text { text-align: center; margin-bottom: 25px; }
+        .welcome-text h2 { color: var(--text); font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+        .welcome-text p { color: #64748b; font-size: 0.85rem; }
+
+        .form-group { margin-bottom: 16px; position: relative; }
+        .form-group label {
+            display: block; font-size: 0.8rem; font-weight: 600;
+            color: #475569; margin-bottom: 6px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        .input-wrapper { position: relative; }
+        .input-wrapper i {
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%); color: #94a3b8;
+            font-size: 16px; transition: color 0.2s;
+        }
+
+        .form-group input {
+            width: 100%; padding: 14px 14px 14px 44px;
+            border: 2px solid #e2e8f0; border-radius: 12px;
+            font-size: 15px; color: var(--text);
+            transition: all 0.2s; background: #f8fafc;
+        }
+        .form-group input:focus {
+            outline: none; border-color: var(--primary);
+            background: #ffffff; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .login-btn {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            color: #ffffff; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            transition: all 0.3s; margin-top: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .login-btn:hover {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.4);
+        }
+        .login-btn:active { transform: translateY(0); }
+        .login-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .login-msg {
+            text-align: center; margin-top: 14px; padding: 10px 14px;
+            border-radius: 10px; font-size: 0.85rem; font-weight: 600; display: none;
+        }
+        .login-msg.err { display: block; background: #fef2f2; color: var(--error); border: 1px solid #fecaca; }
+        .login-msg.ok { display: block; background: #dcfce7; color: var(--success); border: 1px solid #bbf7d0; }
+
+        .login-footer { text-align: center; padding: 0 35px 30px; }
+
+        .divider { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+        .divider span { font-size: 0.75rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+        .contact-info {
+            background: #f8fafc; border: 1px solid #e2e8f0;
+            border-radius: 12px; padding: 16px;
+        }
+        .contact-info .academy-name { font-weight: 700; color: var(--primary-dark); font-size: 0.95rem; margin-bottom: 8px; }
+        .contact-row { display: flex; align-items: center; gap: 8px; color: #475569; font-size: 0.85rem; margin-top: 6px; }
+        .contact-row i { color: var(--primary); width: 18px; text-align: center; }
+        .contact-row a { color: var(--primary); text-decoration: none; font-weight: 600; }
+        .contact-row a:hover { text-decoration: underline; }
+
+        .spinner-small {
+            display: inline-block; width: 18px; height: 18px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ffffff; border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 480px) {
+            .login-body { padding: 20px 24px 28px; }
+            .login-footer { padding: 0 24px 24px; }
+            .login-header { padding: 30px 24px 28px; }
+            .login-header h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <div class="login-header">
+        <div class="logo-icon">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h1>Zahid Academy</h1>
+        <p>Student Examination Portal</p>
+    </div>
+
+    <div class="login-body">
+        <div class="welcome-text">
+            <h2>Welcome Back!</h2>
+            <p>Enter your username and password to access tests</p>
+        </div>
+
+        <form id="loginForm" autocomplete="on">
+            <div class="form-group">
+                <label for="email">Username</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="email" placeholder="ali" required autocomplete="username">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
+                    <i class="fas fa-lock"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                <span id="btnText">Sign In</span>
+            </button>
+        </form>
+
+        <div id="loginMsg" class="login-msg"></div>
+    </div>
+
+    <div class="login-footer">
+        <div class="divider"><span>Need Help?</span></div>
+        <div class="contact-info">
+            <div class="academy-name"><i class="fas fa-school"></i> Zahid Academy</div>
+            <div class="contact-row">
+                <i class="fas fa-phone"></i>
+                <a href="tel:03337502737">0333-750-2737</a>
+            </div>
+            <div class="contact-row">
+                <i class="fab fa-whatsapp"></i>
+                <a href="https://wa.me/923337502737" target="_blank">WhatsApp: 0333-750-2737</a>
+            </div>
+            <div class="contact-row">
+                <i class="fas fa-info-circle"></i>
+                <span>Contact your teacher if you forgot your password</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var token = sessionStorage.getItem('_st');
+        if (token) {
+            window.location.href = 'portal.html';
+            return;
+        }
+
+        var form = document.getElementById('loginForm');
+        var loginBtn = document.getElementById('loginBtn');
+        var btnText = document.getElementById('btnText');
+        var msgEl = document.getElementById('loginMsg');
+
+        function showMsg(text, type) {
+            msgEl.textContent = text;
+            msgEl.className = 'login-msg ' + type;
+        }
+        function hideMsg() {
+            msgEl.textContent = '';
+            msgEl.className = 'login-msg';
+        }
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            hideMsg();
+
+            var username = document.getElementById('email').value.trim();
+            var password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showMsg('Please enter both username and password.', 'err');
+                return;
+            }
+
+            var email = username.includes('@') ? username : username + '@zahidacademy.com';
+
+            loginBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner-small"></span> Signing in...';
+
+            try {
+                var res = await fetch('/api/student-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
+                });
+
+                var data = await res.json().catch(function () { return {}; });
+
+                if (!res.ok) {
+                    showMsg(data.error || 'Login failed', 'err');
+                    loginBtn.disabled = false;
+                    btnText.innerHTML = 'Sign In';
+                    return;
+                }
+
+                sessionStorage.setItem('_st', data.token);
+                sessionStorage.setItem('_se', data.email);
+
+                showMsg('Login successful! Redirecting...', 'ok');
+                btnText.innerHTML = '<span class="spinner-small"></span> Redirecting...';
+
+                setTimeout(function () {
+                    window.location.href = 'portal.html';
+                }, 500);
+            } catch (err) {
+                showMsg('Network error. Please try again.', 'err');
+                loginBtn.disabled = false;
+                btnText.innerHTML = 'Sign In';
+            }
+        });
+    })();
+</script>
+</body>
+</html>

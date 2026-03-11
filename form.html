@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fill form to Get login id | Shaeen Academy</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="form.css">
+</head>
+<body>
+  <script>
+    window.addEventListener('error', function (e) {
+      if (e.filename && e.filename.indexOf('share-modal') !== -1) {
+        e.preventDefault();
+        e.stopPropagation();
+        return true;
+      }
+    }, true);
+  </script>
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo-icon">
+        <i class="fas fa-graduation-cap"></i>
+      </div>
+      <h1>Fill form to Get login id</h1>
+      <p>Shaeen Academy – Student account request</p>
+    </div>
+
+    <div class="login-body">
+      <div class="welcome-text">
+        <h2>Request your login ID</h2>
+        <p>Enter your details below. You will get email and ID within 24 hours.</p>
+      </div>
+
+      <form id="requestForm" autocomplete="on">
+        <div class="form-group">
+          <label for="fullName">Full name</label>
+          <div class="input-wrapper">
+            <i class="fas fa-user"></i>
+            <input id="fullName" type="text" autocomplete="name" required placeholder="e.g. Ali Ahmed">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <div class="input-wrapper">
+            <i class="fas fa-at"></i>
+            <input id="username" type="text" required placeholder="Username" autocomplete="username">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="class">Class</label>
+          <div class="input-wrapper">
+            <i class="fas fa-school"></i>
+            <input id="class" type="text" required placeholder="e.g. 9 or 10">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="whatsapp">WhatsApp number</label>
+          <div class="input-wrapper">
+            <i class="fab fa-whatsapp"></i>
+            <input id="whatsapp" type="text" inputmode="tel" required maxlength="11" placeholder="03337502737" autocomplete="tel">
+          </div>
+          <p class="hint">Exactly 11 digits, e.g. 03337502737</p>
+        </div>
+        <div class="form-group">
+          <label for="mobile">Mobile number</label>
+          <div class="input-wrapper">
+            <i class="fas fa-mobile-alt"></i>
+            <input id="mobile" type="text" inputmode="tel" required maxlength="11" placeholder="03337502737" autocomplete="tel">
+          </div>
+          <p class="hint">Exactly 11 digits, e.g. 03337502737</p>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <i class="fas fa-lock"></i>
+            <input id="password" type="password" required minlength="4" placeholder="Choose a password" autocomplete="new-password">
+          </div>
+          <p class="hint">Min 4 characters. You will use this on the Student Login page.</p>
+        </div>
+        <button type="submit" class="login-btn" id="submitBtn">
+          <span id="btnText">Submit request</span>
+        </button>
+      </form>
+
+      <div id="formMsg" class="login-msg"></div>
+    </div>
+
+    <div class="login-footer">
+      <a href="login.html">Already have an ID? Student Login</a>
+    </div>
+  </div>
+
+  <script src="form.js"></script>
+</body>
+</html>

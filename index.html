@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shaeen Academy | Multiple-Choice Questions for Real Exams</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <!-- GSAP: https://greensock.com/gsap/ | ScrollTrigger: https://greensock.com/docs/v3/Plugins/ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- Lottie: https://github.com/LottieFiles/lottie-player -->
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <link rel="stylesheet" href="index.css">
+  <!-- Styles in index.css -->
+</head>
+<body>
+  <script>
+    window.addEventListener('error', function (e) {
+      if (e.filename && e.filename.indexOf('share-modal') !== -1) {
+        e.preventDefault();
+        e.stopPropagation();
+        return true;
+      }
+    }, true);
+  </script>
+
+  <nav class="topnav">
+    <a href="index.html" class="topnav-brand">
+      <i class="fa-solid fa-graduation-cap"></i>
+      Shaeen Academy
+    </a>
+    <div class="topnav-links">
+      <a href="form.html" class="btn-login topnav-form-link">Fill form for Login ID</a>
+      <a href="login.html" class="btn-login"><i class="fa-solid fa-user-graduate"></i> Student Login</a>
+    </div>
+  </nav>
+
+  <div class="top-strip">
+    <div class="top-strip-inner">
+      <span class="top-strip-mcqs"><strong>50,000+ MCQs</strong></span>
+      <span class="top-strip-plan">Pay only <span class="top-strip-price">Rs. 200</span> to get the Basic Plan.</span>
+      <a href="https://wa.me/923337502737" target="_blank" rel="noopener noreferrer" class="top-strip-wa" aria-label="WhatsApp Us"><i class="fab fa-whatsapp"></i> WhatsApp Us 03337502737</a>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="hero__body hero-inner" id="hero-left">
+      <h1 class="hero-heading">🚀 Boost Your Exam Preparation</h1>
+      <p class="hero-desc">Practice thousands of MCQs, take daily tests, and track your performance — all for just <span class="hero-price">Rs. 200</span>.</p>
+      <div class="hero-actions">
+        <a href="https://wa.me/923337502737" class="hero-contact btn-ripple magnetic-btn" target="_blank" rel="noopener noreferrer">📩 Contact us today for more information</a>
+      </div>
+    </div>
+    <div class="hero__visual-container" id="hero-visual">
+      <div class="hero__visual-wrap" id="hero-visual-wrap">
+        <h2 class="hero-visual-title">100 Mock Tests for You!</h2>
+        <canvas id="dotlottie-canvas" width="320" height="320"></canvas>
+      </div>
+    </div>
+  </header>
+
+  <section class="plan-basic" id="basic-plan">
+    <div class="plan-basic-inner">
+      <div>
+        <h2 class="section-title">Why Choose Shaheen Academy?</h2>
+      </div>
+      <div class="plan-basic-grid">
+        <div class="plan-item plan-item-mcqs">
+          <div class="plan-item-icon" aria-hidden="true"><i class="fa-solid fa-list-check"></i></div>
+          <div class="plan-item-text">
+            <h3>50,000+ Practice MCQs</h3>
+            <p>Master concepts across all major subjects with a large, exam-focused question bank.</p>
+          </div>
+        </div>
+        <div class="plan-item plan-item-daily">
+          <div class="plan-item-icon" aria-hidden="true"><i class="fa-solid fa-calendar-day"></i></div>
+          <div class="plan-item-text">
+            <h3>Daily Practice Tests</h3>
+            <p>Challenge yourself every day and build consistency with structured practice.</p>
+          </div>
+        </div>
+        <div class="plan-item plan-item-mock">
+          <div class="plan-item-icon" aria-hidden="true"><i class="fa-solid fa-clipboard-list"></i></div>
+          <div class="plan-item-text">
+            <h3>Free Mock Tests</h3>
+            <p>Simulate real exams, measure your readiness, and reduce exam-day anxiety.</p>
+          </div>
+        </div>
+        <div class="plan-item plan-item-video">
+          <div class="plan-item-icon" aria-hidden="true"><i class="fa-solid fa-video"></i></div>
+          <div class="plan-item-text">
+            <h3>Video Explanations for Every MCQ</h3>
+            <p>Learn step-by-step with clear video solutions that explain every answer.</p>
+          </div>
+        </div>
+        <div class="plan-item plan-item-lectures">
+          <div class="plan-item-icon" aria-hidden="true"><i class="fa-solid fa-chalkboard-user"></i></div>
+          <div class="plan-item-text">
+            <h3>Lectures in Chemistry, Physics &amp; Biology</h3>
+            <p>Strengthen your concepts with focused lectures from expert teachers.</p>
+          </div>
+        </div>
+        <div class="plan-item plan-item-analytics">
+          <div class="plan-item-icon" aria-hidden="true"><i class="fa-solid fa-chart-line"></i></div>
+          <div class="plan-item-text">
+            <h3>Performance Analytics</h3>
+            <p>See exactly where you are strong and where you need improvement.</p>
+          </div>
+        </div>
+        <div class="plan-item plan-item-mistakes">
+          <div class="plan-item-icon" aria-hidden="true"><i class="fa-solid fa-bucket"></i></div>
+          <div class="plan-item-text">
+            <h3>Mistake Buckets</h3>
+            <p>Save your mistakes in one place and re-attempt them until you master every concept.</p>
+          </div>
+        </div>
+        <div class="plan-item plan-item-cta">
+          <div class="plan-item-icon" aria-hidden="true"><i class="fa-solid fa-tag"></i></div>
+          <div class="plan-item-text">
+            <h3>Basic Plan – Just Rs. 200</h3>
+            <p>Get essential tools to practice daily, learn faster, and improve smarter.</p>
+          </div>
+        </div>
+        <div class="plan-item plan-item-social">
+          <div class="plan-item-icon" aria-hidden="true"><i class="fa-solid fa-users"></i></div>
+          <div class="plan-item-text">
+            <h3>Join 1000+ Students Already Learning at Shaheen Academy!</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <span>© <span id="yearSpan"></span> Shaeen Academy. All rights reserved.</span>
+    <div class="contact">
+      <span><i class="fa-solid fa-envelope"></i> info@zahidacademy.com</span>
+      <span><i class="fa-solid fa-phone"></i> 0333-7502737</span>
+      <span><i class="fa-solid fa-location-dot"></i> Pakistan</span>
+    </div>
+    <div>
+      <a href="dashboard.html">Staff Dashboard</a>
+    </div>
+  </footer>
+
+  <script src="index.js"></script>
+  <script type="module">
+    import { DotLottie } from "https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web/+esm";
+
+    const canvas = document.querySelector('#dotlottie-canvas');
+    if (canvas) {
+      new DotLottie({
+        autoplay: true,
+        loop: true,
+        speed: 1.6,
+        canvas,
+        src: "https://lottie.host/69b06f53-b4a3-41d4-b8d3-3640d3194555/cK7nrUMnF0.lottie"
+      });
+    }
+  </script>
+</body>
+</html>

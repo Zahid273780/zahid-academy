@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage Subjects - Zahid Academy</title>
+  <style>
+    * { box-sizing: border-box; }
+    .hidden { display: none !important; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; min-height: 100vh; color: #1e293b; }
+    .page { max-width: 56rem; margin: 0 auto; padding: 2rem 1rem; }
+    .nav { margin-bottom: 1.5rem; font-size: 0.875rem; color: #475569; }
+    .nav a { color: #2563eb; text-decoration: none; }
+    .nav a:hover { text-decoration: underline; }
+    .card { background: #fff; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .card h1 { margin: 0 0 0.25rem; font-size: 1.35rem; font-weight: 700; color: #1e293b; }
+    .card .lead { color: #64748b; font-size: 0.875rem; margin-bottom: 1rem; }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem; }
+    input, select { width: 100%; padding: 0.5rem 0.6rem; border: 2px solid #e2e8f0; border-radius: 0.375rem; font-size: 0.9rem; }
+    input:focus, select:focus { outline: none; border-color: #2563eb; }
+    .form-row { display: grid; grid-template-columns: 100px 1fr 120px auto; gap: 0.75rem; align-items: end; }
+    .btn { padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+    .btn-edit { background: #dbeafe; color: #1d4ed8; border: none; border-radius: 0.25rem; cursor: pointer; }
+    .btn-edit:hover { background: #bfdbfe; }
+    .btn-danger { background: #fef2f2; color: #b91c1c; border: none; border-radius: 0.25rem; cursor: pointer; }
+    .btn-danger:hover { background: #fee2e2; }
+    .btn-cancel { background: #f1f5f9; color: #475569; border: none; border-radius: 0.25rem; cursor: pointer; }
+    .btn-cancel:hover { background: #e2e8f0; }
+    #msg { margin-top: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 0.875rem; min-height: 1rem; }
+    #msg.err { background: #fef2f2; color: #b91c1c; }
+    #msg.ok { background: #dcfce7; color: #16a34a; }
+    .table-wrap { overflow-x: auto; margin-top: 1rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th, td { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f1f5f9; color: #475569; font-weight: 600; }
+    tr:hover { background: #f8fafc; }
+    .fee-col { font-weight: 700; color: #16a34a; }
+    .class-badge { display: inline-block; background: #eff6ff; color: #1d4ed8; padding: 2px 10px; border-radius: 10px; font-weight: 700; font-size: 0.8rem; }
+    .count-badge { font-size: 0.8rem; color: #64748b; font-weight: 600; margin-left: 0.5rem; }
+    .empty-msg { text-align: center; padding: 2rem; color: #94a3b8; }
+    .edit-row input { padding: 0.35rem 0.5rem; font-size: 0.85rem; }
+    .filter-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-row select { width: auto; min-width: 140px; }
+    @media (max-width: 640px) {
+      .form-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true}},true);</script>
+  <div class="page">
+    <p class="nav" style="margin-bottom:1rem;">
+      <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">&#8592; Back to Dashboard</a>
+    </p>
+
+    <div class="card">
+      <h1>Manage Subjects</h1>
+      <p class="lead">Add, edit and delete subjects for each class. These subjects appear in the Admission form.</p>
+
+      <div class="form-row" id="addForm">
+        <div>
+          <label for="addClass">Class</label>
+          <input type="number" id="addClass" placeholder="11" min="1" required>
+        </div>
+        <div>
+          <label for="addSubject">Subject Name</label>
+          <input type="text" id="addSubject" placeholder="e.g. Physics" required>
+        </div>
+        <div>
+          <label for="addFee">Fee (Rs.)</label>
+          <input type="number" id="addFee" placeholder="1200" min="0" required>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button type="button" class="btn btn-primary" id="addBtn">Add</button>
+        </div>
+      </div>
+      <div id="msg"></div>
+    </div>
+
+    <div class="card">
+      <div class="filter-row">
+        <strong>Filter by class:</strong>
+        <select id="filterClass">
+          <option value="">All Classes</option>
+        </select>
+        <span class="count-badge" id="countLabel"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:70px;">Class</th>
+              <th>Subject</th>
+              <th style="width:110px;">Fee (Rs.)</th>
+              <th style="width:140px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div id="emptyMsg" class="empty-msg hidden">No subjects found. Add one above.</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase, initAuthGuard } from './auth-guard.js';
+    await initAuthGuard();
+
+    const addClassInput = document.getElementById('addClass');
+    const addSubjectInput = document.getElementById('addSubject');
+    const addFeeInput = document.getElementById('addFee');
+    const addBtn = document.getElementById('addBtn');
+    const msgEl = document.getElementById('msg');
+    const tableBody = document.getElementById('tableBody');
+    const emptyMsg = document.getElementById('emptyMsg');
+    const filterClass = document.getElementById('filterClass');
+    const countLabel = document.getElementById('countLabel');
+
+    let allSubjects = [];
+    let editingId = null;
+
+    function showMsg(text, type) {
+      msgEl.textContent = text;
+      msgEl.className = type || '';
+      if (type === 'ok') setTimeout(function () { msgEl.textContent = ''; msgEl.className = ''; }, 3000);
+    }
+
+    async function loadSubjects() {
+      showMsg('Loading...', '');
+      const { data, error } = await supabase
+        .from('subjects')
+        .select('*')
+        .order('class', { ascending: true })
+        .order('subject', { ascending: true });
+
+      if (error) { showMsg('Error: ' + error.message, 'err'); return; }
+      allSubjects = data || [];
+      showMsg('', '');
+      buildFilter();
+      renderTable();
+    }
+
+    function buildFilter() {
+      var current = filterClass.value;
+      var classes = [...new Set(allSubjects.map(function (s) { return s.class; }))].sort(function (a, b) { return a - b; });
+      filterClass.innerHTML = '<option value="">All Classes</option>' +
+        classes.map(function (c) { return '<option value="' + c + '">Class ' + c + '</option>'; }).join('');
+      filterClass.value = current;
+    }
+
+    function getFiltered() {
+      var cls = filterClass.value;
+      if (!cls) return allSubjects;
+      return allSubjects.filter(function (s) { return s.class === parseInt(cls); });
+    }
+
+    function renderTable() {
+      var rows = getFiltered();
+      editingId = null;
+
+      if (rows.length === 0) {
+        tableBody.innerHTML = '';
+        emptyMsg.classList.remove('hidden');
+        countLabel.textContent = '';
+        return;
+      }
+
+      emptyMsg.classList.add('hidden');
+      countLabel.textContent = rows.length + ' subject' + (rows.length !== 1 ? 's' : '');
+
+      tableBody.innerHTML = rows.map(function (s) {
+        return '<tr data-id="' + s.id + '">'
+          + '<td><span class="class-badge">' + s.class + '</span></td>'
+          + '<td>' + escHtml(s.subject) + '</td>'
+          + '<td class="fee-col">Rs. ' + s.fee + '</td>'
+          + '<td>'
+          + '<button class="btn-edit btn-sm" data-edit="' + s.id + '">Edit</button> '
+          + '<button class="btn-danger btn-sm" data-del="' + s.id + '">Delete</button>'
+          + '</td>'
+          + '</tr>';
+      }).join('');
+
+      tableBody.querySelectorAll('[data-edit]').forEach(function (btn) {
+        btn.addEventListener('click', function () { startEdit(btn.dataset.edit); });
+      });
+
+      tableBody.querySelectorAll('[data-del]').forEach(function (btn) {
+        btn.addEventListener('click', function () { deleteSubject(btn.dataset.del); });
+      });
+    }
+
+    function startEdit(id) {
+      var s = allSubjects.find(function (x) { return String(x.id) === String(id); });
+      if (!s) return;
+
+      var row = tableBody.querySelector('tr[data-id="' + id + '"]');
+      if (!row) return;
+
+      row.innerHTML =
+        '<td><input type="number" class="edit-cls" value="' + s.class + '" style="width:60px;padding:0.35rem 0.5rem;font-size:0.85rem;"></td>'
+        + '<td><input type="text" class="edit-sub" value="' + escHtml(s.subject) + '" style="padding:0.35rem 0.5rem;font-size:0.85rem;"></td>'
+        + '<td><input type="number" class="edit-fee" value="' + s.fee + '" style="width:90px;padding:0.35rem 0.5rem;font-size:0.85rem;"></td>'
+        + '<td>'
+        + '<button class="btn-edit btn-sm save-btn">Save</button> '
+        + '<button class="btn-cancel btn-sm cancel-btn">Cancel</button>'
+        + '</td>';
+
+      row.querySelector('.save-btn').addEventListener('click', function () { saveEdit(id, row); });
+      row.querySelector('.cancel-btn').addEventListener('click', function () { renderTable(); });
+    }
+
+    async function saveEdit(id, row) {
+      var cls = parseInt(row.querySelector('.edit-cls').value);
+      var subject = row.querySelector('.edit-sub').value.trim();
+      var fee = parseInt(row.querySelector('.edit-fee').value);
+
+      if (!cls || !subject || isNaN(fee)) {
+        showMsg('Please fill all fields.', 'err');
+        return;
+      }
+
+      showMsg('Saving...', '');
+      var { error } = await supabase
+        .from('subjects')
+        .update({ class: cls, subject: subject, fee: fee })
+        .eq('id', id);
+
+      if (error) { showMsg('Error: ' + error.message, 'err'); return; }
+
+      var item = allSubjects.find(function (x) { return String(x.id) === String(id); });
+      if (item) { item.class = cls; item.subject = subject; item.fee = fee; }
+
+      showMsg('Subject updated.', 'ok');
+      buildFilter();
+      renderTable();
+    }
+
+    async function deleteSubject(id) {
+      var s = allSubjects.find(function (x) { return String(x.id) === String(id); });
+      if (!s) return;
+      if (!confirm('Delete "' + s.subject + '" (Class ' + s.class + ')?')) return;
+
+      showMsg('Deleting...', '');
+      var { error } = await supabase.from('subjects').delete().eq('id', id);
+      if (error) { showMsg('Error: ' + error.message, 'err'); return; }
+
+      allSubjects = allSubjects.filter(function (x) { return String(x.id) !== String(id); });
+      showMsg('Subject deleted.', 'ok');
+      buildFilter();
+      renderTable();
+    }
+
+    addBtn.addEventListener('click', async function () {
+      var cls = parseInt(addClassInput.value);
+      var subject = addSubjectInput.value.trim();
+      var fee = parseInt(addFeeInput.value);
+
+      if (!cls || !subject || isNaN(fee)) {
+        showMsg('Please fill class, subject and fee.', 'err');
+        return;
+      }
+
+      var duplicate = allSubjects.find(function (s) {
+        return s.class === cls && s.subject.toLowerCase() === subject.toLowerCase();
+      });
+      if (duplicate) {
+        showMsg('This subject already exists for class ' + cls + '.', 'err');
+        return;
+      }
+
+      showMsg('Adding...', '');
+      var { data, error } = await supabase
+        .from('subjects')
+        .insert([{ class: cls, subject: subject, fee: fee }])
+        .select();
+
+      if (error) { showMsg('Error: ' + error.message, 'err'); return; }
+
+      if (data && data.length > 0) {
+        allSubjects.push(data[0]);
+      }
+
+      showMsg('Subject added!', 'ok');
+      addSubjectInput.value = '';
+      addFeeInput.value = '';
+      buildFilter();
+      renderTable();
+    });
+
+    filterClass.addEventListener('change', renderTable);
+
+    function escHtml(s) {
+      var d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+
+    loadSubjects();
+  </script>
+</body>
+</html>
