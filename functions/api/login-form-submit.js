@@ -148,3 +148,8 @@ export async function onRequest(context) {
   return json({ ok: true });
 }
 
+// Explicit POST handler so Cloudflare Pages reliably invokes this for POST /api/login-form-submit
+export async function onRequestPost(context) {
+  return onRequest(context);
+}
+
