@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+    (function () {
+      function suppress(e) {
+        if (e && e.filename && String(e.filename).indexOf('share-modal') !== -1) {
+          if (e.preventDefault) e.preventDefault();
+          if (e.stopPropagation) e.stopPropagation();
+          return true;
+        }
+      }
+      window.addEventListener('error', suppress, true);
+      window.onerror = function (msg, url) {
+        if (url && String(url).indexOf('share-modal') !== -1) return true;
+        return false;
+      };
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fill form to Get login id | Shaeen Academy</title>
@@ -8,15 +24,6 @@
   <link rel="stylesheet" href="form.css">
 </head>
 <body>
-  <script>
-    window.addEventListener('error', function (e) {
-      if (e.filename && e.filename.indexOf('share-modal') !== -1) {
-        e.preventDefault();
-        e.stopPropagation();
-        return true;
-      }
-    }, true);
-  </script>
   <div class="login-card">
     <div class="login-header">
       <div class="logo-icon">

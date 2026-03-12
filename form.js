@@ -4,6 +4,8 @@
   var btn = document.getElementById('submitBtn');
   var btnText = document.getElementById('btnText');
 
+  if (!form || !msgEl || !btn || !btnText) return;
+
   function showMsg(text, type) {
     msgEl.textContent = text;
     msgEl.className = 'login-msg ' + type;
@@ -72,7 +74,11 @@
       var data = await res.json().catch(function () { return {}; });
 
       if (!res.ok) {
-        showMsg(data.error || 'Could not submit. Please try again.', 'err');
+        var errMsg = data.error || 'Could not submit. Please try again.';
+        if (res.status === 405) {
+          errMsg = 'Form submission is not available on this server (405). Please contact your teacher or try again later.';
+        }
+        showMsg(errMsg, 'err');
         btn.disabled = false;
         btnText.textContent = 'Submit request';
         return;

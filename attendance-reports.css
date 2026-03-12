@@ -1,0 +1,33 @@
+* { box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; min-height: 100vh; color: #1e293b; }
+.page { max-width: 56rem; margin: 0 auto; padding: 2rem 1rem; }
+.nav { margin-bottom: 1.5rem; }
+.nav a { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; background: linear-gradient(135deg,#1e40af,#2563eb); color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+.nav a:hover { opacity: 0.9; }
+.card { background: #fff; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem; }
+.card h1 { margin: 0 0 0.25rem; font-size: 1.35rem; font-weight: 700; }
+.card .lead { color: #64748b; font-size: 0.875rem; margin-bottom: 1rem; }
+.row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; margin-bottom: 1rem; }
+.row label { display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px; }
+.row input, .row select { padding: 0.5rem 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; min-width: 140px; }
+.row .row-btn-wrap { align-self: flex-end; }
+.btn { padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; }
+.btn-primary { background: #2563eb; color: #fff; }
+.btn:hover { opacity: 0.9; }
+.msg { font-size: 0.9rem; font-weight: 600; margin-top: 0.5rem; }
+.msg.ok { color: #16a34a; }
+.msg.err { color: #dc2626; }
+.table-wrap { overflow-x: auto; margin-top: 1rem; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid #e2e8f0; }
+th { background: #f1f5f9; color: #475569; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+tr:hover { background: #f8fafc; }
+.empty-msg { text-align: center; padding: 2rem; color: #94a3b8; }
+.empty-msg.hidden { display: none; }
+.filter-section { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-end; margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; }
+.filter-section .fgroup label { display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px; }
+.filter-section .fgroup input[type="number"] { width: 100px; padding: 0.5rem 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; }
+.filter-hint { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
+.filter-section .fgroup-btn { align-self: flex-end; }
+.days-absent { font-weight: 700; color: #dc2626; }
+#reportSummary { font-size: 0.9rem; color: #475569; margin-bottom: 0.5rem; }

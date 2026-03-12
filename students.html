@@ -4,83 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Students Dashboard - Zahid Academy</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; min-height: 100vh; color: #1e293b; }
-    .page { max-width: 72rem; margin: 0 auto; padding: 2rem 1rem; }
-    .nav { margin-bottom: 1.5rem; font-size: 0.875rem; color: #475569; }
-    .nav a { color: #2563eb; text-decoration: none; }
-    .nav a:hover { text-decoration: underline; }
-
-    /* Dashboard cards */
-    .dash { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 1.5rem; }
-    .dash-card {
-      background: #fff; border-radius: 12px; padding: 20px 18px;
-      border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      position: relative; overflow: hidden;
-    }
-    .dash-card::before {
-      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-    }
-    .dash-card.blue::before { background: #2563eb; }
-    .dash-card.green::before { background: #16a34a; }
-    .dash-card.red::before { background: #dc2626; }
-    .dash-card.amber::before { background: #d97706; }
-    .dash-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: #64748b; margin-bottom: 6px; }
-    .dash-val { font-size: 1.8rem; font-weight: 800; color: #1e293b; line-height: 1; }
-    .dash-sub { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
-
-    .card { background: #fff; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem; }
-    .card h1 { margin: 0 0 0.25rem; font-size: 1.35rem; font-weight: 700; }
-    .card .lead { color: #64748b; font-size: 0.875rem; margin-bottom: 1rem; }
-
-    .filters {
-      display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 1rem;
-    }
-    .filters input, .filters select {
-      padding: 0.5rem 0.7rem; border: 2px solid #e2e8f0; border-radius: 0.5rem;
-      font-size: 0.9rem; background: #fff;
-    }
-    .filters input:focus, .filters select:focus { outline: none; border-color: #2563eb; }
-    .search-name { flex: 1; min-width: 200px; }
-    .search-roll { width: 130px; }
-    .month-picker { width: 170px; }
-    .status-filter { width: 130px; }
-    .count-label { font-size: 0.85rem; color: #64748b; font-weight: 600; }
-
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 850px; }
-    th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid #e2e8f0; }
-    th { background: #f1f5f9; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.3px; position: sticky; top: 0; }
-    tr:hover { background: #f8fafc; }
-
-    .status-active { color: #16a34a; font-weight: 700; }
-    .status-inactive { color: #dc2626; font-weight: 700; }
-    .status-pending { color: #d97706; font-weight: 700; }
-    .email-cell { color: #2563eb; font-size: 0.8rem; }
-    .email-cell.none { color: #cbd5e1; font-style: italic; }
-    .roll-badge { display: inline-block; background: #eff6ff; color: #1d4ed8; padding: 2px 10px; border-radius: 10px; font-weight: 700; font-size: 0.82rem; }
-    .class-badge { display: inline-block; background: #f0fdf4; color: #16a34a; padding: 2px 8px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; }
-    .subjects-cell { font-size: 0.78rem; color: #475569; max-width: 180px; }
-    .fee-cell { font-weight: 700; color: #0f766e; }
-    .date-cell { font-size: 0.8rem; color: #64748b; white-space: nowrap; }
-
-    .btn-del {
-      padding: 0.3rem 0.6rem; font-size: 0.78rem; font-weight: 600;
-      background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;
-      border-radius: 0.3rem; cursor: pointer; white-space: nowrap;
-    }
-    .btn-del:hover { background: #fee2e2; }
-
-    .empty-msg { text-align: center; padding: 2.5rem; color: #94a3b8; font-size: 0.9rem; }
-    .loading-msg { text-align: center; padding: 2rem; color: #94a3b8; }
-  </style>
+  <link rel="stylesheet" href="students.css">
 </head>
 <body>
-  <script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true}},true);</script>
   <div class="page">
-    <p class="nav" style="margin-bottom:1rem;">
-      <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">&#8592; Back to Dashboard</a>
+    <p class="nav">
+      <a href="dashboard.html" class="back-link">&#8592; Back to Dashboard</a>
     </p>
 
     <div class="card">
@@ -127,7 +56,7 @@
         <span class="count-label" id="countLabel"></span>
       </div>
 
-      <div class="table-wrap" style="max-height: 70vh; overflow-y: auto;">
+      <div class="table-wrap scroll">
         <table>
           <thead>
             <tr>
@@ -149,200 +78,10 @@
           </tbody>
         </table>
       </div>
-      <div id="emptyMsg" class="empty-msg" style="display:none;">No students match your filters.</div>
+      <div id="emptyMsg" class="empty-msg">No students match your filters.</div>
     </div>
   </div>
 
-  <script type="module">
-    import { supabase, initAuthGuard } from './auth-guard.js';
-    await initAuthGuard();
-
-    var allStudents = [];
-    var emailMap = {};
-
-    var tableBody = document.getElementById('tableBody');
-    var emptyMsg = document.getElementById('emptyMsg');
-    var searchName = document.getElementById('searchName');
-    var searchRoll = document.getElementById('searchRoll');
-    var monthPicker = document.getElementById('monthPicker');
-    var statusFilter = document.getElementById('statusFilter');
-    var countLabel = document.getElementById('countLabel');
-
-    // Auto-select current month
-    var now = new Date();
-    monthPicker.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-
-    async function loadData() {
-      var [admRes, usersRes] = await Promise.all([
-        supabase.from('admission_form').select('*').order('roll', { ascending: false }),
-        supabase.from('users').select('roll, email')
-      ]);
-
-      if (admRes.error) {
-        tableBody.innerHTML = '<tr><td colspan="11" class="loading-msg" style="color:#dc2626;">Error loading: ' + admRes.error.message + '</td></tr>';
-        return;
-      }
-
-      allStudents = admRes.data || [];
-
-      emailMap = {};
-      if (!usersRes.error && usersRes.data) {
-        usersRes.data.forEach(function (u) {
-          if (u.roll && u.email) {
-            emailMap[u.roll] = u.email;
-          }
-        });
-      }
-
-      updateDashboard();
-      renderTable();
-    }
-
-    function getMonthRange() {
-      var val = monthPicker.value;
-      if (!val) return null;
-      var parts = val.split('-');
-      var y = parseInt(parts[0]);
-      var m = parseInt(parts[1]);
-      var start = new Date(y, m - 1, 1);
-      var end = new Date(y, m, 0);
-      return {
-        start: start.toISOString().slice(0, 10),
-        end: end.toISOString().slice(0, 10),
-        label: start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-      };
-    }
-
-    function updateDashboard() {
-      var range = getMonthRange();
-
-      document.getElementById('statTotal').textContent = allStudents.length;
-
-      var activeCount = allStudents.filter(function (s) { return s.status === 'Active'; }).length;
-      document.getElementById('statActive').textContent = activeCount;
-
-      if (range) {
-        var admittedThisMonth = allStudents.filter(function (s) {
-          return s.admission_date >= range.start && s.admission_date <= range.end;
-        });
-        document.getElementById('statAdmitted').textContent = admittedThisMonth.length;
-        document.getElementById('statAdmittedSub').textContent = range.label;
-
-        var leftThisMonth = allStudents.filter(function (s) {
-          return s.status === 'Inactive' && s.admission_date >= range.start && s.admission_date <= range.end;
-        });
-        var totalInactive = allStudents.filter(function (s) { return s.status === 'Inactive'; }).length;
-        document.getElementById('statLeft').textContent = totalInactive;
-        document.getElementById('statLeftSub').textContent = totalInactive + ' total inactive';
-      } else {
-        document.getElementById('statAdmitted').textContent = '—';
-        document.getElementById('statAdmittedSub').textContent = '';
-        document.getElementById('statLeft').textContent = allStudents.filter(function (s) { return s.status === 'Inactive'; }).length;
-        document.getElementById('statLeftSub').textContent = 'total inactive';
-      }
-    }
-
-    function getFiltered() {
-      var nameQ = searchName.value.trim().toLowerCase();
-      var rollQ = searchRoll.value.trim();
-      var statusQ = statusFilter.value;
-
-      return allStudents.filter(function (s) {
-        if (rollQ && String(s.roll) !== rollQ) return false;
-
-        if (nameQ) {
-          var name = (s.name || '').toLowerCase();
-          var father = (s.father || '').toLowerCase();
-          var email = (findEmail(s.roll) || '').toLowerCase();
-          if (name.indexOf(nameQ) === -1 && father.indexOf(nameQ) === -1 && email.indexOf(nameQ) === -1) return false;
-        }
-
-        if (statusQ && s.status !== statusQ) return false;
-
-        return true;
-      });
-    }
-
-    function findEmail(roll) {
-      if (!roll) return null;
-      return emailMap[roll] || null;
-    }
-
-    function esc(s) {
-      var d = document.createElement('div');
-      d.textContent = s || '';
-      return d.innerHTML;
-    }
-
-    function renderTable() {
-      var rows = getFiltered();
-      emptyMsg.style.display = rows.length === 0 ? 'block' : 'none';
-      countLabel.textContent = rows.length + ' student' + (rows.length !== 1 ? 's' : '');
-
-      if (rows.length === 0) {
-        tableBody.innerHTML = '';
-        return;
-      }
-
-      tableBody.innerHTML = rows.map(function (s) {
-        var email = findEmail(s.roll);
-        var statusClass = s.status === 'Active' ? 'status-active' : s.status === 'Inactive' ? 'status-inactive' : 'status-pending';
-
-        var subsList = [];
-        if (s.physics) subsList.push('Phy');
-        if (s.chemistry) subsList.push('Chem');
-        if (s.biology) subsList.push('Bio');
-        if (s.cs) subsList.push('CS');
-        var subs = subsList.join(', ');
-
-        var phone = [];
-        if (s.phone) phone.push(esc(s.phone));
-        if (s.whatsapp && s.whatsapp !== s.phone) phone.push('WA: ' + esc(s.whatsapp));
-
-        return '<tr>'
-          + '<td><span class="roll-badge">' + s.roll + '</span></td>'
-          + '<td><strong>' + esc(s.name) + '</strong></td>'
-          + '<td>' + esc(s.father) + '</td>'
-          + '<td class="email-cell ' + (email ? '' : 'none') + '">' + (email ? esc(email) : '—') + '</td>'
-          + '<td><span class="class-badge">' + (s.class || '—') + '</span></td>'
-          + '<td class="subjects-cell">' + (esc(subs) || '—') + '</td>'
-          + '<td class="fee-cell">Rs.' + (s.fee || 0) + '</td>'
-          + '<td style="font-size:0.8rem;">' + (phone.join('<br>') || '—') + '</td>'
-          + '<td class="date-cell">' + (s.admission_date || '—') + '</td>'
-          + '<td><span class="' + statusClass + '">' + s.status + '</span></td>'
-          + '<td><button class="btn-del" data-roll="' + s.roll + '" data-name="' + esc(s.name) + '">Delete</button></td>'
-          + '</tr>';
-      }).join('');
-
-      tableBody.querySelectorAll('.btn-del').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          deleteStudent(parseInt(btn.dataset.roll), btn.dataset.name);
-        });
-      });
-    }
-
-    async function deleteStudent(roll, name) {
-      if (!confirm('Delete student "' + name + '" (Roll #' + roll + ')?\n\nThis cannot be undone.')) return;
-
-      var { error } = await supabase.from('admission_form').delete().eq('roll', roll);
-      if (error) {
-        alert('Delete failed: ' + error.message);
-        return;
-      }
-
-      allStudents = allStudents.filter(function (s) { return s.roll !== roll; });
-      updateDashboard();
-      renderTable();
-    }
-
-    searchName.addEventListener('input', renderTable);
-    searchRoll.addEventListener('input', renderTable);
-    statusFilter.addEventListener('change', renderTable);
-    monthPicker.addEventListener('change', function () {
-      updateDashboard();
-    });
-
-    loadData();
-  </script>
+  <script type="module" src="students.js"></script>
 </body>
 </html>
