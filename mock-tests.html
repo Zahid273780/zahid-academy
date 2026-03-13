@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mock Tests - Zahid Academy</title>
+  <link rel="stylesheet" href="mcqs.css">
+</head>
+<body>
+  <script>
+    window.addEventListener('error', function (e) {
+      if (e.filename && e.filename.indexOf('share-modal') !== -1) {
+        e.preventDefault();
+        e.stopPropagation();
+        return true;
+      }
+    }, true);
+  </script>
+
+  <div class="page">
+    <p class="nav" style="margin-bottom:1rem;">
+      <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">
+        &#8592; Back to Dashboard
+      </a>
+    </p>
+
+    <div class="card">
+      <h1>Mock Tests</h1>
+      <p class="lead">View and control all mock tests created from your MCQs.</p>
+      <div id="mockMsg"></div>
+
+      <table style="width:100%;border-collapse:collapse;font-size:0.9rem;" id="mockTable">
+        <thead>
+          <tr style="text-align:left;border-bottom:1px solid #e2e8f0;">
+            <th style="padding:0.5rem;">Name</th>
+            <th style="padding:0.5rem;">Course / Class / Subject / Unit</th>
+            <th style="padding:0.5rem;">MCQs</th>
+            <th style="padding:0.5rem;">Starts at</th>
+            <th style="padding:0.5rem;">Ends at</th>
+            <th style="padding:0.5rem;">Status</th>
+            <th style="padding:0.5rem;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="mockBody">
+        </tbody>
+      </table>
+
+      <div id="mockEmpty" class="muted" style="margin-top:1rem;display:none;">
+        No mock tests found.
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="mock-tests.js"></script>
+</body>
+</html>
