@@ -1,12 +1,8 @@
-[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "YOUR_APP_PACKAGE_NAME",
-      "sha256_cert_fingerprints": [
-        "YOUR_SHA256_FINGERPRINT_FROM_PWABUILDER"
-      ]
-    }
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.shaheeninstitute.www.twa",
+    "sha256_cert_fingerprints": ["F7:7D:99:F5:5B:0E:C8:E9:5B:D4:82:8C:B0:D8:FD:AC:D7:71:7C:CE:83:1A:5A:DA:21:3F:AE:FC:D2:5C:81:92"]
   }
-]
+}]
