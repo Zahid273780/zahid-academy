@@ -127,6 +127,33 @@
     .filters input { flex: 1; min-width: 180px; }
     .count-label { font-size: 0.82rem; color: #64748b; font-weight: 600; }
 
+    /* ---- Student Column Lock ---- */
+    .col-lock-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin: 4px auto 2px; padding: 3px 8px;
+      font-size: 0.68rem; font-weight: 700; border-radius: 20px; cursor: pointer;
+      border: 1.5px solid #fca5a5; background: #fef2f2; color: #b91c1c;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .col-lock-btn:hover { background: #fee2e2; border-color: #ef4444; transform: scale(1.05); }
+    .col-lock-btn.locked { background: #fef2f2; border-color: #fca5a5; color: #b91c1c; }
+    .col-lock-btn:not(.locked) { background: #dcfce7; border-color: #86efac; color: #15803d; }
+    .col-lock-btn:not(.locked):hover { background: #bbf7d0; border-color: #4ade80; }
+    .lock-icon { font-size: 0.75rem; }
+    .lock-label { font-size: 0.66rem; letter-spacing: 0.3px; }
+
+    .student-perm-cell { position: relative; transition: background 0.2s; }
+    .student-perm-cell.col-locked { background: #fafafa; }
+    .student-perm-cell.col-locked .rwd-group { pointer-events: none; opacity: 0.45; filter: grayscale(0.4); }
+    .student-perm-cell.col-locked::after {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        135deg, transparent, transparent 4px,
+        rgba(239,68,68,0.04) 4px, rgba(239,68,68,0.04) 8px
+      );
+      pointer-events: none; border-radius: 2px;
+    }
+
     /* ---- Legend ---- */
     .legend { display: flex; gap: 18px; align-items: center; margin-bottom: 1rem; font-size: 0.82rem; font-weight: 600; color: #475569; }
     .legend-item { display: flex; align-items: center; gap: 5px; }

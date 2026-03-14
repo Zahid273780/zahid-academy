@@ -48,6 +48,24 @@ function escapeHtml(s) {
 }
 
 let allPermissions = [];
+let studentLocked = true;
+
+function applyStudentLock() {
+  const cells = document.querySelectorAll('#permBody .student-perm-cell');
+  const btn = document.getElementById('studentLockBtn');
+  if (!btn) return;
+  if (studentLocked) {
+    cells.forEach(c => c.classList.add('col-locked'));
+    btn.classList.add('locked');
+    btn.title = 'Student column is locked. Click to unlock and allow edits.';
+    btn.innerHTML = '<span class="lock-icon">🔒</span><span class="lock-label">Locked</span>';
+  } else {
+    cells.forEach(c => c.classList.remove('col-locked'));
+    btn.classList.remove('locked');
+    btn.title = 'Student column is unlocked. Click to lock and prevent accidental edits.';
+    btn.innerHTML = '<span class="lock-icon">🔓</span><span class="lock-label">Unlocked</span>';
+  }
+}
 
 async function loadPermissions() {
   const { data, error } = await supabase
@@ -92,7 +110,8 @@ function renderMatrix() {
       (isPage ? '' : '<span class="table-desc">' + escapeHtml(res) + '</span>') +
       '</td>';
     for (const role of ROLES) {
-      html += '<td class="perm-cell"><div class="rwd-group">';
+      const isStudent = role === 'student';
+      html += '<td class="perm-cell' + (isStudent ? ' student-perm-cell' + (studentLocked ? ' col-locked' : '') : '') + '"><div class="rwd-group">';
       for (const perm of PERMS) {
         const checked = getPerm(res, role, perm);
         const id = 'cb_' + res.replace(/[^a-z0-9]/gi, '_') + '_' + role + '_' + perm;
@@ -254,6 +273,15 @@ async function boot() {
   await loadUserCounts();
   await loadPermissions();
   document.getElementById('savePermsBtn').addEventListener('click', savePermissions);
+
+  const lockBtn = document.getElementById('studentLockBtn');
+  if (lockBtn) {
+    lockBtn.addEventListener('click', () => {
+      studentLocked = !studentLocked;
+      applyStudentLock();
+    });
+  }
+
   document.querySelectorAll('.tab').forEach((t) => {
     t.addEventListener('click', () => switchTab(t.dataset.tab));
   });
