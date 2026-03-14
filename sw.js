@@ -1,17 +1,26 @@
 // Shaheen Institute Service Worker
 // Update this version number whenever you deploy major changes
-const CACHE_VERSION = 'shaheen-v1';
+const CACHE_VERSION = 'shaheen-v2';
 
 const STATIC_ASSETS = [
   '/login.html',
   '/portal.html',
   '/index.html',
+  '/Navi.html',
+  '/givetest.html',
+  '/mistake-bucket.html',
+  '/student-analytics.html',
+  '/offline.html',
   '/login.css',
   '/portal.css',
   '/index.css',
+  '/Navi.css',
+  '/givetest.css',
+  '/mistake-bucket.css',
+  '/manifest.json',
   '/assets/icon-192.png',
   '/assets/icon-512.png',
-  '/offline.html'
+  '/assets/Logo.png'
 ];
 
 // Install: cache essential files
