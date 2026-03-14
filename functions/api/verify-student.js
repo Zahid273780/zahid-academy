@@ -13,18 +13,6 @@ function json(body, status = 200) {
   });
 }
 
-function extractUserId(token) {
-  try {
-    const parts = token.split('.');
-    if (parts.length >= 2) {
-      const payload = JSON.parse(atob(parts[1]));
-      if (payload.exp && payload.exp * 1000 < Date.now()) return null;
-      return payload.sub || null;
-    }
-  } catch {}
-  return null;
-}
-
 export async function onRequest(context) {
   const req = context.request;
   const env = context.env;
@@ -50,14 +38,15 @@ export async function onRequest(context) {
     return json({ error: 'Not authenticated' }, 401);
   }
 
-  const userId = extractUserId(token);
-  if (!userId) {
-    return json({ error: 'Invalid or expired token' }, 401);
-  }
-
   const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+
+  const { data: { user: authUser }, error: authError } = await adminClient.auth.getUser(token);
+  if (authError || !authUser) {
+    return json({ error: 'Invalid or expired token' }, 401);
+  }
+  const userId = authUser.id;
 
   const { data: profile } = await adminClient
     .from('users')
