@@ -56,17 +56,24 @@ body {
 
 .container {
     background: var(--card-bg);
-    padding: 2.5rem;
-    border-radius: 20px;
+    padding: 1rem;
+    border-radius: 16px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     width: 100%;
     max-width: 850px;
-    margin: 40px auto;
+    margin: 8px auto;
     border-top: 6px solid var(--primary);
+    box-sizing: border-box;
+}
+@media (min-width: 600px) {
+    .container { padding: 2.5rem; margin: 40px auto; border-radius: 20px; }
 }
 
 .academy-header { text-align: center; margin-bottom: 30px; }
-.academy-header h1 { color: var(--primary-dark); font-size: 2.2rem; margin: 0; letter-spacing: -1px; }
+.academy-header h1 { color: var(--primary-dark); font-size: 1.4rem; margin: 0; letter-spacing: -0.5px; }
+@media (min-width: 600px) {
+    .academy-header h1 { font-size: 2.2rem; letter-spacing: -1px; }
+}
 .academy-header p { color: #64748b; margin-top: 5px; font-weight: 500; }
 .mode-badge { display: inline-block; background: #fffbeb; color: #92400e; font-size: 0.75rem; font-weight: 700; padding: 4px 14px; border-radius: 20px; border: 1px solid #fde68a; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -80,7 +87,10 @@ body {
 .portal-link { border: none; background: none; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: none; font-size: 0.85rem; }
 .logout-btn { border: none; background: none; color: #dc2626; cursor: pointer; font-weight: 600; }
 
-.grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; margin-top: 20px; }
+.grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 16px; }
+@media (min-width: 600px) {
+    .grid-container { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; margin-top: 20px; }
+}
 .grid-empty-msg { text-align: center; color: #94a3b8; grid-column: 1 / -1; }
 
 .nav-btn {
@@ -127,7 +137,10 @@ body {
 .question-text { line-height: 1.4; margin-bottom: 30px; }
 
 .result-title { text-align: center; margin-bottom: 30px; }
-.result-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
+.result-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+@media (min-width: 600px) {
+    .result-cards { grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
+}
 .mistake-bucket-area { margin-top: 15px; display: none; }
 .mistake-bucket-area.show { display: block; }
 .add-to-bucket-btn { background: #7c3aed !important; margin-bottom: 10px; }
