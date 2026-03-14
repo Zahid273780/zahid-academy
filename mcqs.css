@@ -1,4 +1,77 @@
 * { box-sizing: border-box; }
+.hidden { display: none !important; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; min-height: 100vh; color: #1e293b; }
+.page { max-width: 62rem; margin: 0 auto; padding: 2rem 1rem; }
+.nav { margin-bottom: 1.5rem; font-size: 0.875rem; color: #475569; }
+.nav a { color: #2563eb; text-decoration: none; }
+.nav a:hover { text-decoration: underline; }
+.card { background: #fff; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem; }
+.card h1 { margin: 0 0 0.5rem; font-size: 1.35rem; color: #1e293b; }
+.card h2 { margin: 0 0 1rem; font-size: 1.1rem; color: #334155; }
+.card .lead { color: #64748b; font-size: 0.875rem; margin-bottom: 1rem; }
+label { display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem; }
+input, select, textarea { width: 100%; padding: 0.5rem 0.6rem; border: 2px solid #e2e8f0; border-radius: 0.375rem; font-size: 0.9rem; font-family: inherit; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: #2563eb; }
+textarea { min-height: 2.5rem; resize: vertical; }
+.btn { padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; }
+.btn-primary { background: #2563eb; color: #fff; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-ghost { background: #f1f5f9; color: #475569; }
+.btn-ghost:hover { background: #e2e8f0; }
+.btn-sm { padding: 0.3rem 0.5rem; font-size: 0.8rem; }
+.btn-danger { background: #fef2f2; color: #b91c1c; border: none; }
+.btn-danger:hover { background: #fee2e2; }
+#msg { margin-top: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 0.875rem; }
+#msg.err { background: #fef2f2; color: #b91c1c; }
+#msg.ok { background: #dcfce7; color: #16a34a; }
+.muted { font-size: 0.8rem; color: #94a3b8; }
+.cascade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem 1rem; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-bottom: 1rem; justify-content: space-between; }
+.toolbar-left { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+.toolbar-right { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.toolbar .count { font-size: 0.875rem; color: #475569; font-weight: 600; }
+.toolbar .bulk-select { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; color: #64748b; }
+.mcq-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; margin-bottom: 0.75rem; }
+.mcq-card-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.75rem; border-bottom: 1px solid #e5e7eb; }
+.mcq-card-head .mcq-num { font-weight: 700; font-size: 0.8rem; color: #2563eb; min-width: 1.8rem; }
+.mcq-card-head .card-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
+.btn-edit { padding: 0.25rem 0.5rem; font-size: 0.75rem; background: #dbeafe; color: #1d4ed8; border: none; border-radius: 0.25rem; cursor: pointer; }
+.btn-edit:hover { background: #bfdbfe; }
+.btn-remove { padding: 0.25rem 0.5rem; font-size: 0.75rem; background: #fef2f2; color: #b91c1c; border: none; border-radius: 0.25rem; cursor: pointer; }
+.btn-remove:hover { background: #fee2e2; }
+.btn-hide { padding: 0.25rem 0.5rem; font-size: 0.75rem; border: none; border-radius: 0.25rem; cursor: pointer; }
+.btn-hide.is-visible { background: #dcfce7; color: #166534; }
+.btn-hide.is-hidden { background: #fef3c7; color: #92400e; }
+.btn-hide:hover { opacity: 0.8; }
+.mcq-card.mcq-hidden { opacity: 0.55; }
+.mcq-card.mcq-hidden .mcq-card-head { background: #fef3c7; }
+.mcq-card-body { padding: 0.55rem 0.85rem 0.7rem 2.5rem; font-size: 0.85rem; color: #475569; }
+.mcq-q-main { font-size: 0.9rem; font-weight: 600; color: #111827; margin-bottom: 0.25rem; }
+.mcq-meta { font-size: 0.78rem; color: #6b7280; margin-bottom: 0.35rem; }
+.mcq-opt { padding: 0.15rem 0; display: flex; gap: 0.3rem; }
+.mcq-opt .letter { font-weight: 600; min-width: 1.2rem; }
+.mcq-opt.correct { color: #16a34a; font-weight: 600; }
+.mcq-opt.correct .letter::after { content: ' \2713'; }
+.mcq-edit { padding: 0.5rem 0.75rem 0.75rem 2.5rem; display: none; border-top: 1px solid #e2e8f0; }
+.mcq-edit.active { display: block; }
+.mcq-edit label { font-size: 0.75rem; margin-bottom: 0.15rem; }
+.mcq-edit input, .mcq-edit textarea { font-size: 0.85rem; padding: 0.35rem 0.5rem; margin-bottom: 0.4rem; }
+.mcq-edit .opt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.mcq-edit .correct-row { display: flex; gap: 0.75rem; align-items: center; margin-top: 0.25rem; }
+.mcq-edit .correct-row label { margin: 0; font-weight: 400; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; }
+.mcq-edit .save-row { margin-top: 0.5rem; }
+#emptyMsg { text-align: center; padding: 2rem 1rem; color: #94a3b8; font-size: 0.9rem; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.45); display: none; align-items: center; justify-content: center; z-index: 40; }
+.modal-backdrop.show { display: flex; }
+.modal-card { background:#fff; border-radius:0.75rem; padding:1.5rem; max-width:26rem; width:100%; box-shadow:0 20px 40px rgba(15,23,42,0.35); border:1px solid #e2e8f0; }
+.modal-title { margin:0 0 0.25rem; font-size:1.1rem; color:#0f172a; }
+.modal-sub { margin:0 0 1rem; font-size:0.8rem; color:#64748b; }
+.radio-row { display:flex; gap:0.75rem; margin-bottom:0.5rem; font-size:0.85rem; color:#475569; }
+.radio-row label { display:flex; align-items:center; gap:0.35rem; font-weight:500; cursor:pointer; }
+.modal-actions { display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.75rem; }
+
+* { box-sizing: border-box; }
     .hidden { display: none !important; }
     body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; min-height: 100vh; color: #1e293b; }
     .page { max-width: 62rem; margin: 0 auto; padding: 2rem 1rem; }

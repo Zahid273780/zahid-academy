@@ -27,9 +27,18 @@ var NAV_CATEGORIES = [
     ]
   },
   {
+    id: 'communications', label: 'Communications', icon: 'fas fa-bullhorn',
+    items: [
+      { href: 'announcements.html',         label: 'Announcements',        icon: 'fas fa-bullhorn',    table: 'page:announcements' },
+      { href: 'motivational-messages.html', label: 'Motivational Messages', icon: 'fas fa-fire',       table: 'page:motivational-messages' },
+      { href: 'quotes.html',                label: 'Quotes of the Day',     icon: 'fas fa-quote-right', table: 'page:quotes' },
+    ]
+  },
+  {
     id: 'settings', label: 'Settings', icon: 'fas fa-cog',
     items: [
       { href: 'user-form.html', label: 'User Entry Form', icon: 'fas fa-user-plus', table: 'page:user-form' },
+      { href: 'form-requests.html', label: 'Form Requests', icon: 'fas fa-inbox', table: 'page:import-users' },
       { href: 'import-users.html', label: 'Import Users', icon: 'fas fa-upload', table: 'page:import-users' },
       { href: 'users.html', label: 'Users', icon: 'fas fa-users-cog', table: 'page:users' },
       { href: 'subscriptions.html', label: 'Subscriptions', icon: 'fas fa-ticket-alt', table: 'page:subscriptions' },
@@ -39,12 +48,13 @@ var NAV_CATEGORIES = [
 ];
 
 var QUICK_ACCESS = [
-  { href: 'admission.html', label: 'Admission', icon: 'fas fa-file-signature', table: 'page:admission' },
-  { href: 'mcqs.html',      label: 'Manage MCQs', icon: 'fas fa-tasks', table: 'page:manage-mcqs' },
-  { href: 'results.html',   label: 'Results', icon: 'fas fa-chart-bar', table: 'page:results' },
-  { href: 'students.html',  label: 'Students', icon: 'fas fa-user-graduate', table: 'page:students' },
-  { href: 'publisher.html', label: 'Publisher', icon: 'fas fa-bullhorn', table: 'page:publisher' },
-  { href: 'users.html',     label: 'Users', icon: 'fas fa-users-cog', table: 'page:users' },
+  { href: 'admission.html',      label: 'Admission',      icon: 'fas fa-file-signature', table: 'page:admission' },
+  { href: 'mcqs.html',           label: 'Manage MCQs',    icon: 'fas fa-tasks',          table: 'page:manage-mcqs' },
+  { href: 'results.html',        label: 'Results',        icon: 'fas fa-chart-bar',      table: 'page:results' },
+  { href: 'students.html',       label: 'Students',       icon: 'fas fa-user-graduate',  table: 'page:students' },
+  { href: 'publisher.html',      label: 'Publisher',      icon: 'fas fa-broadcast-tower',table: 'page:publisher' },
+  { href: 'announcements.html',  label: 'Announcements',  icon: 'fas fa-bullhorn',       table: 'page:announcements' },
+  { href: 'users.html',          label: 'Users',          icon: 'fas fa-users-cog',      table: 'page:users' },
 ];
 
 async function boot() {
@@ -70,6 +80,7 @@ async function boot() {
   buildSidebar(user);
   buildQuickLinks();
   loadStats();
+  loadQuoteOfDay();
 }
 
 function buildSidebar(user) {
@@ -141,6 +152,21 @@ async function loadStats() {
     document.getElementById('statTests').textContent = counts[2];
     document.getElementById('statUsers').textContent = counts[3];
     document.getElementById('statSubjects').textContent = counts[4];
+  } catch (e) {}
+}
+
+async function loadQuoteOfDay() {
+  try {
+    var { data } = await supabase.from('quotes').select('quote, author').eq('is_active', true);
+    if (!data || data.length === 0) return;
+    var now = new Date();
+    var start = new Date(now.getFullYear(), 0, 0);
+    var dayOfYear = Math.floor((now - start) / 86400000);
+    var q = data[dayOfYear % data.length];
+    if (!q) return;
+    document.getElementById('quoteText').textContent = q.quote;
+    document.getElementById('quoteAuthor').textContent = '— ' + (q.author || 'Unknown');
+    document.getElementById('quoteCard').style.display = 'flex';
   } catch (e) {}
 }
 

@@ -9,6 +9,11 @@
     var loginBtn = document.getElementById('loginBtn');
     var btnText = document.getElementById('btnText');
     var msgEl = document.getElementById('loginMsg');
+    var userInput = document.getElementById('email');
+    var passInput = document.getElementById('password');
+
+    var SUPABASE_URL = 'https://uygtxlehwtgaftcwsxrr.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5Z3R4bGVod3RnYWZ0Y3dzeHJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MDIxMjIsImV4cCI6MjA4ODQ3ODEyMn0.5rW1hnEffnlWU57jT-IA3L0sOHY8aagTmMmpcZw-0mk';
 
     function showMsg(text, type) {
         msgEl.textContent = text;
@@ -17,6 +22,30 @@
     function hideMsg() {
         msgEl.textContent = '';
         msgEl.className = 'login-msg';
+    }
+
+    // Prefill from recent signup, if present
+    try {
+        var signupUser = sessionStorage.getItem('signup_username');
+        var signupPass = sessionStorage.getItem('signup_password');
+        if (signupUser && userInput) userInput.value = signupUser;
+        if (signupPass && passInput) passInput.value = signupPass;
+        // Clear after prefilling
+        sessionStorage.removeItem('signup_username');
+        sessionStorage.removeItem('signup_password');
+    } catch (_) {}
+
+    async function studentLogin(email, password) {
+        var createClient = (await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm')).createClient;
+        var supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        var result = await supabase.auth.signInWithPassword({ email: email, password: password });
+        if (result.error) {
+            return { ok: false, error: result.error.message || 'Login failed' };
+        }
+        if (!result.data || !result.data.session || !result.data.session.access_token) {
+            return { ok: false, error: 'Could not start session' };
+        }
+        return { ok: true, session: result.data.session };
     }
 
     form.addEventListener('submit', async function (e) {
@@ -31,29 +60,23 @@
             return;
         }
 
-        var email = username.includes('@') ? username : username + '@zahidacademy.com';
+        var email = username.includes('@') ? username : username + '@shaeenacademy.com';
 
         loginBtn.disabled = true;
         btnText.innerHTML = '<span class="spinner-small"></span> Signing in...';
 
         try {
-            var res = await fetch('/api/student-login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, password: password })
-            });
+            var result = await studentLogin(email, password);
 
-            var data = await res.json().catch(function () { return {}; });
-
-            if (!res.ok) {
-                showMsg(data.error || 'Login failed', 'err');
+            if (!result.ok) {
+                showMsg(result.error || 'Login failed', 'err');
                 loginBtn.disabled = false;
                 btnText.innerHTML = 'Sign In';
                 return;
             }
 
-            sessionStorage.setItem('_st', data.token);
-            sessionStorage.setItem('_se', data.email);
+            sessionStorage.setItem('_st', result.session.access_token);
+            sessionStorage.setItem('_se', email);
 
             showMsg('Login successful! Redirecting...', 'ok');
             btnText.innerHTML = '<span class="spinner-small"></span> Redirecting...';

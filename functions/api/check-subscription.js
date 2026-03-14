@@ -1,4 +1,4 @@
-import { createClient } from 'npm:@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -113,8 +113,8 @@ export async function onRequest(context) {
     reason = rows && rows.length > 0 ? 'expired_or_exhausted' : 'no_subscription';
     message =
       rows && rows.length > 0
-        ? 'All your subscriptions have expired or are exhausted. Contact your administrator.'
-        : 'No subscription found. Please contact your administrator.';
+        ? 'All your subscriptions have expired or are exhausted. Please buy a new plan via Easypaisa (03337502737 – Zahid Hussain).'
+        : 'No subscription found. Please buy a plan via Easypaisa (03337502737 – Zahid Hussain).';
   } else if (totalRemaining <= 0) {
     reason = 'quota_exhausted';
     message = 'You have used all MCQs in your active plans. Contact your administrator to upgrade.';

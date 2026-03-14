@@ -8,23 +8,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-  <!-- GSAP: https://greensock.com/gsap/ | ScrollTrigger: https://greensock.com/docs/v3/Plugins/ScrollTrigger -->
+  <link rel="preload" href="https://lottie.host/69b06f53-b4a3-41d4-b8d3-3640d3194555/cK7nrUMnF0.lottie" as="fetch" type="application/octet-stream" crossorigin="anonymous">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <!-- Lottie: https://github.com/LottieFiles/lottie-player -->
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
   <link rel="stylesheet" href="index.css">
-  <!-- Styles in index.css -->
-</head>
+  </head>
 <body>
   <script>
     window.addEventListener('error', function (e) {
-      if (e.filename && e.filename.indexOf('share-modal') !== -1) {
-        e.preventDefault();
-        e.stopPropagation();
-        return true;
-      }
+      if (e.filename && e.filename.indexOf('share-modal') !== -1) { e.preventDefault(); e.stopPropagation(); return true; }
+      if (e.message && /addEventListener.*null/.test(e.message)) return true;
     }, true);
+    window.onerror = function (msg) { if (msg && /addEventListener.*null/.test(String(msg))) return true; };
   </script>
 
   <nav class="topnav">
@@ -33,7 +29,7 @@
       Shaeen Academy
     </a>
     <div class="topnav-links">
-      <a href="form.html" class="btn-login topnav-form-link">Fill form for Login ID</a>
+      <a href="form.html" class="btn-login topnav-form-link">Create Account</a>
       <a href="login.html" class="btn-login"><i class="fa-solid fa-user-graduate"></i> Student Login</a>
     </div>
   </nav>
@@ -48,6 +44,7 @@
 
   <header class="hero">
     <div class="hero__body hero-inner" id="hero-left">
+      <span class="hero-subtitle">MDCAT, ECAT, CSS, PMS, PCS and Jobs Preparation</span>
       <h1 class="hero-heading">🚀 Boost Your Exam Preparation</h1>
       <p class="hero-desc">Practice thousands of MCQs, take daily tests, and track your performance — all for just <span class="hero-price">Rs. 200</span>.</p>
       <div class="hero-actions">

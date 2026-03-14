@@ -7,9 +7,15 @@
   <link rel="stylesheet" href="bulkimport.css">
 </head>
 <body>
+<script>
+  window.addEventListener('error', function (e) {
+    if (e.filename && e.filename.indexOf('share-modal') !== -1) { e.preventDefault(); e.stopPropagation(); return true; }
+    if (e.message && /addEventListener.*null/.test(e.message)) return true;
+  }, true);
+  window.onerror = function (msg) { if (msg && /addEventListener.*null/.test(String(msg))) return true; };
+</script>
   <div class="page">
-    <p class="nav"><a href="dashboard.html" class="back-link">&#8592; Back to Dashboard</a>
-    </p>
+    <p class="nav"><a href="dashboard.html" class="back-link">&#8592; Back to Dashboard</a></p>
 
     <div class="card">
       <h1>Bulk Import MCQs</h1>
@@ -57,7 +63,21 @@
       </div>
       <p class="muted" id="mcqCountMsg" style="margin-top:0.5rem;"></p>
 
-      <h2 style="margin-top:1.5rem;">2. Paste MCQs or upload .docx</h2>
+      <h2 style="margin-top:1.5rem;">2. Select test type</h2>
+      <div style="display:flex;gap:12px;margin-bottom:1rem;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px 20px;border:2px solid #e2e8f0;border-radius:10px;font-weight:600;font-size:0.9rem;background:#fff;transition:all 0.15s;" id="labelPractice">
+          <input type="radio" name="testType" id="typePractice" value="practice" checked style="accent-color:#2563eb;">
+          <span>📖 Practice Test</span>
+          <small style="font-weight:400;color:#64748b;display:block;">Visible in free practice mode</small>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px 20px;border:2px solid #e2e8f0;border-radius:10px;font-weight:600;font-size:0.9rem;background:#fff;transition:all 0.15s;" id="labelMock">
+          <input type="radio" name="testType" id="typeMock" value="mock" style="accent-color:#dc2626;">
+          <span>🎯 Mock Test</span>
+          <small style="font-weight:400;color:#64748b;display:block;">Hidden — only in Give Test mode</small>
+        </label>
+      </div>
+
+      <h2 style="margin-top:1.5rem;">3. Paste MCQs or upload .docx</h2>
       <form id="form">
         <div class="form-grid">
           <div class="full upload-row">
@@ -77,7 +97,7 @@
       <div id="msg"></div>
 
       <div id="reviewSection" class="hidden">
-        <h2 style="margin-top:1.5rem;">3. Review, edit &amp; import</h2>
+        <h2 style="margin-top:1.5rem;">4. Review, edit &amp; import</h2>
         <div class="review-toolbar">
           <button type="button" class="btn btn-ghost btn-sm" id="selectAllBtn">Select all</button>
           <button type="button" class="btn btn-ghost btn-sm" id="deselectAllBtn">Deselect all</button>
@@ -85,6 +105,7 @@
         </div>
         <div id="reviewList"></div>
         <div style="margin-top:1rem;">
+          <div id="importTypeNotice" style="margin-bottom:0.75rem;padding:10px 14px;border-radius:8px;font-size:0.875rem;font-weight:600;display:none;"></div>
           <button type="button" class="btn btn-primary" id="importSelectedBtn">Import selected</button>
         </div>
       </div>
@@ -92,6 +113,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script type="module" src="bulkimport.js"></script>
+  <script type="module" src="bulkimport.js?v=2"></script>
 </body>
 </html>

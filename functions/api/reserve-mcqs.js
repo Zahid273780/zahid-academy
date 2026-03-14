@@ -1,4 +1,4 @@
-import { createClient } from 'npm:@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -118,7 +118,7 @@ export async function onRequest(context) {
   if (usable.length === 0) {
     return json(
       {
-        error: 'No subscription found or all have expired/exhausted. Contact your administrator.',
+        error: 'No subscription found or all have expired/exhausted. Please buy a plan to continue. Send payment via Easypaisa to: 03337502737 (Zahid Hussain). Tap the Easypaisa/WhatsApp button on the page to pay.',
       },
       403
     );

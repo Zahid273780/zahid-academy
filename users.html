@@ -24,11 +24,13 @@
           <option value="student">Student</option>
           <option value="accountant">Accountant</option>
         </select>
+        <button type="button" id="deleteSelected" class="btn-bulk-delete" disabled>Delete selected</button>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
+              <th><input type="checkbox" id="selectAll"></th>
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>

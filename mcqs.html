@@ -8,8 +8,7 @@
 </head>
 <body>
   <div class="page">
-    <p class="nav"><a href="dashboard.html" class="back-link">&#8592; Back to Dashboard</a>
-    </p>
+    <p class="nav"><a href="dashboard.html" class="back-link">&#8592; Back to Dashboard</a></p>
 
     <div class="card">
       <h1>Manage MCQs</h1>
@@ -50,10 +49,75 @@
           <input type="checkbox" id="selectAllMcqs" title="Select all visible MCQs"> Select all
         </label>
         <span class="count" id="countLabel"></span>
-        <button type="button" class="btn btn-danger btn-sm" id="deleteSelectedBtn" style="display:none;">Delete selected</button>
+        <div style="display:flex;gap:8px;align-items:center;margin-left:auto;">
+          <button type="button" id="createTestBtn" style="display:none;padding:6px 16px;background:#16a34a;color:#fff;border:none;border-radius:7px;font-weight:700;font-size:0.85rem;cursor:pointer;">+ Create test from selected</button>
+          <button type="button" class="btn btn-danger btn-sm" id="deleteSelectedBtn" style="display:none;">Delete selected</button>
+        </div>
       </div>
       <div id="mcqList"></div>
       <div id="emptyMsg" class="hidden">No MCQs match your filters.</div>
+    </div>
+  </div>
+
+  <!-- ── Create Test Modal ── -->
+  <div id="createTestModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(3px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#fff;border-radius:16px;width:100%;max-width:520px;box-shadow:0 25px 50px rgba(0,0,0,0.3);overflow:hidden;">
+      <div style="background:linear-gradient(135deg,#1e40af,#2563eb);padding:22px 24px;">
+        <h2 style="color:#fff;margin:0;font-size:1.2rem;">Create New Test from Selected MCQs</h2>
+        <p style="color:rgba(255,255,255,0.8);margin:4px 0 0;font-size:0.82rem;" id="ctModalCount"></p>
+      </div>
+      <div style="padding:22px 24px;">
+
+        <!-- test type -->
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#374151;margin-bottom:8px;">Test Type</label>
+          <div style="display:flex;gap:10px;">
+            <label id="ctLabelPractice" style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px solid #2563eb;border-radius:10px;background:#eff6ff;cursor:pointer;font-weight:600;font-size:0.875rem;">
+              <input type="radio" name="ctTestType" id="ctTypePractice" value="practice" checked style="accent-color:#2563eb;">
+              <span>Practice Test</span>
+            </label>
+            <label id="ctLabelMock" style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;cursor:pointer;font-weight:600;font-size:0.875rem;">
+              <input type="radio" name="ctTestType" id="ctTypeMock" value="mock" style="accent-color:#dc2626;">
+              <span>Mock Test</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- course structure fields -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:3px;">Course *</label>
+            <input type="text" id="ctCourse" placeholder="e.g. MDCAT" style="width:100%;padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:3px;">Class / Exam *</label>
+            <input type="text" id="ctClassExam" placeholder="e.g. 2025" style="width:100%;padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:3px;">Subject *</label>
+            <input type="text" id="ctSubject" placeholder="e.g. Physics" style="width:100%;padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:3px;">Unit *</label>
+            <input type="text" id="ctUnit" placeholder="e.g. Unit 1" style="width:100%;padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:3px;">Category (optional)</label>
+            <input type="text" id="ctCategory" placeholder="e.g. Easy" style="width:100%;padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:3px;">Test Number *</label>
+            <input type="number" id="ctTestNumber" placeholder="e.g. 5" min="1" style="width:100%;padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+          </div>
+        </div>
+
+        <div id="ctMsg" style="margin-bottom:10px;font-size:0.85rem;font-weight:600;display:none;padding:8px 12px;border-radius:8px;"></div>
+
+        <div style="display:flex;gap:8px;">
+          <button type="button" id="ctConfirmBtn" style="flex:1;padding:10px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:0.9rem;cursor:pointer;">Create Test</button>
+          <button type="button" id="ctCancelBtn" style="padding:10px 20px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-weight:600;font-size:0.9rem;cursor:pointer;">Cancel</button>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Motivational Messages - Zahid Academy</title>
+  <link rel="stylesheet" href="mcqs.css">
+  <style>
+    .mm-form-card {
+      background: #fff; border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem;
+    }
+    .mm-form-card h2 { margin: 0 0 1rem; font-size: 1.1rem; color: #1e293b; }
+    .mm-form-card textarea {
+      width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0;
+      border-radius: 0.5rem; font-size: 0.9rem; font-family: inherit;
+      margin-bottom: 0.75rem; box-sizing: border-box; min-height: 80px; resize: vertical;
+    }
+    .mm-form-card textarea:focus { outline: none; border-color: #2563eb; }
+    .mm-form-card select {
+      width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0;
+      border-radius: 0.5rem; font-size: 0.9rem; font-family: inherit;
+      margin-bottom: 0.75rem; box-sizing: border-box; background: #fff;
+    }
+    .mm-form-card select:focus { outline: none; border-color: #2563eb; }
+
+    .tier-guide {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.8rem; color: #475569;
+      line-height: 1.7;
+    }
+    .tier-guide strong { color: #1e293b; }
+
+    .mm-row {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 14px 16px; margin-bottom: 10px;
+    }
+    .mm-row-head { display: flex; align-items: flex-start; gap: 10px; justify-content: space-between; }
+    .mm-row-tier { flex-shrink: 0; }
+    .mm-row-msg  { font-size: 0.875rem; color: #475569; margin-top: 8px; line-height: 1.6; }
+    .mm-row-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .tier-badge {
+      display: inline-block; padding: 2px 10px; border-radius: 4px;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    }
+    .tier-new       { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .tier-low       { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .tier-medium    { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .tier-good      { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .tier-great     { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .tier-excellent { background: #faf5ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+
+    .badge-active   { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 2px 10px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; }
+    .badge-inactive { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; padding: 2px 10px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; }
+
+    .btn-toggle-mm { padding: 5px 12px; border: none; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+    .btn-toggle-mm.active   { background: #fef3c7; color: #92400e; }
+    .btn-toggle-mm.inactive { background: #dcfce7; color: #166534; }
+    .btn-del-mm    { padding: 5px 12px; background: #fef2f2; color: #b91c1c; border: none; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+
+    .active-filter { background: #2563eb !important; color: #fff !important; }
+    #mmListArea .empty-mm { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.9rem; }
+
+    .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+<script>
+  window.addEventListener('error', function(e) {
+    if (e.filename && e.filename.indexOf('share-modal') !== -1) { e.preventDefault(); e.stopPropagation(); return true; }
+    if (e.message && /addEventListener.*null/.test(e.message)) return true;
+  }, true);
+  window.onerror = function(msg) { if (msg && /addEventListener.*null/.test(String(msg))) return true; };
+</script>
+
+<div class="page">
+  <p class="nav"><a href="dashboard.html" class="back-link">&#8592; Back to Dashboard</a></p>
+
+  <div class="mm-form-card">
+    <h1 style="margin:0 0 0.4rem;font-size:1.35rem;color:#1e293b;">Motivational Messages</h1>
+    <p class="lead" style="margin-bottom:1.25rem;">
+      Add messages that appear on the student dashboard. A random active message from the matching tier is shown based on the student's performance.
+    </p>
+
+    <div class="tier-guide">
+      <strong>Tier guide:</strong><br>
+      <strong>new</strong> — student has 0 attempts &nbsp;|&nbsp;
+      <strong>low</strong> — accuracy &lt; 25% &nbsp;|&nbsp;
+      <strong>medium</strong> — accuracy 25–49% &nbsp;|&nbsp;
+      <strong>good</strong> — accuracy 50–74% &nbsp;|&nbsp;
+      <strong>great</strong> — accuracy 75–89% &nbsp;|&nbsp;
+      <strong>excellent</strong> — accuracy ≥ 90%
+    </div>
+
+    <h2>Add new message</h2>
+    <select id="mmTier">
+      <option value="">— Select tier —</option>
+      <option value="new">new — 0 attempts</option>
+      <option value="low">low — accuracy &lt; 25%</option>
+      <option value="medium">medium — accuracy 25–49%</option>
+      <option value="good">good — accuracy 50–74%</option>
+      <option value="great">great — accuracy 75–89%</option>
+      <option value="excellent">excellent — accuracy ≥ 90%</option>
+    </select>
+    <textarea id="mmText" placeholder="Type the motivational message here…"></textarea>
+    <div id="mmFormMsg" style="margin-bottom:0.75rem;font-size:0.85rem;font-weight:600;display:none;padding:8px 12px;border-radius:8px;"></div>
+    <button type="button" id="mmAddBtn" class="btn btn-primary">Add Message</button>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <span class="count" id="mmCount"></span>
+      <div class="filter-row">
+        <button type="button" id="filterAll"      class="btn btn-ghost btn-sm active-filter">All</button>
+        <button type="button" id="filterActive"   class="btn btn-ghost btn-sm">Active</button>
+        <button type="button" id="filterInactive" class="btn btn-ghost btn-sm">Inactive</button>
+        <select id="filterTier" style="padding:4px 8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:0.8rem;background:#fff;cursor:pointer;">
+          <option value="">All tiers</option>
+          <option value="new">new</option>
+          <option value="low">low</option>
+          <option value="medium">medium</option>
+          <option value="good">good</option>
+          <option value="great">great</option>
+          <option value="excellent">excellent</option>
+        </select>
+      </div>
+    </div>
+    <div id="mmListArea"><div class="empty-mm">Loading…</div></div>
+  </div>
+</div>
+
+<script type="module" src="motivational-messages.js"></script>
+</body>
+</html>

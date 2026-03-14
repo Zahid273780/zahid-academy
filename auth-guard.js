@@ -24,6 +24,9 @@ var PAGE_TABLE_MAP = {
   'subscriptions.html':    'page:subscriptions',
   'rbac.html':             'page:rbac',
   'attendance.html':       'page:attendance',
+  'announcements.html':         'page:announcements',
+  'motivational-messages.html': 'page:motivational-messages',
+  'quotes.html':                'page:quotes',
 };
 
 var PAGE_DB_MAP = {
@@ -41,6 +44,9 @@ var PAGE_DB_MAP = {
   'page:subscriptions':    'subscriptions',
   'page:rbac':             'role_permissions',
   'page:attendance':       'attendance',
+  'page:announcements':         'announcements',
+  'page:motivational-messages': 'motivational_messages',
+  'page:quotes':                'quotes',
 };
 
 var NAV_LINKS = [
@@ -58,6 +64,9 @@ var NAV_LINKS = [
   { href: 'subscriptions.html',    label: 'Subscriptions',     table: 'page:subscriptions' },
   { href: 'attendance.html',      label: 'Attendance',        table: 'page:attendance' },
   { href: 'rbac.html',             label: 'Access Control',    table: 'page:rbac' },
+  { href: 'announcements.html',         label: 'Announcements',          table: 'page:announcements' },
+  { href: 'motivational-messages.html', label: 'Motivational Messages',    table: 'page:motivational-messages' },
+  { href: 'quotes.html',                label: 'Quotes of the Day',         table: 'page:quotes' },
 ];
 
 function injectLoginOverlay() {
@@ -220,12 +229,12 @@ async function checkSession() {
 
   if (role === 'admin') {
     [
-      'users', 'admission_form', 'mcqs', 'studentpractice', 'subjects', 'coursestructure', 'role_permissions', 'attendance',
+      'users', 'admission_form', 'mcqs', 'studentpractice', 'subjects', 'coursestructure', 'role_permissions', 'attendance', 'announcements', 'motivational_messages', 'quotes',
       'page:login', 'page:portal', 'page:practice-test', 'page:give-test',
       'page:admission', 'page:students',
       'page:import-mcqs', 'page:manage-mcqs', 'page:publisher', 'page:results',
       'page:course-structure', 'page:subjects',
-      'page:user-form', 'page:import-users', 'page:users', 'page:subscriptions', 'page:attendance', 'page:rbac', 'page:dashboard',
+      'page:user-form', 'page:import-users', 'page:users', 'page:subscriptions', 'page:attendance', 'page:rbac', 'page:dashboard', 'page:announcements', 'page:motivational-messages', 'page:quotes',
     ].forEach(function (t) {
       _authPerms[t] = { can_view: true, can_read: true, can_write: true, can_delete: true };
     });

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Students Dashboard - Zahid Academy</title>
-  <link rel="stylesheet" href="students.css">
+  <title>Manage Subjects - Shaeen Academy</title>
+  <link rel="stylesheet" href="subjects.css">
 </head>
 <body>
   <div class="page">
@@ -13,75 +13,30 @@
     </p>
 
     <div class="card">
-      <h1>Students Dashboard</h1>
-      <p class="lead">Overview of all admitted students. Search, filter, and track monthly admissions.</p>
+      <h1>Manage Subjects</h1>
+      <p class="lead">Add, edit and delete subjects for each class. These subjects appear in the Admission form.</p>
+
+      <div class="form-row" id="addForm">
+        <div>
+          <label for="addClass">Class</label>
+          <input type="number" id="addClass" placeholder="11" min="1" required>
+        </div>
+        <div>
+          <label for="addSubject">Subject Name</label>
+          <input type="text" id="addSubject" placeholder="e.g. Physics" required>
+        </div>
+        <div>
+          <label for="addFee">Fee (Rs.)</label>
+          <input type="number" id="addFee" placeholder="1200" min="0" required>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button type="button" class="btn btn-primary" id="addBtn">Add</button>
+        </div>
+      </div>
+      <div id="msg"></div>
     </div>
-
-    <!-- Dashboard -->
-    <div class="dash">
-      <div class="dash-card blue">
-        <div class="dash-label">Total Students</div>
-        <div class="dash-val" id="statTotal">—</div>
-        <div class="dash-sub">all time</div>
-      </div>
-      <div class="dash-card green">
-        <div class="dash-label">Admitted This Month</div>
-        <div class="dash-val" id="statAdmitted">—</div>
-        <div class="dash-sub" id="statAdmittedSub"></div>
-      </div>
-      <div class="dash-card red">
-        <div class="dash-label">Left / Inactive</div>
-        <div class="dash-val" id="statLeft">—</div>
-        <div class="dash-sub" id="statLeftSub"></div>
-      </div>
-      <div class="dash-card amber">
-        <div class="dash-label">Currently Active</div>
-        <div class="dash-val" id="statActive">—</div>
-        <div class="dash-sub">right now</div>
-      </div>
     </div>
-
-    <!-- Filters -->
-    <div class="card">
-      <div class="filters">
-        <input type="text" class="search-name" id="searchName" placeholder="Search by name, father name or email...">
-        <input type="number" class="search-roll" id="searchRoll" placeholder="Roll #">
-        <input type="month" class="month-picker" id="monthPicker">
-        <select class="status-filter" id="statusFilter">
-          <option value="">All Status</option>
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
-          <option value="Pending">Pending</option>
-        </select>
-        <span class="count-label" id="countLabel"></span>
-      </div>
-
-      <div class="table-wrap scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Roll</th>
-              <th>Student Name</th>
-              <th>Father Name</th>
-              <th>Email</th>
-              <th>Class</th>
-              <th>Subjects</th>
-              <th>Fee</th>
-              <th>Phone / WhatsApp</th>
-              <th>Adm. Date</th>
-              <th>Status</th>
-              <th style="width:70px;"></th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-            <tr><td colspan="11" class="loading-msg">Loading students...</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div id="emptyMsg" class="empty-msg">No students match your filters.</div>
-    </div>
-  </div>
-
-  <script type="module" src="students.js"></script>
+  <script type="module" src="subjects.js"></script>
 </body>
 </html>

@@ -7,27 +7,61 @@ const searchEl = document.getElementById('search');
 const filterRoleEl = document.getElementById('filterRole');
 const emptyEl = document.getElementById('empty');
 const msgEl = document.getElementById('msg');
+const selectAllEl = document.getElementById('selectAll');
+const deleteSelectedBtn = document.getElementById('deleteSelected');
 
 function showMsg(text, type) {
   msgEl.textContent = text;
   msgEl.className = type || '';
 }
 
+function updateBulkDeleteState() {
+  const checks = Array.from(tbody.querySelectorAll('.row-check'));
+  if (!checks.length) {
+    deleteSelectedBtn.disabled = true;
+    if (selectAllEl) selectAllEl.checked = false;
+    return;
+  }
+  const enabledChecks = checks.filter(cb => !cb.disabled);
+  const anyChecked = enabledChecks.some(cb => cb.checked);
+  deleteSelectedBtn.disabled = !anyChecked;
+  if (selectAllEl) {
+    selectAllEl.checked = enabledChecks.length > 0 && enabledChecks.every(cb => cb.checked);
+  }
+}
+
 function render(users) {
   if (users.length === 0) {
     tbody.innerHTML = '';
     emptyEl.classList.remove('hidden');
+    updateBulkDeleteState();
     return;
   }
   emptyEl.classList.add('hidden');
-  tbody.innerHTML = users.map(u => `
-    <tr data-id="${u.id}">
-      <td>${(u.name || '').trim() || '—'}</td>
-      <td>${u.email || '—'}</td>
-      <td><span class="role-badge role-${(u.role || '').toLowerCase()}">${(u.role || '').toLowerCase() || '—'}</span></td>
-      <td><button type="button" class="btn-del" data-id="${u.id}" data-email="${(u.email || '').replace(/"/g, '&quot;')}">Delete</button></td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = users.map(u => {
+    const role = (u.role || '').toLowerCase();
+    const isAdmin = role === 'admin';
+    const canDelete = !isAdmin;
+    const safeEmail = (u.email || '').replace(/"/g, '&quot;');
+    const checkbox = `<input type="checkbox" class="row-check" data-id="${u.id}" ${canDelete ? '' : 'disabled'}>`;
+    const actions = canDelete
+      ? `<button type="button" class="btn-del" data-id="${u.id}" data-email="${safeEmail}">Delete</button>`
+      : '';
+    return `
+      <tr data-id="${u.id}">
+        <td>${checkbox}</td>
+        <td>${(u.name || '').trim() || '—'}</td>
+        <td>${u.email || '—'}</td>
+        <td><span class="role-badge role-${role}">${role || '—'}</span></td>
+        <td>${actions}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const checks = Array.from(tbody.querySelectorAll('.row-check'));
+  checks.forEach(cb => {
+    cb.addEventListener('change', updateBulkDeleteState);
+  });
 
   tbody.querySelectorAll('.btn-del').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -37,6 +71,11 @@ function render(users) {
       deleteUser(id);
     });
   });
+
+  if (selectAllEl) {
+    selectAllEl.checked = false;
+  }
+  updateBulkDeleteState();
 }
 
 function filter() {
@@ -94,4 +133,28 @@ async function deleteUser(userId) {
 
 searchEl.addEventListener('input', filter);
 filterRoleEl.addEventListener('change', filter);
+if (selectAllEl) {
+  selectAllEl.addEventListener('change', () => {
+    const checks = Array.from(tbody.querySelectorAll('.row-check'));
+    checks.forEach(cb => {
+      if (!cb.disabled) cb.checked = selectAllEl.checked;
+    });
+    updateBulkDeleteState();
+  });
+}
+
+if (deleteSelectedBtn) {
+  deleteSelectedBtn.addEventListener('click', async () => {
+    const checks = Array.from(tbody.querySelectorAll('.row-check'));
+    const ids = checks.filter(cb => cb.checked && !cb.disabled).map(cb => cb.getAttribute('data-id'));
+    if (!ids.length) return;
+    if (!confirm('Delete ' + ids.length + ' selected user(s)?\nThis removes them from auth and the users table.')) return;
+    for (const id of ids) {
+      // deleteUser updates allUsers and table each time
+      await deleteUser(id);
+    }
+    updateBulkDeleteState();
+  });
+}
+
 await loadUsers();

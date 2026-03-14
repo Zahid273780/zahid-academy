@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Subscriptions - Zahid Academy</title>
+  <title>Subscriptions - Shaeen Academy</title>
   <link rel="stylesheet" href="subscriptions.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
 
     <div class="card">
       <h1>Student Subscriptions</h1>
-      <p class="lead">Students can have <strong>multiple subscriptions</strong> (e.g. Free Trial + Basic 500). Each plan is tracked separately; MCQs are deducted from the first active plan (by priority, then expiry). Add or edit plans below.</p>
+      <p class="lead">Students can have <strong>multiple subscriptions</strong>. Each plan is tracked separately; MCQs are deducted from the first active plan (by priority, then expiry). Add or edit plans below.</p>
     </div>
 
     <div class="dash">
@@ -33,110 +33,7 @@
         <div class="dash-val" id="statOff">--</div>
       </div>
     </div>
-
-    <div class="card">
-      <div class="filters">
-        <button type="button" class="btn-add-sub" id="btnAddSub">+ Add subscription</button>
-        <input type="text" class="search-name" id="searchName" placeholder="Search by student name or email...">
-        <select id="filterStatus">
-          <option value="">All</option>
-          <option value="active">Active</option>
-          <option value="expired">Expired</option>
-          <option value="exhausted">Exhausted</option>
-          <option value="off">Deactivated</option>
-        </select>
-        <span class="count-label" id="countLabel">0 subscriptions</span>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Student</th>
-              <th>Email</th>
-              <th>Class</th>
-              <th>Roll</th>
-              <th>Package</th>
-              <th>Subjects</th>
-              <th>MCQs</th>
-              <th>Used</th>
-              <th>Remaining</th>
-              <th>Expires</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-      <div class="empty-msg" id="emptyMsg" style="display:none;">No subscriptions found.</div>
-      <div id="modalMsg" class="msg"></div>
     </div>
-  </div>
-
-  <div class="modal" id="editModal">
-    <div class="modal-card">
-      <h3 id="modalTitle">Edit subscription</h3>
-      <input type="hidden" id="editSubId">
-      <label>Package name</label>
-      <input type="text" id="editPackageName" placeholder="e.g. Free Trial, 500 MCQs Plan">
-      <label>MCQ limit</label>
-      <input type="number" id="editMcqLimit" min="1" placeholder="500">
-      <label>Valid for (days)</label>
-      <input type="number" id="editDays" min="1" placeholder="30">
-      <label>Priority (lower = used first)</label>
-      <input type="number" id="editPriority" min="0" placeholder="0" title="When deducting MCQs, plans with lower priority are used first.">
-      <label>Allowed subjects (from subjects table — leave none selected for all subjects)</label>
-      <div id="editAllowedSubjects" class="subject-dropdown">
-        <button type="button" class="subject-dropdown-btn" aria-haspopup="listbox">Select subjects</button>
-        <div class="subject-dropdown-panel" role="listbox"></div>
-      </div>
-      <label>Active</label>
-      <select id="editActive">
-        <option value="true">Yes</option>
-        <option value="false">No</option>
-      </select>
-      <div class="modal-actions">
-        <button class="btn-save" id="modalSave">Save</button>
-        <button class="btn-cancel" id="modalCancel">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="addModal">
-    <div class="modal-card">
-      <h3>Add subscription</h3>
-      <p class="lead" style="margin-bottom:1rem;font-size:0.85rem;">Select a student. You can add another plan for a student who already has one.</p>
-      <label>Student</label>
-      <select id="addStudentSelect">
-        <option value="">— Select student —</option>
-      </select>
-      <label>Package name</label>
-      <input type="text" id="addPackageName" placeholder="e.g. Free Trial, 500 MCQs Plan" value="Free Trial">
-      <label>MCQ limit</label>
-      <input type="number" id="addMcqLimit" min="1" value="100" placeholder="100">
-      <label>Valid for (days)</label>
-      <input type="number" id="addDays" min="1" value="15" placeholder="15">
-      <label>Priority (lower = used first when deducting MCQs)</label>
-      <input type="number" id="addPriority" min="0" value="0" placeholder="0">
-      <label>Allowed subjects (select student first — leave none selected for all subjects)</label>
-      <div id="addAllowedSubjects" class="subject-dropdown">
-        <button type="button" class="subject-dropdown-btn" aria-haspopup="listbox">Select subjects</button>
-        <div class="subject-dropdown-panel" role="listbox"></div>
-      </div>
-      <label>Active</label>
-      <select id="addActive">
-        <option value="true">Yes</option>
-        <option value="false">No</option>
-      </select>
-      <div id="addModalMsg" class="msg"></div>
-      <div class="modal-actions">
-        <button class="btn-save" id="addSave">Create</button>
-        <button class="btn-cancel" id="addCancel">Cancel</button>
-      </div>
-    </div>
-  </div>
-
   <script type="module" src="subscriptions.js"></script>
 </body>
 </html>

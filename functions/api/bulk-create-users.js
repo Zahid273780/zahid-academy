@@ -1,10 +1,14 @@
-import { createClient } from 'npm:@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -90,13 +94,24 @@ export async function onRequest(context) {
     if (password.length < 6) { failed.push({ email, error: 'Password too short (min 6)' }); continue; }
 
     try {
+      // Avoid hitting Supabase auth/email rate limits by spacing out requests
+      await sleep(500);
+
       const { data: authUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
         email_confirm: true,
       });
 
-      if (createError) { failed.push({ email, error: createError.message }); continue; }
+      if (createError) {
+        const message = createError.message || 'Unknown error';
+        if (message.toLowerCase().includes('email rate limit')) {
+          failed.push({ email, error: 'Email rate limit exceeded at Supabase. Please wait a bit and retry this user.' });
+        } else {
+          failed.push({ email, error: message });
+        }
+        continue;
+      }
       if (!authUser?.user?.id) { failed.push({ email, error: 'No user id returned' }); continue; }
 
       const userRow = {

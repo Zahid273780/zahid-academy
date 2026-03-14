@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Zahid Academy | Student Portal</title>
+  <title>Zahid Academy | Student Dashboard</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="portal.css">
 </head>
 <body>
+  <script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true}},true);</script>
 
 <div id="loader">
   <div class="spinner"></div>
@@ -15,20 +16,32 @@
 </div>
 
 <div class="container" id="main" style="display:none;">
+
+  <!-- Header -->
   <div class="header">
     <h1><i class="fas fa-graduation-cap"></i> Zahid Academy</h1>
-    <p>Student Portal</p>
+    <p>Student Dashboard</p>
   </div>
 
+  <!-- Quote of the Day -->
+  <div id="quoteCard" class="quote-card" style="display:none;">
+    <div class="quote-mark">&ldquo;</div>
+    <p id="quoteText" class="quote-text"></p>
+    <p id="quoteAuthor" class="quote-author"></p>
+    <span class="quote-label"><i class="fas fa-sun"></i> Quote of the Day</span>
+  </div>
+
+  <!-- User bar -->
   <div class="user-bar">
     <span class="email" id="userEmail"></span>
     <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </div>
 
+  <!-- Subscription -->
   <div class="subscription-section" id="subscriptionSection">
     <h2 class="subscription-heading"><i class="fas fa-ticket-alt"></i> Your package</h2>
     <div class="sub-bar" id="subBar">
-      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 0.9rem;">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px;font-size:0.9rem;">
         <span><strong>Plan:</strong> <span id="subPackage">—</span></span>
         <span><strong>MCQs:</strong> <span id="subUsed">0</span> / <span id="subLimit">0</span> (<span id="subRemaining">0</span> left)</span>
         <span><strong>Expires:</strong> <span id="subDays">—</span> days left</span>
@@ -37,31 +50,75 @@
     </div>
   </div>
 
+  <!-- Motivational banner -->
+  <div id="motivBanner" class="motiv-banner" style="display:none;">
+    <i class="fas fa-fire motiv-icon"></i>
+    <p id="motivText"></p>
+  </div>
+
+  <!-- Stats row -->
+  <div id="statsSection" class="stats-row" style="display:none;">
+    <div class="stat-card stat-blue">
+      <div class="stat-icon"><i class="fas fa-list-ol"></i></div>
+      <div class="stat-body">
+        <div class="stat-value" id="statAttempted">—</div>
+        <div class="stat-label">MCQs Attempted</div>
+      </div>
+    </div>
+    <div class="stat-card stat-green">
+      <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+      <div class="stat-body">
+        <div class="stat-value" id="statCorrect">—</div>
+        <div class="stat-label">Correct Answers</div>
+      </div>
+    </div>
+    <div class="stat-card stat-purple">
+      <div class="stat-icon"><i class="fas fa-bullseye"></i></div>
+      <div class="stat-body">
+        <div class="stat-value" id="statAccuracy">—</div>
+        <div class="stat-label">Accuracy</div>
+      </div>
+    </div>
+    <div class="stat-card stat-amber">
+      <div class="stat-icon"><i class="fas fa-bucket"></i></div>
+      <div class="stat-body">
+        <div class="stat-value" id="statMistakes">—</div>
+        <div class="stat-label">Mistake Bucket</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Announcements -->
+  <div id="announcementsSection" style="display:none;">
+    <h2 class="section-heading"><i class="fas fa-bullhorn"></i> Announcements</h2>
+    <div id="announcementsList"></div>
+  </div>
+
+  <!-- Navigation cards -->
+  <h2 class="section-heading" style="margin-top:1.5rem;"><i class="fas fa-th-large"></i> Quick Access</h2>
   <div class="cards">
     <div class="portal-card practice" onclick="window.location.href='Navi.html'">
       <div class="portal-icon"><i class="fas fa-book-open"></i></div>
       <h3>Practice Test</h3>
       <p>Practice freely with available tests at your own pace</p>
     </div>
-
     <div class="portal-card givetest" onclick="window.location.href='givetest.html'">
       <div class="portal-icon"><i class="fas fa-pen-fancy"></i></div>
       <h3>Give Test</h3>
       <p>Take assigned tests published by your teacher</p>
     </div>
-
     <div class="portal-card mistake-bucket" onclick="window.location.href='mistake-bucket.html'">
       <div class="portal-icon"><i class="fas fa-bucket"></i></div>
       <h3>Mistake Bucket</h3>
       <p>Re-attempt only the questions you got wrong</p>
     </div>
-
     <div class="portal-card results" onclick="window.location.href='student-analytics.html'">
       <div class="portal-icon"><i class="fas fa-chart-line"></i></div>
-      <h3>Check Results</h3>
-      <p>View your past test scores and performance</p>
+      <h3>My Analytics</h3>
+      <p>View your past test scores and full performance report</p>
     </div>
   </div>
+
 </div>
 
 <script src="portal.js"></script>

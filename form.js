@@ -19,6 +19,23 @@
     return (s || '').replace(/\D/g, '');
   }
 
+  async function localSignup(payload) {
+    try {
+      var res = await fetch('/api/student-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      var data = await res.json();
+      if (!res.ok || data.error) {
+        return { ok: false, error: data.error || 'Could not create account' };
+      }
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: (e && e.message) || 'Network error' };
+    }
+  }
+
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
     clearMsg();
@@ -39,7 +56,7 @@
       return;
     }
     if (username.indexOf('@') !== -1) {
-      showMsg('Enter username only (e.g. ali123), not @zahidacademy.com.', 'err');
+      showMsg('Enter username only (e.g. ali123), not @shaeenacademy.com.', 'err');
       return;
     }
     if (whatsapp.length !== 11) {
@@ -56,42 +73,43 @@
     }
 
     btn.disabled = true;
-    btnText.innerHTML = '<span class="spinner-small"></span> Submitting...';
+    btnText.innerHTML = '<span class="spinner-small"></span> Creating account...';
+
+    var payload = {
+      name: name,
+      username: username,
+      class: classVal,
+      whatsapp: whatsapp,
+      mobile: mobile,
+      password: password
+    };
 
     try {
-      var res = await fetch('/api/login-form-submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name,
-          username: username,
-          class: classVal,
-          whatsapp: whatsapp,
-          mobile: mobile,
-          password: password
-        })
-      });
-      var data = await res.json().catch(function () { return {}; });
-
-      if (!res.ok) {
-        var errMsg = data.error || 'Could not submit. Please try again.';
-        if (res.status === 405) {
-          errMsg = 'Form submission is not available on this server (405). Please contact your teacher or try again later.';
+      var local = await localSignup(payload);
+      if (local.ok) {
+        // Store credentials temporarily so login page can prefill them
+        try {
+          sessionStorage.setItem('signup_username', username);
+          sessionStorage.setItem('signup_password', password);
+        } catch (_) {}
+        // Redirect to student login page
+        window.location.replace('login.html');
+      } else {
+        var errMsg = local.error || '';
+        var lower = errMsg.toLowerCase();
+        if (lower.indexOf('already') !== -1 || lower.indexOf('registered') !== -1) {
+          showMsg('This username is already registered. Use Student Login or contact your teacher.', 'err');
+        } else if (lower.indexOf('rate') !== -1 || lower.indexOf('limit') !== -1 || lower.indexOf('too many') !== -1) {
+          showMsg('The server is busy right now. Please wait a minute and try again.', 'err');
+        } else {
+          showMsg('Could not create account. Please try again or contact your teacher.', 'err');
         }
-        showMsg(errMsg, 'err');
-        btn.disabled = false;
-        btnText.textContent = 'Submit request';
-        return;
       }
-
-      showMsg('Request saved. Your teacher will share your login ID.', 'ok');
-      form.reset();
-      btn.disabled = false;
-      btnText.textContent = 'Submit request';
-    } catch (err) {
-      showMsg('Network error. Please try again.', 'err');
-      btn.disabled = false;
-      btnText.textContent = 'Submit request';
+    } catch (e) {
+      showMsg('Network error. Please check your internet and try again.', 'err');
     }
+
+    btn.disabled = false;
+    btnText.textContent = 'Create account';
   });
 })();

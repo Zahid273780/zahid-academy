@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Zahid Academy - Admin Dashboard</title>
+  <title>Shaeen Academy - Admin Dashboard</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css">
 </head>
@@ -12,7 +12,7 @@
 
   <div class="mobile-header">
     <button class="hamburger" id="menuToggle"><i class="fas fa-bars"></i></button>
-    <span class="mob-title">Zahid Academy</span>
+    <span class="mob-title">Shaeen Academy</span>
   </div>
   <div class="overlay-bg" id="overlayBg"></div>
 
@@ -20,7 +20,7 @@
     <div class="sidebar-brand">
       <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
       <div class="brand-text">
-        <h2>Zahid Academy</h2>
+        <h2>Shaeen Academy</h2>
         <p>Management System</p>
       </div>
     </div>
@@ -45,6 +45,12 @@
       <h1 id="welcomeMsg">Welcome back!</h1>
       <p>Manage your academy from one place. Select a section from the sidebar to get started.</p>
       <div class="welcome-date" id="welcomeDate"></div>
+    </div>
+
+    <div class="quote-card" id="quoteCard" style="display:none;">
+      <i class="fas fa-quote-left quote-icon"></i>
+      <p class="quote-text" id="quoteText"></p>
+      <span class="quote-author" id="quoteAuthor"></span>
     </div>
 
     <div class="stats" id="statsGrid">

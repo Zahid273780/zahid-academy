@@ -108,6 +108,23 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; min-
 .welcome-card p { font-size: 0.9rem; color: rgba(255,255,255,0.8); position: relative; }
 .welcome-date { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 10px; position: relative; }
 
+/* ---- Quote of the Day ---- */
+.quote-card {
+  background: #fff; border-radius: 16px; padding: 24px 28px; margin-bottom: 24px;
+  border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  display: flex; align-items: flex-start; gap: 16px;
+  border-left: 4px solid #7c3aed;
+}
+.quote-icon { font-size: 22px; color: #7c3aed; flex-shrink: 0; margin-top: 2px; }
+.quote-text {
+  font-size: 1rem; font-style: italic; color: #334155; line-height: 1.6;
+  flex: 1; margin: 0;
+}
+.quote-author {
+  font-size: 0.82rem; font-weight: 700; color: #64748b; white-space: nowrap;
+  align-self: flex-end;
+}
+
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 28px; }
 .stat-card {
   background: #fff; border-radius: 16px; padding: 22px 20px; border: 1px solid #e2e8f0;
