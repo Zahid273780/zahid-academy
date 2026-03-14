@@ -15,6 +15,7 @@
       <p class="lead">Students can have <strong>multiple subscriptions</strong>. Each plan is tracked separately; MCQs are deducted from the first active plan (by priority, then expiry). Add or edit plans below.</p>
     </div>
 
+    <!-- Stats -->
     <div class="dash">
       <div class="dash-card blue">
         <div class="dash-label">Active</div>
@@ -33,7 +34,144 @@
         <div class="dash-val" id="statOff">--</div>
       </div>
     </div>
+
+    <!-- Filters + Add button -->
+    <div class="card">
+      <div class="filters">
+        <input id="searchName" class="search-name" type="text" placeholder="Search by name or email…">
+        <select id="filterStatus">
+          <option value="">All statuses</option>
+          <option value="active">Active</option>
+          <option value="expired">Expired</option>
+          <option value="exhausted">Exhausted</option>
+          <option value="off">Deactivated</option>
+        </select>
+        <button class="btn-add-sub" id="btnAddSub">+ Add Subscription</button>
+        <span id="countLabel" style="font-size:0.85rem;color:#64748b;margin-left:auto;"></span>
+      </div>
+
+      <div id="modalMsg" class="msg"></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email / ID</th>
+              <th>Class</th>
+              <th>Course</th>
+              <th>Roll</th>
+              <th>Package</th>
+              <th>Limit</th>
+              <th>Used</th>
+              <th>Left</th>
+              <th>Expires</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div id="emptyMsg" class="empty-msg" style="display:none;">No subscriptions found.</div>
     </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal" id="editModal">
+    <div class="modal-card">
+      <h3>Edit Subscription</h3>
+      <input type="hidden" id="editSubId">
+
+      <label>Course</label>
+      <select id="editCourse"><option value="">— Select course —</option></select>
+
+      <label>Package name</label>
+      <input type="text" id="editPackageName" placeholder="e.g. Free Trial">
+
+      <label>MCQ limit</label>
+      <input type="number" id="editMcqLimit" min="1" placeholder="e.g. 100">
+
+      <label>Extend by days (leave blank to keep current expiry)</label>
+      <input type="number" id="editDays" min="1" placeholder="e.g. 30">
+
+      <label>Priority (lower = higher priority)</label>
+      <input type="number" id="editPriority" min="0" value="0">
+
+      <label>Status</label>
+      <select id="editActive">
+        <option value="true">Active</option>
+        <option value="false">Deactivated</option>
+      </select>
+
+      <label>Allowed subjects</label>
+      <div id="editAllowedSubjects" class="subject-dropdown">
+        <button type="button" class="subject-dropdown-btn">All subjects</button>
+        <div class="subject-dropdown-panel"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-save" id="modalSave">Save</button>
+        <button class="btn-cancel" id="modalCancel">Cancel</button>
+      </div>
+      <div id="modalMsgEdit" class="msg"></div>
+    </div>
+  </div>
+
+  <!-- Add Subscription Modal -->
+  <div class="modal" id="addModal">
+    <div class="modal-card">
+      <h3>Add Subscription</h3>
+      <div class="add-modal-grid">
+        <!-- Left: student selector -->
+        <div class="add-modal-left">
+          <label>Select students</label>
+          <input type="text" id="addStudentSearch" class="student-list-search" placeholder="Search students…">
+          <div class="student-list-header">
+            <label><input type="checkbox" id="addStudentSelectAll"> Select all</label>
+          </div>
+          <div id="addStudentList" class="student-list"></div>
+        </div>
+
+        <!-- Right: plan settings -->
+        <div class="add-modal-right">
+          <label>Course</label>
+          <select id="addCourseSelect"><option value="">— Select course —</option></select>
+
+          <label>Package name</label>
+          <input type="text" id="addPackageName" value="Free Trial">
+
+          <label>MCQ limit</label>
+          <input type="number" id="addMcqLimit" min="1" value="100">
+
+          <label>Duration (days)</label>
+          <input type="number" id="addDays" min="1" value="15">
+
+          <label>Priority (lower = higher priority)</label>
+          <input type="number" id="addPriority" min="0" value="0">
+
+          <label>Status</label>
+          <select id="addActive">
+            <option value="true">Active</option>
+            <option value="false">Deactivated</option>
+          </select>
+
+          <label>Allowed subjects</label>
+          <div id="addAllowedSubjects" class="subject-dropdown">
+            <button type="button" class="subject-dropdown-btn">All subjects</button>
+            <div class="subject-dropdown-panel"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="addModalMsg" class="msg"></div>
+      <div class="modal-actions">
+        <button class="btn-save" id="addSave">Add</button>
+        <button class="btn-cancel" id="addCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="subscriptions.js"></script>
 </body>
 </html>
