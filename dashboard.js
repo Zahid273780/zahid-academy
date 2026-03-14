@@ -37,24 +37,23 @@ var NAV_CATEGORIES = [
   {
     id: 'settings', label: 'Settings', icon: 'fas fa-cog',
     items: [
-      { href: 'user-form.html', label: 'User Entry Form', icon: 'fas fa-user-plus', table: 'page:user-form' },
-      { href: 'form-requests.html', label: 'Form Requests', icon: 'fas fa-inbox', table: 'page:import-users' },
-      { href: 'import-users.html', label: 'Import Users', icon: 'fas fa-upload', table: 'page:import-users' },
-      { href: 'users.html', label: 'Users', icon: 'fas fa-users-cog', table: 'page:users' },
-      { href: 'subscriptions.html', label: 'Subscriptions', icon: 'fas fa-ticket-alt', table: 'page:subscriptions' },
-      { href: 'rbac.html',  label: 'Access Control', icon: 'fas fa-shield-alt', table: 'page:rbac' },
+      { href: 'users.html',         label: 'Users',          icon: 'fas fa-users-cog',   table: 'page:users' },
+      { href: 'subscriptions.html', label: 'Subscriptions',  icon: 'fas fa-ticket-alt',  table: 'page:subscriptions' },
+      { href: 'rbac.html',          label: 'Access Control', icon: 'fas fa-shield-alt',  table: 'page:rbac' },
     ]
   },
 ];
 
 var QUICK_ACCESS = [
   { href: 'admission.html',      label: 'Admission',      icon: 'fas fa-file-signature', table: 'page:admission' },
+  { href: 'students.html',       label: 'Students',       icon: 'fas fa-user-graduate',  table: 'page:students' },
   { href: 'mcqs.html',           label: 'Manage MCQs',    icon: 'fas fa-tasks',          table: 'page:manage-mcqs' },
   { href: 'results.html',        label: 'Results',        icon: 'fas fa-chart-bar',      table: 'page:results' },
-  { href: 'students.html',       label: 'Students',       icon: 'fas fa-user-graduate',  table: 'page:students' },
   { href: 'publisher.html',      label: 'Publisher',      icon: 'fas fa-broadcast-tower',table: 'page:publisher' },
   { href: 'announcements.html',  label: 'Announcements',  icon: 'fas fa-bullhorn',       table: 'page:announcements' },
   { href: 'users.html',          label: 'Users',          icon: 'fas fa-users-cog',      table: 'page:users' },
+  { href: 'subscriptions.html',  label: 'Subscriptions',  icon: 'fas fa-ticket-alt',     table: 'page:subscriptions' },
+  { href: 'rbac.html',           label: 'Access Control', icon: 'fas fa-shield-alt',     table: 'page:rbac' },
 ];
 
 async function boot() {
