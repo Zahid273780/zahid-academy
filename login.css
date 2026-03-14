@@ -116,6 +116,14 @@ body {
 .login-btn:active { transform: translateY(0); }
 .login-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none; }
 
+.create-account-prompt {
+    text-align: center; margin-top: 16px; font-size: 0.9rem; color: #64748b;
+}
+.create-account-prompt a {
+    color: var(--primary); font-weight: 600; text-decoration: none;
+}
+.create-account-prompt a:hover { text-decoration: underline; }
+
 .login-msg {
     text-align: center; margin-top: 15px; padding: 12px;
     border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: none;

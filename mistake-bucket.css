@@ -1,6 +1,9 @@
 :root { --primary: #7c3aed; --primary-dark: #5b21b6; --success: #059669; --error: #dc2626; --text: #1e293b; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Inter', 'Segoe UI', sans-serif; background: linear-gradient(135deg, #ede9fe 0%, #f1f5f9 100%); min-height: 100vh; padding: 20px; color: var(--text); user-select: none; }
+.offline-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 10000; background: #b45309; color: #fff; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.9rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.offline-banner i { margin-right: 6px; }
+.offline-retry { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: #fff; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
 .container { background: #fff; padding: 2.5rem; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-width: 850px; margin: 40px auto; border-top: 6px solid var(--primary); }
 .hidden { display: none !important; }
 .academy-header { text-align: center; margin-bottom: 30px; }

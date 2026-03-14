@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -13,6 +13,10 @@
   <link rel="stylesheet" href="mistake-bucket.css">
 </head>
 <body>
+<div id="offlineBanner" class="offline-banner" style="display:none;" role="status">
+  <span><i class="fas fa-wifi"></i> No internet – some features may not work.</span>
+  <button type="button" class="offline-retry" onclick="window.location.reload()">Retry</button>
+</div>
 <div id="sessionLoader">
   <div class="spinner"></div>
   <p style="margin-top:15px; font-weight:600; color:#64748b;">Loading...</p>
@@ -69,5 +73,14 @@
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(function(){});
   }
+  (function() {
+    var el = document.getElementById('offlineBanner');
+    if (!el) return;
+    function show() { el.style.display = 'flex'; }
+    function hide() { el.style.display = 'none'; }
+    if (!navigator.onLine) show();
+    window.addEventListener('offline', show);
+    window.addEventListener('online', hide);
+  })();
 </script></body>
 </html>

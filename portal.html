@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -14,6 +14,11 @@
 </head>
 <body>
   <script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true}},true);</script>
+
+<div id="offlineBanner" class="offline-banner" style="display:none;" role="status">
+  <span><i class="fas fa-wifi"></i> No internet – some features may not work.</span>
+  <button type="button" class="offline-retry" onclick="window.location.reload()">Retry</button>
+</div>
 
 <div id="loader">
   <div class="spinner"></div>
@@ -95,26 +100,26 @@
 
   <h2 class="section-heading" style="margin-top:1.5rem;"><i class="fas fa-th-large"></i> Quick Access</h2>
   <div class="cards">
-    <div class="portal-card practice" onclick="window.location.href='Navi.html'">
+    <a href="Navi.html" class="portal-card practice">
       <div class="portal-icon"><i class="fas fa-book-open"></i></div>
       <h3>Practice Test</h3>
       <p>Practice freely with available tests at your own pace</p>
-    </div>
-    <div class="portal-card givetest" onclick="window.location.href='givetest.html'">
+    </a>
+    <a href="givetest.html" class="portal-card givetest">
       <div class="portal-icon"><i class="fas fa-pen-fancy"></i></div>
       <h3>Give Test</h3>
       <p>Take assigned tests published by your teacher</p>
-    </div>
-    <div class="portal-card mistake-bucket" onclick="window.location.href='mistake-bucket.html'">
+    </a>
+    <a href="mistake-bucket.html" class="portal-card mistake-bucket">
       <div class="portal-icon"><i class="fas fa-bucket"></i></div>
       <h3>Mistake Bucket</h3>
       <p>Re-attempt only the questions you got wrong</p>
-    </div>
-    <div class="portal-card results" onclick="window.location.href='student-analytics.html'">
+    </a>
+    <a href="student-analytics.html" class="portal-card results">
       <div class="portal-icon"><i class="fas fa-chart-line"></i></div>
       <h3>My Analytics</h3>
       <p>View your past test scores and full performance report</p>
-    </div>
+    </a>
   </div>
 
 </div>
@@ -124,5 +129,14 @@
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(function(){});
   }
+  (function() {
+    var el = document.getElementById('offlineBanner');
+    if (!el) return;
+    function show() { el.style.display = 'flex'; }
+    function hide() { el.style.display = 'none'; }
+    if (!navigator.onLine) show();
+    window.addEventListener('offline', show);
+    window.addEventListener('online', hide);
+  })();
 </script></body>
 </html>
