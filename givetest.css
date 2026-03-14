@@ -13,12 +13,16 @@ body {
     background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 50%, #f1f5f9 100%);
     min-height: 100vh;
     margin: 0;
-    padding: 20px;
+    padding: 8px;
     color: var(--text);
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    overflow-x: hidden;
+}
+@media (min-width: 600px) {
+    body { padding: 20px; }
 }
 
 .offline-banner {
