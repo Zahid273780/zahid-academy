@@ -81,11 +81,7 @@ export async function onRequest(context) {
     .select('*')
     .eq('user_id', userId);
 
-  if (practiceError) {
-    return json({ error: practiceError.message || 'Failed to load practice data' }, 500);
-  }
-
-  const practice = (practiceRows || []).slice().sort((a, b) => {
+  const practice = practiceError ? [] : (practiceRows || []).slice().sort((a, b) => {
     const da = a.test_date || a.created_at;
     const db = b.test_date || b.created_at;
     if (!da) return 1;
@@ -100,10 +96,19 @@ export async function onRequest(context) {
 
   const mistakeBucketCount = bucketError ? 0 : (mistakeCount ?? 0);
 
+  const { data: subRows } = await adminClient
+    .from('subscriptions')
+    .select('package_name, mcq_limit, mcqs_used, expires_at, is_active')
+    .eq('user_id', userId)
+    .eq('is_active', true)
+    .order('expires_at', { ascending: false });
+
   return json({
     practice,
     mistakeBucketCount,
     name: userProfile.name || null,
     email: userProfile.email || null,
+    subscriptions: subRows || [],
+    hasPackage: (subRows || []).length > 0,
   });
 }
