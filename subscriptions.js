@@ -216,13 +216,21 @@ function renderStudentList(filterText = '') {
 }
 
 async function loadSubjects() {
-  const { data } = await supabase.from('subjects').select('id, name').order('name');
+  const { data, error } = await supabase.from('subjects').select('id, name').order('name');
+  if (error) {
+    console.warn('Subjects table not available:', error.message);
+    allSubjects = [];
+    return;
+  }
   allSubjects = data || [];
 }
 
 async function loadCourses() {
   const { data, error } = await supabase.from('coursestructure').select('Course').order('Course');
-  if (error) return;
+  if (error) {
+    console.warn('Coursestructure table not available:', error.message);
+    return;
+  }
   const names = [...new Set((data || []).map(r => r.Course).filter(Boolean))];
   allCourses = names;
   const optionsHtml = ['<option value="">— Select course —</option>']
