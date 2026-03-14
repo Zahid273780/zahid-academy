@@ -246,14 +246,6 @@ body {
   gap: 20px;
 }
 
-.cards a.portal-card {
-  text-decoration: none;
-  color: inherit;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  user-select: none;
-}
-
 .portal-card {
   background: #fff;
   border: 2px solid #e2e8f0;
@@ -266,6 +258,16 @@ body {
   position: relative;
   overflow: hidden;
   display: block;
+  text-decoration: none;
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+.portal-card h3,
+.portal-card p {
+  text-decoration: none;
+  color: inherit;
 }
 .portal-card::before {
   content: '';

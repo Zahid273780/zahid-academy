@@ -110,9 +110,14 @@
     if (!el) return;
     function show() { el.style.display = 'flex'; }
     function hide() { el.style.display = 'none'; }
-    if (!navigator.onLine) show();
+    function checkOnline() {
+      fetch('/manifest.json?_=' + Date.now(), { method: 'HEAD', cache: 'no-store' })
+        .then(function(r) { if (r.ok) hide(); else show(); })
+        .catch(function() { show(); });
+    }
+    checkOnline();
     window.addEventListener('offline', show);
-    window.addEventListener('online', hide);
+    window.addEventListener('online', function() { hide(); checkOnline(); });
   })();
 </script></body>
 </html>
