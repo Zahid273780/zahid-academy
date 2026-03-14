@@ -66,7 +66,7 @@ export async function onRequest(context) {
     return json({ error: 'Password must be at least 4 characters' }, 400);
   }
 
-  const email = `${username}@shaeenacademy.com`;
+  const email = `${username}@shaheeninstitute.com`;
 
   const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },

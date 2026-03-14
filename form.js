@@ -56,7 +56,7 @@
       return;
     }
     if (username.indexOf('@') !== -1) {
-      showMsg('Enter username only (e.g. ali123), not @shaeenacademy.com.', 'err');
+      showMsg('Enter username only (e.g. ali123), not @shaheeninstitute.com.', 'err');
       return;
     }
     if (whatsapp.length !== 11) {

@@ -60,7 +60,7 @@
             return;
         }
 
-        var email = username.includes('@') ? username : username + '@shaeenacademy.com';
+        var email = username.includes('@') ? username : username + '@shaheeninstitute.com';
 
         loginBtn.disabled = true;
         btnText.innerHTML = '<span class="spinner-small"></span> Signing in...';
