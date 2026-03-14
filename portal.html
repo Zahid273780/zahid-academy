@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Zahid Academy | Student Dashboard</title>
+  <title>Shaheen Institute | Student Dashboard</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="portal.css">
 </head>
@@ -12,18 +12,17 @@
 
 <div id="loader">
   <div class="spinner"></div>
-  <p style="margin-top:15px; font-weight:600; color:#64748b;">Zahid Academy - Loading...</p>
+  <p style="margin-top:15px; font-weight:600; color:#64748b;">Shaheen Institute - Loading...</p>
 </div>
 
 <div class="container" id="main" style="display:none;">
 
-  <!-- Header -->
   <div class="header">
-    <h1><i class="fas fa-graduation-cap"></i> Zahid Academy</h1>
+    <img src="./assets/Logo.png" alt="Shaheen Institute Logo" class="portal-logo">
+    <h1>Shaheen Institute</h1>
     <p>Student Dashboard</p>
   </div>
 
-  <!-- Quote of the Day -->
   <div id="quoteCard" class="quote-card" style="display:none;">
     <div class="quote-mark">&ldquo;</div>
     <p id="quoteText" class="quote-text"></p>
@@ -31,13 +30,11 @@
     <span class="quote-label"><i class="fas fa-sun"></i> Quote of the Day</span>
   </div>
 
-  <!-- User bar -->
   <div class="user-bar">
     <span class="email" id="userEmail"></span>
     <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </div>
 
-  <!-- Subscription -->
   <div class="subscription-section" id="subscriptionSection">
     <h2 class="subscription-heading"><i class="fas fa-ticket-alt"></i> Your package</h2>
     <div class="sub-bar" id="subBar">
@@ -50,13 +47,11 @@
     </div>
   </div>
 
-  <!-- Motivational banner -->
   <div id="motivBanner" class="motiv-banner" style="display:none;">
     <i class="fas fa-fire motiv-icon"></i>
     <p id="motivText"></p>
   </div>
 
-  <!-- Stats row -->
   <div id="statsSection" class="stats-row" style="display:none;">
     <div class="stat-card stat-blue">
       <div class="stat-icon"><i class="fas fa-list-ol"></i></div>
@@ -88,13 +83,11 @@
     </div>
   </div>
 
-  <!-- Announcements -->
   <div id="announcementsSection" style="display:none;">
     <h2 class="section-heading"><i class="fas fa-bullhorn"></i> Announcements</h2>
     <div id="announcementsList"></div>
   </div>
 
-  <!-- Navigation cards -->
   <h2 class="section-heading" style="margin-top:1.5rem;"><i class="fas fa-th-large"></i> Quick Access</h2>
   <div class="cards">
     <div class="portal-card practice" onclick="window.location.href='Navi.html'">

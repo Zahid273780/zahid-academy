@@ -6,14 +6,14 @@ body {
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; 
   margin: 0; 
   padding: 0; 
-  background: #f1f5f9; /* Slightly cooler light background */
+  background: #f1f5f9; 
   min-height: 100vh; 
   color: #0f172a; 
   line-height: 1.5;
 }
 
 .page { 
-  max-width: 60rem; /* Slightly wider for comfortable MCQ reading */
+  max-width: 60rem; 
   margin: 0 auto; 
   padding: 2.5rem 1.5rem; 
 }
@@ -137,9 +137,8 @@ textarea { min-height: 14rem; resize: vertical; line-height: 1.6; }
 .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.85rem; }
 
 /* --- Enhanced Mock & Practice Buttons --- */
-/* These styles target the labels wrapping the radio buttons to make them look like interactive cards */
 #labelPractice, #labelMock {
-  flex: 1; /* Makes them equal width */
+  flex: 1;
   position: relative;
   overflow: hidden;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -189,7 +188,7 @@ textarea { min-height: 14rem; resize: vertical; line-height: 1.6; }
 .mcq-card-head .mcq-num { font-weight: 700; font-size: 0.95rem; color: #2563eb; min-width: 1.8rem; }
 .mcq-card-head .mcq-q-text { flex: 1; font-size: 1rem; color: #0f172a; font-weight: 600; line-height: 1.4; }
 .mcq-card-head .card-actions { display: flex; gap: 0.5rem; flex-shrink: 0; opacity: 0.7; transition: opacity 0.2s; }
-.mcq-card:hover .card-actions { opacity: 1; } /* Actions become fully visible on hover */
+.mcq-card:hover .card-actions { opacity: 1; }
 
 .btn-edit { padding: 0.35rem 0.75rem; font-size: 0.8rem; font-weight: 600; background: #dbeafe; color: #1d4ed8; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
 .btn-edit:hover { background: #bfdbfe; }

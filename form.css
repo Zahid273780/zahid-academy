@@ -47,39 +47,39 @@ body {
   border-radius: 50% 50% 0 0;
 }
 
-.logo-icon {
-  width: 70px;
-  height: 70px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 15px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-}
-
-.logo-icon i { font-size: 30px; color: #ffffff; }
-
 .login-header h1 {
   color: #ffffff;
   font-size: 1.8rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+.login-header h2 {
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
 .login-header p {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
   font-weight: 500;
+  line-height: 1.4;
+  padding: 0 10px;
 }
 
-.login-body { padding: 25px 35px 35px; }
+.login-body { padding: 15px 35px 35px; }
 
-.welcome-text { text-align: center; margin-bottom: 25px; }
-.welcome-text h2 { color: var(--text); font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
-.welcome-text p { color: #64748b; font-size: 0.85rem; }
+/* Logo specifically sized and spaced for the white background */
+.form-logo {
+  height: 85px;
+  width: auto;
+  object-fit: contain;
+  margin: 0 auto 25px;
+  display: block;
+}
 
 .form-group { margin-bottom: 16px; position: relative; }
 .form-group label {
@@ -146,7 +146,7 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 480px) {
-  .login-body { padding: 20px 24px 28px; }
+  .login-body { padding: 15px 24px 28px; }
   .login-footer { padding: 0 24px 24px; }
   .login-header { padding: 30px 24px 28px; }
   .login-header h1 { font-size: 1.5rem; }

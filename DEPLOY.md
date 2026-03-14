@@ -45,8 +45,8 @@ So either:
 
 2. **Build configuration**
    - **Framework preset:** None (or “Direct Upload” if you deploy with Wrangler only).
-   - **Build command:** leave empty (unless you use a build step).
-   - **Build output directory:** leave empty or set to **`.`** (root).  
+   - **Build command:** **`npm install`** (required so Pages Functions can resolve `@supabase/supabase-js`).
+   - **Build output directory:** **`.`** (root).  
    Cloudflare must see the **repo root** (where `functions/` lives), not a subfolder like `dist` or `build`.
 
 3. **Environment variables** (required for the form and APIs)
@@ -105,7 +105,7 @@ So either:
 | Step | What to do |
 |------|------------|
 | 1 | Push Zahid2 (with `functions/` at root) to **github.com/Zahid273780/zahid-academy** |
-| 2 | In Cloudflare Pages: no build or output = `.`, add **SUPABASE_URL** and **SUPABASE_SERVICE_ROLE_KEY** |
+| 2 | In Cloudflare Pages: **Build command** = `npm install`, **Build output** = `.`, add **SUPABASE_URL** and **SUPABASE_SERVICE_ROLE_KEY** |
 | 3 | Deploy (auto on push, or `npx wrangler pages deploy .`) |
 | 4 | Test the form on the live URL |
 

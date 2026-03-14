@@ -31,6 +31,16 @@ body {
 
 /* ── header ── */
 .header { text-align: center; margin-bottom: 10px; }
+
+/* Added sizing for the new logo */
+.portal-logo {
+  height: 85px;
+  width: auto;
+  object-fit: contain;
+  margin: 0 auto 15px;
+  display: block;
+}
+
 .header h1 { color: var(--primary-dark); font-size: 2rem; letter-spacing: -1px; }
 .header p  { color: #64748b; margin-top: 5px; font-weight: 500; }
 

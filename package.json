@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "wrangler pages dev . --port 8788",
-    "deploy": "wrangler pages deploy ."
+    "deploy": "wrangler pages deploy .",
+    "build": "npm install"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0"
