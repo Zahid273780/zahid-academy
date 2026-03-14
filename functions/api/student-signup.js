@@ -89,7 +89,7 @@ export async function onRequest(context) {
     return json({ error: 'Password must be at least 4 characters' }, 400);
   }
 
-  const email = `${username}@shaeenacademy.com`;
+  const email = `${username}@shaheeninstitute.com`;
 
   const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -110,7 +110,7 @@ export async function onRequest(context) {
     if (msg.includes('rate') || msg.includes('limit') || msg.includes('too many')) {
       return json({ error: 'The server is busy right now. Please wait a minute and try again.' }, 429);
     }
-    return json({ error: 'Could not create account. Please try again or contact your teacher.' }, 400);
+    return json({ error: `Could not create account: ${createError.message || 'Unknown error'}` }, 400);
   }
   if (!authUser?.user?.id) {
     return json({ error: 'Could not create account. Please try again.' }, 500);
@@ -125,7 +125,7 @@ export async function onRequest(context) {
   });
 
   if (insertError) {
-    return json({ error: 'Account was created but profile could not be saved. Contact your teacher.' }, 500);
+    return json({ error: `Account created but profile save failed: ${insertError.message || 'Unknown error'}` }, 500);
   }
 
   try {
