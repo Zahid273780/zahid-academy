@@ -216,7 +216,7 @@ function renderStudentList(filterText = '') {
 }
 
 async function loadSubjects() {
-  const { data, error } = await supabase.from('subjects').select('id, name').order('name');
+  const { data, error } = await supabase.from('subjects').select('id, subject').order('subject');
   if (error) {
     console.warn('Subjects table not available:', error.message);
     allSubjects = [];
@@ -253,8 +253,8 @@ function buildSubjectCheckboxes(containerId, selected = []) {
 
   panel.innerHTML = allSubjects.map(s => `
     <label>
-      <input type="checkbox" value="${esc(s.name)}" ${selected.includes(s.name) ? 'checked' : ''}>
-      ${esc(s.name)}
+      <input type="checkbox" value="${esc(s.subject)}" ${selected.includes(s.subject) ? 'checked' : ''}>
+      ${esc(s.subject)}
     </label>`).join('');
 
   panel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
