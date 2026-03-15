@@ -105,12 +105,7 @@ export async function onRequest(context) {
 
   let mcqs = data || [];
 
-  // #region agent log
-  const _dbg_totalBefore = mcqs.length;
-  const _dbg_uniqueCourses = [...new Set(mcqs.map(r=>r['Course']||r.course||''))];
-  // #endregion
-
-  /* filter by course (subscription course must match MCQ Course) */
+  /* filter by course — only restrict if subscription explicitly sets a course */
   if (allowedCourses && allowedCourses.length > 0) {
     mcqs = mcqs.filter((r) => allowedCourses.includes(r['Course'] || r.course || ''));
   }
@@ -120,19 +115,5 @@ export async function onRequest(context) {
     mcqs = mcqs.filter((r) => allowedSubjects.includes(r['Subject'] || r.subject || ''));
   }
 
-  // #region agent log
-  const _dbg_uniqueAfter = [...new Set(mcqs.map(r=>r['Course']||r.course||''))];
-  const _dbg = {
-    subsCount: (subs||[]).length,
-    subsCoursesRaw: (subs||[]).map(s=>s.course||null),
-    allowedCourses,
-    allowedSubjects,
-    totalMcqsInDb: _dbg_totalBefore,
-    uniqueCoursesInDb: _dbg_uniqueCourses,
-    mcqsAfterFilter: mcqs.length,
-    uniqueCoursesAfterFilter: _dbg_uniqueAfter,
-  };
-  // #endregion
-
-  return json({ mcqs, _debug: _dbg });
+  return json({ mcqs });
 }

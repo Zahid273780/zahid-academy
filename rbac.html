@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="rbac.css">
 </head>
 <body>
+<script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true;}},true);</script>
   <div class="page">
     <p class="nav"><a href="dashboard.html" class="back-link">&#8592; Back to Dashboard</a></p>
 
@@ -71,7 +72,7 @@
                 <th class="role-col-head" id="studentColHead">
                   Student
                   <button class="col-lock-btn locked" id="studentLockBtn" title="Student column is locked. Click to unlock.">
-                    <span class="lock-icon">🔒</span><span class="lock-label">Locked</span>
+                    <span class="lock-icon">??</span><span class="lock-label">Locked</span>
                   </button>
                   <div class="rwd-header"><span class="rwd-r" style="background:#7c3aed;">V</span><span class="rwd-r">R</span><span class="rwd-w">W</span><span class="rwd-d">D</span></div>
                 </th>

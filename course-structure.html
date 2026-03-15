@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="course-structure.css">
 </head>
 <body>
+<script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true;}},true);</script>
   <div class="page">
     <p class="nav">
       <a href="dashboard.html" class="back-link">&#8592; Back to Dashboard</a>
@@ -19,7 +20,7 @@
 
     <div class="card">
       <h1>Course Structure</h1>
-      <p class="lead">Add and edit course structure: Course, Class/Exam, Subject, Unit, Category, Range, Test Number.</p>
+      <p class="lead">Add and edit course structure: Course, Class/Exam, Subject, Unit, Category, Topics, Test Number.</p>
 
       <h2 id="formTitle">Add new</h2>
       <form id="form">
@@ -45,8 +46,8 @@
             <input type="text" id="fieldCategory" placeholder="e.g. MCQ, Theory">
           </div>
           <div>
-            <label for="fieldRange">Range</label>
-            <input type="text" id="fieldRange" placeholder="e.g. 1-10">
+            <label for="fieldTopics">Topics</label>
+            <input type="text" id="fieldTopics" placeholder="e.g. Cell Biology, Mitosis">
           </div>
           <div>
             <label for="fieldTestNumber">Test Number</label>
@@ -72,7 +73,7 @@
               <th>Subject</th>
               <th>Unit</th>
               <th>Category</th>
-              <th>Range</th>
+              <th>Topics</th>
               <th>Test Number</th>
               <th></th>
             </tr>
