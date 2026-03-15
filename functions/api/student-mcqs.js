@@ -61,28 +61,37 @@ export async function onRequest(context) {
 
   const { data: subs } = await adminClient
     .from('subscriptions')
-    .select('allowed_subjects')
+    .select('course, allowed_subjects')
     .eq('user_id', userId)
     .eq('is_active', true)
     .gt('expires_at', new Date().toISOString());
 
-  let allowedSubjects = null;
+  let allowedCourses = null;   // null = unrestricted (all courses)
+  let allowedSubjects = null;  // null = unrestricted (all subjects)
+
   if (subs && subs.length > 0) {
-    const merged = new Set();
-    let anyEmpty = false;
+    /* ── course restriction ── */
+    const courseSet = new Set();
+    let anyCourseUnrestricted = false;
+    for (const s of subs) {
+      const c = (s.course || '').trim();
+      if (!c) { anyCourseUnrestricted = true; break; }
+      courseSet.add(c);
+    }
+    if (!anyCourseUnrestricted && courseSet.size > 0) {
+      allowedCourses = Array.from(courseSet);
+    }
+
+    /* ── subject restriction (existing logic) ── */
+    const subjectSet = new Set();
+    let anySubjectUnrestricted = false;
     for (const s of subs) {
       const raw = (s.allowed_subjects || '').trim();
-      if (!raw) {
-        anyEmpty = true;
-        break;
-      }
-      raw.split(',').forEach((x) => {
-        const t = x.trim();
-        if (t) merged.add(t);
-      });
+      if (!raw) { anySubjectUnrestricted = true; break; }
+      raw.split(',').forEach((x) => { const t = x.trim(); if (t) subjectSet.add(t); });
     }
-    if (!anyEmpty && merged.size > 0) {
-      allowedSubjects = Array.from(merged);
+    if (!anySubjectUnrestricted && subjectSet.size > 0) {
+      allowedSubjects = Array.from(subjectSet);
     }
   }
 
@@ -93,9 +102,15 @@ export async function onRequest(context) {
   }
 
   let mcqs = data || [];
+
+  /* filter by course (subscription course must match MCQ Course) */
+  if (allowedCourses && allowedCourses.length > 0) {
+    mcqs = mcqs.filter((r) => allowedCourses.includes(r['Course'] || r.course || ''));
+  }
+
+  /* filter by subject (existing behaviour) */
   if (allowedSubjects && allowedSubjects.length > 0) {
-    const subjectKey = mcqs[0] && mcqs[0].Subject !== undefined ? 'Subject' : 'subject';
-    mcqs = mcqs.filter((r) => allowedSubjects.includes(r[subjectKey] || r.Subject || r.subject));
+    mcqs = mcqs.filter((r) => allowedSubjects.includes(r['Subject'] || r.subject || ''));
   }
 
   return json({ mcqs });
