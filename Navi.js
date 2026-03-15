@@ -110,6 +110,29 @@
         var data = await res.json();
         if (data.error) { alert('Error loading data'); return; }
         allMcqs = data.mcqs || [];
+
+        /* ── temporary debug banner ── */
+        var dbg = document.getElementById('naviDebugBanner');
+        if (!dbg) {
+            dbg = document.createElement('div');
+            dbg.id = 'naviDebugBanner';
+            dbg.style.cssText = 'background:#1e293b;color:#f1f5f9;font-size:0.78rem;padding:8px 14px;border-radius:8px;margin-bottom:10px;font-family:monospace;white-space:pre-wrap;line-height:1.6;';
+            var nav = document.getElementById('navigationArea');
+            if (nav && nav.parentNode) nav.parentNode.insertBefore(dbg, nav);
+        }
+        var nullTest = allMcqs.filter(function(r){ return r['Test Number'] == null || r['Test Number'] === ''; }).length;
+        var hidden   = allMcqs.filter(function(r){ return r.hide; }).length;
+        var courses  = {};
+        allMcqs.forEach(function(r){ var c = r['Course']||'?'; courses[c] = (courses[c]||0)+1; });
+        var courseList = Object.keys(courses).map(function(k){ return k+': '+courses[k]; }).join(', ');
+        dbg.textContent = [
+            'Total MCQs returned by API: ' + allMcqs.length,
+            'Hidden (hide=true): ' + hidden,
+            'Null Test Number: ' + nullTest,
+            'By course: ' + (courseList || 'none'),
+        ].join('\n');
+        /* ── end debug ── */
+
         renderCourses();
     }
 
