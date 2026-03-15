@@ -1,13 +1,5 @@
 import { supabase, initAuthGuard } from './auth-guard.js';
 
-// --- DIAGNOSTIC TEST: This proves the new file is running ---
-const testBanner = document.createElement('div');
-testBanner.style.cssText = "background: #16a34a; color: white; padding: 10px; text-align: center; font-weight: bold; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;";
-testBanner.textContent = "✅ NEW SCRIPT LOADED SUCCESSFULLY! EDIT/DELETE ENABLED.";
-document.body.prepend(testBanner);
-setTimeout(() => testBanner.remove(), 5000); // Removes after 5 seconds
-// ------------------------------------------------------------
-
 const selCourse = document.getElementById('selCourse');
 const selClassExam = document.getElementById('selClassExam');
 const selSubject = document.getElementById('selSubject');
@@ -34,11 +26,47 @@ const typePractice = document.getElementById('typePractice');
 const typeMock = document.getElementById('typeMock');
 const labelPractice = document.getElementById('labelPractice');
 const labelMock = document.getElementById('labelMock');
+const inputTopics = document.getElementById('inputTopics');
+const topicsRow = document.getElementById('topicsRow');
+const testNumRow = document.getElementById('testNumRow');
+const radioManual = document.getElementById('radioManual');
+const radioAuto = document.getElementById('radioAuto');
+const labelManualMode = document.getElementById('labelManualMode');
+const labelAutoMode = document.getElementById('labelAutoMode');
+const manualTestRow = document.getElementById('manualTestRow');
+const autoTestRow = document.getElementById('autoTestRow');
+const startTestNumInput = document.getElementById('startTestNum');
+const autoTestSummary = document.getElementById('autoTestSummary');
+
+let autoTestMode = false;
+let rangeTestMap = [];
+const importMsgEl = document.getElementById('importMsg');
+
+function showImportMsg(text, type) {
+  if (!importMsgEl) return;
+  importMsgEl.textContent = text || '';
+  importMsgEl.className = type ? type : '';
+  if (type === 'ok') setTimeout(() => { importMsgEl.textContent = ''; importMsgEl.className = ''; }, 5000);
+}
 
 let structures = [];
+
+function showTopicsRow() {
+  if (topicsRow) topicsRow.style.display = '';
+}
+function hideTopicsRow() {
+  if (topicsRow) topicsRow.style.display = 'none';
+  if (inputTopics) inputTopics.value = '';
+  // Note: Test # row is NOT hidden here — it's controlled by Category selection only
+}
+function showTestNumRow() {
+  if (testNumRow) testNumRow.style.display = '';
+}
+function hideTestNumRow() {
+  if (testNumRow) testNumRow.style.display = 'none';
+}
 let parsedMcqs = [];
 
-// Security: Escapes HTML to prevent XSS vulnerabilities
 function escapeHtml(unsafe) {
   if (!unsafe) return '';
   return String(unsafe)
@@ -94,6 +122,7 @@ function updateClassExamOptions() {
   setSelectDisabled(selUnit, true);
   setSelectDisabled(selCategory, true);
   setSelectDisabled(selTestNumber, true);
+  hideTopicsRow();
   mcqCountMsg.textContent = '';
   updateParseButton();
 }
@@ -147,6 +176,9 @@ function updateCategoryAndTestOptions() {
 
   populateSelect(selCategory, '— Category —', categoryValues);
   populateSelect(selTestNumber, '— Test # —', testNumberValues);
+
+  // Reset Topics and Test # cascade when unit changes
+  hideTopicsRow();
 
   mcqCountMsg.textContent = rows.length
     ? 'Matching structures: ' + rows.length
@@ -273,11 +305,133 @@ function optionHtml(letter, text, correctLetter) {
   );
 }
 
+function buildRangeTestMap(forceReset) {
+  if (!autoTestMode || parsedMcqs.length === 0) { rangeTestMap = []; return; }
+  const chunkSize = 20;
+  const chunks = Math.ceil(parsedMcqs.length / chunkSize);
+  const startNum = parseInt(startTestNumInput ? startTestNumInput.value : '1', 10) || 1;
+  const oldMap = forceReset ? [] : rangeTestMap.slice();
+  rangeTestMap = [];
+  for (let i = 0; i < chunks; i++) {
+    const s = i * chunkSize;
+    const e = Math.min((i + 1) * chunkSize, parsedMcqs.length);
+    const old = oldMap.find(r => r.start === s && r.end === e);
+    rangeTestMap.push({ start: s, end: e, testNum: old ? old.testNum : startNum + i });
+  }
+  updateAutoSummary();
+}
+
+function updateAutoSummary() {
+  if (!autoTestSummary) return;
+  if (!autoTestMode || rangeTestMap.length === 0) { autoTestSummary.textContent = ''; return; }
+  const first = rangeTestMap[0].testNum;
+  const last = rangeTestMap[rangeTestMap.length - 1].testNum;
+  autoTestSummary.textContent = '\u2192 ' + rangeTestMap.length + ' batches \u2192 Tests ' + first + '..' + last;
+}
+
+// THIS BUILDS THE 20-MCQ BATCH BUTTONS AND AUTO-REPAIRS MISSING HTML
+function updateBatchButtons() {
+  let rangeContainer = document.getElementById('rangeButtonsContainer');
+  
+  if (!rangeContainer) {
+    rangeContainer = document.createElement('div');
+    rangeContainer.id = 'rangeButtonsContainer';
+    rangeContainer.style.cssText = "display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.5rem; align-items:center;";
+    reviewList.parentNode.insertBefore(rangeContainer, reviewList);
+  }
+  
+  rangeContainer.innerHTML = '';
+  if (parsedMcqs.length === 0) return;
+
+  const chunkSize = 20;
+  const chunks = Math.ceil(parsedMcqs.length / chunkSize);
+
+  if (autoTestMode) buildRangeTestMap(false);
+
+  if (chunks > 0) {
+    const rangeLabel = document.createElement('span');
+    rangeLabel.style.cssText = "font-size:0.9rem; font-weight:600; color:#1e293b; margin-right:8px; width:100%;";
+    rangeLabel.textContent = autoTestMode ? "Test Mapping (click range to select, edit test # to override):" : "Select Batch:";
+    rangeContainer.appendChild(rangeLabel);
+
+    for (let i = 0; i < chunks; i++) {
+      const start = i * chunkSize + 1;
+      const end = Math.min((i + 1) * chunkSize, parsedMcqs.length);
+
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = "display:inline-flex; align-items:center; gap:4px;";
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.style.cssText = "padding: 0.4rem 0.85rem; font-size: 0.85rem; border-radius: 8px; border: 1px solid #cbd5e1; cursor: pointer; transition: all 0.2s;";
+      btn.textContent = `${start} - ${end}`;
+
+      let isBatchActive = true;
+      parsedMcqs.forEach((q, idx) => {
+        const inRange = (idx >= start - 1 && idx < end);
+        if (inRange && !q._checked) isBatchActive = false;
+        if (!inRange && q._checked) isBatchActive = false;
+      });
+
+      if (isBatchActive) {
+        btn.style.background = '#dbeafe';
+        btn.style.borderColor = '#2563eb';
+        btn.style.color = '#1d4ed8';
+        btn.style.fontWeight = '700';
+      } else {
+        btn.style.background = '#ffffff';
+        btn.style.color = '#475569';
+        btn.style.fontWeight = '500';
+      }
+
+      btn.addEventListener('click', () => {
+        parsedMcqs.forEach((q, idx) => {
+          q._checked = (idx >= start - 1 && idx < end);
+        });
+        document.querySelectorAll('.mcq-check').forEach((cb) => {
+          const idx = parseInt(cb.getAttribute('data-idx'), 10);
+          cb.checked = parsedMcqs[idx]._checked;
+          const card = cb.closest('.mcq-card');
+          if (card) card.style.opacity = cb.checked ? '1' : '0.5';
+        });
+        updateBatchButtons();
+      });
+
+      wrapper.appendChild(btn);
+
+      if (autoTestMode && rangeTestMap[i]) {
+        const numInput = document.createElement('input');
+        numInput.type = 'number';
+        numInput.min = '1';
+        numInput.value = rangeTestMap[i].testNum;
+        numInput.style.cssText = "width:52px; padding:4px 6px; font-size:0.8rem; border:1.5px solid #16a34a; border-radius:6px; text-align:center; font-weight:700; color:#15803d; background:#f0fdf4;";
+        numInput.title = `Test # for MCQs ${start}-${end}`;
+        const rangeIdx = i;
+        numInput.addEventListener('change', () => {
+          const v = parseInt(numInput.value, 10);
+          if (v > 0) {
+            rangeTestMap[rangeIdx].testNum = v;
+          } else {
+            numInput.value = rangeTestMap[rangeIdx].testNum;
+          }
+          updateAutoSummary();
+          renderPreview();
+        });
+        wrapper.appendChild(numInput);
+      }
+
+      rangeContainer.appendChild(wrapper);
+    }
+  }
+}
+
 function renderPreview() {
   if (!parsedMcqs.length) {
     reviewSection.classList.add('hidden');
     reviewList.innerHTML = '';
     reviewCount.textContent = '';
+    let rangeContainer = document.getElementById('rangeButtonsContainer');
+    if (rangeContainer) rangeContainer.innerHTML = '';
     return;
   }
 
@@ -304,7 +458,7 @@ function renderPreview() {
           
           <div style="flex:1;min-width:0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
             <div class="mcq-q-text" style="font-weight:700;font-size:0.95rem;color:#1e293b;line-height:1.4;">
-              <span style="color:#2563eb;margin-right:6px;">${idx + 1}.</span>${safeQ}
+              <span style="color:#2563eb;margin-right:6px;">${idx + 1}.</span>${autoTestMode && rangeTestMap.length ? (() => { const m = rangeTestMap.find(r => idx >= r.start && idx < r.end); return m ? `<span style="background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:700;margin-right:6px;border:1px solid #bbf7d0;">T#${m.testNum}</span>` : ''; })() : ''}${safeQ}
             </div>
             
             <div class="card-actions" style="display:flex;gap:6px;flex-shrink:0;">
@@ -358,6 +512,8 @@ function renderPreview() {
   }).join('');
 
   reviewList.innerHTML = html;
+  
+  updateBatchButtons();
 }
 
 async function extractTextFromDocx(file) {
@@ -434,32 +590,63 @@ async function handleParse(e) {
 }
 
 async function handleImportSelected() {
-  showMsg('', '');
+  showImportMsg('', '');
   if (!parsedMcqs.length) {
-    showMsg('Nothing to import. Parse MCQs first.', 'err');
+    showImportMsg('Nothing to import. Parse MCQs first.', 'err');
     return;
   }
 
   const toImport = parsedMcqs.filter(q => q._checked !== false);
   
   if (!toImport.length) {
-    showMsg('Select at least one question to import.', 'err');
+    showImportMsg('Select at least one question to import.', 'err');
     return;
   }
 
   const f = currentFilter();
-  const testNumber = selTestNumber.value ? parseInt(selTestNumber.value, 10) : null;
   const isMockTest = typeMock && typeMock.checked;
   const hideValue = isMockTest ? true : false;
+  const topics = inputTopics ? (inputTopics.value.trim() || null) : null;
 
-  const rows = toImport.map(q => {
-    return {
+  // Validate auto mode mapping
+  if (autoTestMode) {
+    buildRangeTestMap(false);
+    for (const r of rangeTestMap) {
+      if (!r.testNum || r.testNum < 1 || isNaN(r.testNum)) {
+        showImportMsg('Invalid test number in auto mapping for MCQs ' + (r.start + 1) + '-' + r.end + '. Fix it before importing.', 'err');
+        return;
+      }
+    }
+  } else {
+    // Manual mode: Test Number is required or students won't see the MCQs
+    if (!selTestNumber.value) {
+      showImportMsg('⚠ Please select a Test Number before importing. Without it, students will not see these MCQs in the test list.', 'err');
+      return;
+    }
+  }
+
+  // Build rows with correct test number per MCQ
+  const rows = [];
+  for (let idx = 0; idx < parsedMcqs.length; idx++) {
+    const q = parsedMcqs[idx];
+    if (q._checked === false) continue;
+
+    let testNumber;
+    if (autoTestMode && rangeTestMap.length > 0) {
+      const mapping = rangeTestMap.find(r => idx >= r.start && idx < r.end);
+      testNumber = mapping ? mapping.testNum : null;
+    } else {
+      testNumber = selTestNumber.value ? parseInt(selTestNumber.value, 10) : null;
+    }
+
+    rows.push({
       Course: f.course,
       'Class/Exam': f.classExam,
       Subject: f.subject,
       Unit: f.unit,
       Category: f.category || null,
       'Test Number': testNumber,
+      Topics: topics,
       Question: q.Question,
       'Option A': q['Option A'],
       'Option B': q['Option B'],
@@ -468,8 +655,13 @@ async function handleImportSelected() {
       'Correct Answer': q['Correct Answer'],
       Explanation: q.Explanation || null,
       hide: hideValue
-    };
-  });
+    });
+  }
+
+  if (!rows.length) {
+    showImportMsg('No valid rows to import.', 'err');
+    return;
+  }
 
   importSelectedBtn.disabled = true;
   importSelectedBtn.textContent = 'Importing…';
@@ -479,11 +671,17 @@ async function handleImportSelected() {
   importSelectedBtn.textContent = 'Import selected';
 
   if (error) {
-    showMsg('Import failed: ' + error.message, 'err');
+    showImportMsg('Import failed: ' + error.message, 'err');
     return;
   }
 
-  showMsg('Imported ' + rows.length + ' questions into MCQs.', 'ok');
+  if (autoTestMode && rangeTestMap.length > 0) {
+    const first = rangeTestMap[0].testNum;
+    const last = rangeTestMap[rangeTestMap.length - 1].testNum;
+    showImportMsg('Imported ' + rows.length + ' MCQs across Tests ' + first + '..' + last + '.', 'ok');
+  } else {
+    showImportMsg('Imported ' + rows.length + ' questions into MCQs.', 'ok');
+  }
 }
 
 (async function init() {
@@ -494,8 +692,77 @@ async function handleImportSelected() {
   selClassExam.addEventListener('change', () => { updateSubjectOptions(); });
   selSubject.addEventListener('change', () => { updateUnitOptions(); });
   selUnit.addEventListener('change', () => { updateCategoryAndTestOptions(); });
-  selCategory.addEventListener('change', updateParseButton);
-  selTestNumber.addEventListener('change', updateParseButton);
+
+  // Category selected → reveal both Topics AND Test # rows
+  selCategory.addEventListener('change', () => {
+    if (!selCategory.disabled) {
+      showTopicsRow();
+      showTestNumRow();
+    }
+    updateParseButton();
+  });
+
+  // Topics input: no longer controls Test # visibility (Test # always shown with Category)
+  if (inputTopics) {
+    inputTopics.addEventListener('input', () => {
+      updateParseButton();
+    });
+  }
+
+  selTestNumber.addEventListener('change', () => {
+    // Auto-fill Topics from the matching coursestructure row
+    const f = currentFilter();
+    const testNum = selTestNumber.value ? parseInt(selTestNumber.value, 10) : null;
+    if (testNum !== null && f.course && f.classExam && f.subject && f.unit) {
+      const match = structures.find(r =>
+        r.Course === f.course &&
+        r['Class/Exam'] === f.classExam &&
+        r.Subject === f.subject &&
+        r.Unit === f.unit &&
+        (!f.category || r.Category === f.category) &&
+        r['Test Number'] === testNum
+      );
+      if (match && match.Topics && inputTopics) {
+        inputTopics.value = match.Topics;
+        showTestNumRow();
+      }
+    }
+    updateParseButton();
+  });
+
+  // Auto/Manual test mode toggle
+  function updateTestModeUI() {
+    autoTestMode = radioAuto && radioAuto.checked;
+    if (manualTestRow) manualTestRow.style.display = autoTestMode ? 'none' : 'flex';
+    if (autoTestRow) autoTestRow.style.display = autoTestMode ? 'flex' : 'none';
+    if (labelManualMode) {
+      labelManualMode.style.borderColor = autoTestMode ? '#e2e8f0' : '#2563eb';
+      labelManualMode.style.background = autoTestMode ? '#fff' : '#eff6ff';
+    }
+    if (labelAutoMode) {
+      labelAutoMode.style.borderColor = autoTestMode ? '#16a34a' : '#e2e8f0';
+      labelAutoMode.style.background = autoTestMode ? '#f0fdf4' : '#fff';
+    }
+    if (autoTestMode) buildRangeTestMap(true);
+    if (parsedMcqs.length > 0) {
+      updateBatchButtons();
+      renderPreview();
+    }
+  }
+  if (radioManual) radioManual.addEventListener('change', updateTestModeUI);
+  if (radioAuto) radioAuto.addEventListener('change', updateTestModeUI);
+  if (startTestNumInput) {
+    startTestNumInput.addEventListener('change', () => {
+      const v = parseInt(startTestNumInput.value, 10);
+      if (!v || v < 1) { startTestNumInput.value = 1; }
+      buildRangeTestMap(true);
+      if (parsedMcqs.length > 0) {
+        updateBatchButtons();
+        renderPreview();
+      }
+    });
+  }
+  updateTestModeUI();
 
   function updateTypeLabels() {
     if (!labelPractice || !labelMock) return;
@@ -520,12 +787,24 @@ async function handleImportSelected() {
   
   selectAllBtn.addEventListener('click', function () {
     parsedMcqs.forEach(q => q._checked = true);
-    renderPreview();
+    
+    document.querySelectorAll('.mcq-check').forEach(cb => { 
+      cb.checked = true; 
+      const card = cb.closest('.mcq-card');
+      if (card) card.style.opacity = '1';
+    });
+    updateBatchButtons();
   });
   
   deselectAllBtn.addEventListener('click', function () {
     parsedMcqs.forEach(q => q._checked = false);
-    renderPreview();
+    
+    document.querySelectorAll('.mcq-check').forEach(cb => { 
+      cb.checked = false; 
+      const card = cb.closest('.mcq-card');
+      if (card) card.style.opacity = '0.5';
+    });
+    updateBatchButtons();
   });
   
   importSelectedBtn.addEventListener('click', handleImportSelected);
@@ -536,14 +815,18 @@ async function handleImportSelected() {
     if (e.target.classList.contains('mcq-check')) {
       const idx = parseInt(e.target.getAttribute('data-idx'), 10);
       parsedMcqs[idx]._checked = e.target.checked;
+      
       const card = e.target.closest('.mcq-card');
-      card.style.opacity = e.target.checked ? '1' : '0.5';
+      if (card) card.style.opacity = e.target.checked ? '1' : '0.5';
+      
+      updateBatchButtons(); 
       return;
     }
 
     if (e.target.closest('.btn-remove')) {
       const idx = parseInt(e.target.closest('.btn-remove').getAttribute('data-idx'), 10);
       parsedMcqs.splice(idx, 1);
+      if (autoTestMode) buildRangeTestMap(true);
       renderPreview();
       return;
     }
