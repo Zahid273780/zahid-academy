@@ -110,6 +110,9 @@
         var data = await res.json();
         if (data.error) { alert('Error loading data'); return; }
         allMcqs = data.mcqs || [];
+        // #region agent log
+        console.log('[DEBUG student-mcqs]', JSON.stringify(data._debug, null, 2));
+        // #endregion
         renderCourses();
     }
 
