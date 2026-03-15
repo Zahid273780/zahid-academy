@@ -97,7 +97,7 @@ export async function onRequest(context) {
   }
 
 
-  const { data, error } = await adminClient.from('mcqs').select('*').eq('hide', false);
+  const { data, error } = await adminClient.from('mcqs').select('*').eq('hide', false).limit(5000);
 
   if (error) {
     return json({ error: 'Failed to load data' }, 500);
