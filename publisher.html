@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -72,6 +72,53 @@
       <div id="msg"></div>
       <div id="testList"></div>
       <div id="emptyMsg" class="empty-msg" style="display:none;">No tests match your filters.</div>
+    </div>
+  </div>
+
+  <!-- Edit Test Modal -->
+  <div id="editTestModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(3px);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#fff;border-radius:16px;width:100%;max-width:540px;box-shadow:0 25px 50px rgba(0,0,0,0.3);overflow:hidden;max-height:90vh;overflow-y:auto;">
+      <div style="background:linear-gradient(135deg,#1e40af,#2563eb);padding:22px 24px;position:sticky;top:0;z-index:1;">
+        <h2 style="color:#fff;margin:0;font-size:1.2rem;">Edit Test Details</h2>
+        <p style="color:rgba(255,255,255,0.8);margin:4px 0 0;font-size:0.82rem;">Changes apply to all MCQs in this test group</p>
+      </div>
+      <div style="padding:22px 24px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:4px;">Course *</label>
+            <input type="text" id="etCourse" placeholder="e.g. MDCAT" style="width:100%;padding:9px 11px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:4px;">Class / Exam *</label>
+            <input type="text" id="etClassExam" placeholder="e.g. 11th" style="width:100%;padding:9px 11px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:4px;">Subject *</label>
+            <input type="text" id="etSubject" placeholder="e.g. Physics" style="width:100%;padding:9px 11px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:4px;">Unit *</label>
+            <input type="text" id="etUnit" placeholder="e.g. Vectors" style="width:100%;padding:9px 11px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:4px;">Category (optional)</label>
+            <input type="text" id="etCategory" placeholder="e.g. Mix" style="width:100%;padding:9px 11px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:4px;">Test Number *</label>
+            <input type="number" id="etTestNumber" placeholder="e.g. 5" min="1" style="width:100%;padding:9px 11px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:4px;">Topics (optional)</label>
+          <input type="text" id="etTopics" placeholder="e.g. Scalars, Vectors, Projectile Motion" style="width:100%;padding:9px 11px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+        </div>
+        <div id="etMsg" style="margin-bottom:12px;font-size:0.85rem;font-weight:600;display:none;padding:8px 12px;border-radius:8px;"></div>
+        <div style="display:flex;gap:8px;">
+          <button type="button" id="etSaveBtn" style="flex:1;padding:10px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:0.9rem;cursor:pointer;">Save Changes</button>
+          <button type="button" id="etCancelBtn" style="padding:10px 20px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-weight:600;font-size:0.9rem;cursor:pointer;">Cancel</button>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -16,8 +16,22 @@ const viewAll      = document.getElementById('viewAll');
 const viewPublished = document.getElementById('viewPublished');
 const viewHidden   = document.getElementById('viewHidden');
 
+/* edit modal elements */
+const editModal   = document.getElementById('editTestModal');
+const etCourse    = document.getElementById('etCourse');
+const etClassExam = document.getElementById('etClassExam');
+const etSubject   = document.getElementById('etSubject');
+const etUnit      = document.getElementById('etUnit');
+const etCategory  = document.getElementById('etCategory');
+const etTopics    = document.getElementById('etTopics');
+const etTestNumber = document.getElementById('etTestNumber');
+const etMsg       = document.getElementById('etMsg');
+const etSaveBtn   = document.getElementById('etSaveBtn');
+const etCancelBtn = document.getElementById('etCancelBtn');
+
 let allTests = [];
 let viewMode = 'all';
+let editingTest = null;
 
 function showMsg(text, type) {
   msgEl.textContent = text;
@@ -42,7 +56,7 @@ async function loadTests() {
   showMsg('Loading…', '');
   const { data, error } = await supabase
     .from('mcqs')
-    .select('id, Course, "Class/Exam", Subject, Unit, Category, "Test Number", Question, hide')
+    .select('id, Course, "Class/Exam", Subject, Unit, Category, Topics, "Test Number", Question, hide')
     .order('Course').order('Subject').order('Unit').order('"Test Number"');
 
   if (error) { showMsg('Error: ' + error.message, 'err'); return; }
@@ -56,12 +70,13 @@ async function loadTests() {
     const subject   = col(row, 'Subject', 'subject');
     const unit      = col(row, 'Unit', 'unit');
     const category  = col(row, 'Category', 'category');
+    const topics    = col(row, 'Topics', 'topics');
     const testNum   = col(row, 'Test Number', 'test_number', 'testnumber');
     const key       = [course, classExam, subject, unit, category, testNum].join('|||');
 
     if (!groups.has(key)) {
       groups.set(key, {
-        course, classExam, subject, unit, category, testNum,
+        course, classExam, subject, unit, category, topics, testNum,
         mcqs: [],
         hide: row.hide,
       });
@@ -139,11 +154,12 @@ function render() {
       ? `<div class="mcq-preview" style="color:#94a3b8;">… and ${test.mcqs.length - 3} more question(s)</div>`
       : '');
 
-    const btnHtml = canEdit
-      ? isHidden
-        ? `<button class="btn btn-publish" data-action="publish">Publish</button>`
-        : `<button class="btn btn-unpublish" data-action="unpublish">Unpublish</button>`
-      : '';
+    const toggleBtn = isHidden
+      ? `<button class="btn btn-publish" data-action="publish">Publish</button>`
+      : `<button class="btn btn-unpublish" data-action="unpublish">Unpublish</button>`;
+    const deleteBtn = `<button class="btn btn-delete" data-action="delete">Delete</button>`;
+    const editBtn   = `<button class="btn" data-action="edit" style="background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;">Edit</button>`;
+    const btnHtml = canEdit ? editBtn + toggleBtn + deleteBtn : '';
 
     group.innerHTML = `
       <div class="test-group-head">
@@ -154,6 +170,7 @@ function render() {
           </div>
           <div class="test-group-meta">
             ${esc(test.course)} › ${esc(test.classExam)} › ${esc(test.subject)} › ${esc(test.unit)}
+            ${test.topics ? `<span class="badge badge-count" style="margin-left:6px;background:#ede9fe;color:#6d28d9;border:1px solid #ddd6fe;">📚 ${esc(test.topics)}</span>` : ''}
           </div>
         </div>
         <div class="test-group-actions">
@@ -165,9 +182,17 @@ function render() {
       <div class="test-group-body">${previewHtml}</div>
     `;
 
-    const btn = group.querySelector('[data-action]');
+    const editBtnEl = group.querySelector('[data-action="edit"]');
+    if (editBtnEl) {
+      editBtnEl.addEventListener('click', () => openEditModal(test));
+    }
+    const btn = group.querySelector('[data-action="publish"], [data-action="unpublish"]');
     if (btn) {
       btn.addEventListener('click', () => toggleTest(test, btn));
+    }
+    const delBtn = group.querySelector('[data-action="delete"]');
+    if (delBtn) {
+      delBtn.addEventListener('click', () => deleteTest(test, delBtn));
     }
 
     testListEl.appendChild(group);
@@ -198,6 +223,109 @@ async function toggleTest(test, btn) {
   updateStats();
   render();
 }
+
+async function deleteTest(test, btn) {
+  const confirmed = confirm(`Delete Test #${test.testNum} (${test.mcqs.length} MCQs)?\nThis cannot be undone.`);
+  if (!confirmed) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Deleting…';
+
+  const ids = test.mcqs.map(q => q.id);
+  const { error } = await supabase
+    .from('mcqs')
+    .delete()
+    .in('id', ids);
+
+  if (error) {
+    showMsg('Error: ' + error.message, 'err');
+    btn.disabled = false;
+    btn.textContent = 'Delete';
+    return;
+  }
+
+  allTests = allTests.filter(t => t !== test);
+  showMsg(`Test #${test.testNum} deleted (${ids.length} MCQs removed).`, 'ok');
+  updateStats();
+  populateFilters();
+  render();
+}
+
+/* ─── edit modal ───────────────────────────────────── */
+
+function showEtMsg(text, type) {
+  etMsg.textContent = text;
+  etMsg.style.display = text ? 'block' : 'none';
+  etMsg.style.background = type === 'err' ? '#fef2f2' : '#f0fdf4';
+  etMsg.style.color      = type === 'err' ? '#dc2626'  : '#166534';
+}
+
+function openEditModal(test) {
+  editingTest = test;
+  etCourse.value     = test.course    || '';
+  etClassExam.value  = test.classExam || '';
+  etSubject.value    = test.subject   || '';
+  etUnit.value       = test.unit      || '';
+  etCategory.value   = test.category  || '';
+  etTopics.value     = test.topics    || '';
+  etTestNumber.value = test.testNum   || '';
+  showEtMsg('', '');
+  etSaveBtn.disabled    = false;
+  etSaveBtn.textContent = 'Save Changes';
+  editModal.style.display = 'flex';
+}
+
+function closeEditModal() {
+  editModal.style.display = 'none';
+  editingTest = null;
+}
+
+etCancelBtn.addEventListener('click', closeEditModal);
+editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
+
+etSaveBtn.addEventListener('click', async () => {
+  const course    = etCourse.value.trim();
+  const classExam = etClassExam.value.trim();
+  const subject   = etSubject.value.trim();
+  const unit      = etUnit.value.trim();
+  const category  = etCategory.value.trim();
+  const topics    = etTopics.value.trim();
+  const testNum   = etTestNumber.value.trim();
+
+  if (!course)    { showEtMsg('Course is required.', 'err'); return; }
+  if (!classExam) { showEtMsg('Class/Exam is required.', 'err'); return; }
+  if (!subject)   { showEtMsg('Subject is required.', 'err'); return; }
+  if (!unit)      { showEtMsg('Unit is required.', 'err'); return; }
+  if (!testNum)   { showEtMsg('Test Number is required.', 'err'); return; }
+
+  etSaveBtn.disabled    = true;
+  etSaveBtn.textContent = 'Saving…';
+
+  const ids = editingTest.mcqs.map(q => q.id);
+  const { error } = await supabase
+    .from('mcqs')
+    .update({
+      'Course':       course,
+      'Class/Exam':   classExam,
+      'Subject':      subject,
+      'Unit':         unit,
+      'Category':     category || null,
+      'Topics':       topics   || null,
+      'Test Number':  parseInt(testNum, 10),
+    })
+    .in('id', ids);
+
+  if (error) {
+    showEtMsg('Save failed: ' + error.message, 'err');
+    etSaveBtn.disabled    = false;
+    etSaveBtn.textContent = 'Save Changes';
+    return;
+  }
+
+  closeEditModal();
+  showMsg('Test updated successfully.', 'ok');
+  loadTests();
+});
 
 [selCourse, selClassExam, selSubject, selUnit, selCategory].forEach(s => {
   s.addEventListener('change', render);

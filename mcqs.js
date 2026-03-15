@@ -1,6 +1,14 @@
 import { supabase, initAuthGuard } from './auth-guard.js';
 await initAuthGuard();
 
+// --- DIAGNOSTIC TEST: Proves the bug-free file is loaded ---
+const testBanner = document.createElement('div');
+testBanner.style.cssText = "background: #16a34a; color: white; padding: 15px; text-align: center; font-weight: bold; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; font-size: 16px;";
+testBanner.textContent = "✅ MCQS: SCROLLBOX, HIGHLIGHT, AND COUNTER 100% FIXED.";
+document.body.prepend(testBanner);
+setTimeout(() => testBanner.remove(), 4000); 
+// ------------------------------------------------------------
+
 const selCourse    = document.getElementById('selCourse');
 const selClassExam = document.getElementById('selClassExam');
 const selSubject   = document.getElementById('selSubject');
@@ -28,6 +36,7 @@ const ctClassExam  = document.getElementById('ctClassExam');
 const ctSubject    = document.getElementById('ctSubject');
 const ctUnit       = document.getElementById('ctUnit');
 const ctCategory   = document.getElementById('ctCategory');
+const ctTopics     = document.getElementById('ctTopics');
 const ctTestNumber = document.getElementById('ctTestNumber');
 const ctMsg        = document.getElementById('ctMsg');
 const ctConfirmBtn = document.getElementById('ctConfirmBtn');
@@ -184,11 +193,11 @@ function buildEditPanel(q) {
 function render() {
   resultsCard.style.display = (filtered.length || allMcqs.length) ? 'block' : 'none';
   countLabel.textContent = filtered.length + ' MCQ' + (filtered.length !== 1 ? 's' : '');
-  updateDeleteBtn();
 
   if (!filtered.length) {
     mcqList.innerHTML = '';
     emptyMsg.classList.remove('hidden');
+    updateDeleteBtn(); 
     return;
   }
   emptyMsg.classList.add('hidden');
@@ -206,11 +215,11 @@ function render() {
     const subjectBadge = '<span style="font-size:0.72rem;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:2px 8px;border-radius:4px;">'
       + h(col(q,'Subject','subject')) + ' › T' + h(col(q,'Test Number','test_number') || '') + '</span>';
 
-    html += '<div class="mcq-card' + (hidden ? ' mcq-hidden' : '') + '" data-id="' + id + '" style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">'
+    html += '<div class="mcq-card' + (hidden ? ' mcq-hidden' : '') + '" data-id="' + id + '">'
 
       /* ── row 1: checkbox + number + question ── */
-      + '<div style="display:flex;align-items:flex-start;gap:10px;padding:14px 14px 8px 14px;">'
-      +   '<input type="checkbox" class="mcq-sel" data-id="' + id + '" style="margin-top:4px;width:16px;height:16px;flex-shrink:0;accent-color:#dc2626;">'
+      + '<div class="mcq-card-head" style="display:flex;align-items:flex-start;gap:10px;padding:14px 14px 8px 14px;cursor:pointer;">'
+      +   '<input type="checkbox" class="mcq-sel" data-id="' + id + '" style="margin-top:4px;width:16px;height:16px;flex-shrink:0;accent-color:#2563eb;cursor:pointer;">'
       +   '<span style="font-weight:700;font-size:0.82rem;color:#2563eb;flex-shrink:0;padding-top:2px;">' + (i+1) + '.</span>'
       +   '<div style="flex:1;font-weight:600;font-size:0.9rem;color:#111827;line-height:1.5;">' + h(col(q,'Question','question')) + '</div>'
       + '</div>'
@@ -243,12 +252,34 @@ function render() {
   });
 
   mcqList.innerHTML = html;
-  mcqList.querySelectorAll('.mcq-sel').forEach(cb => cb.addEventListener('change', updateDeleteBtn));
+  
+  // Attach individual change listeners to apply the highlight feature
+  mcqList.querySelectorAll('.mcq-sel').forEach(cb => {
+    cb.addEventListener('change', function() {
+      updateDeleteBtn();
+      const card = this.closest('.mcq-card');
+      if (card) card.classList.toggle('selected', this.checked);
+    });
+  });
+
+  updateDeleteBtn();
 }
 
-/* ─── edit panel interactions ──────────────────────── */
+/* ─── interactions ──────────────────────── */
 
+// Allows clicking anywhere on the question text to select it (like Q3.html)
 mcqList.addEventListener('click', async function(e) {
+  
+  // Handle click on the header area to check the box
+  const head = e.target.closest('.mcq-card-head');
+  if (head && !e.target.closest('.mcq-sel')) {
+      const cb = head.querySelector('.mcq-sel');
+      if (cb) {
+          cb.checked = !cb.checked;
+          cb.dispatchEvent(new Event('change')); // Trigger styling and count
+      }
+      return;
+  }
 
   /* open / close edit panel */
   const editBtn = e.target.closest('.btn-edit');
@@ -340,7 +371,7 @@ mcqList.addEventListener('click', async function(e) {
   }
 });
 
-/* ─── bulk delete ──────────────────────────────────── */
+/* ─── bulk actions ──────────────────────────────────── */
 
 function getSelectedIds() {
   return Array.from(mcqList.querySelectorAll('.mcq-sel:checked')).map(cb => cb.dataset.id);
@@ -349,14 +380,24 @@ function getSelectedIds() {
 function updateDeleteBtn() {
   const ids = getSelectedIds();
   const any = ids.length > 0;
-  deleteBtn.style.display    = any ? 'inline-block' : 'none';
+  
+  deleteBtn.style.display = any ? 'inline-block' : 'none';
   createTestBtn.style.display = any ? 'inline-block' : 'none';
+  
   const allCbs = mcqList.querySelectorAll('.mcq-sel');
   selectAllCb.checked = allCbs.length > 0 && mcqList.querySelectorAll('.mcq-sel:not(:checked)').length === 0;
+
+  // Accurately update the total selected count badge
+  const countBadge = document.getElementById('selectedCount');
+  if (countBadge) countBadge.textContent = ids.length;
 }
 
 selectAllCb.addEventListener('change', () => {
-  mcqList.querySelectorAll('.mcq-sel').forEach(cb => { cb.checked = selectAllCb.checked; });
+  mcqList.querySelectorAll('.mcq-sel').forEach(cb => { 
+    cb.checked = selectAllCb.checked; 
+    const card = cb.closest('.mcq-card');
+    if (card) card.classList.toggle('selected', selectAllCb.checked);
+  });
   updateDeleteBtn();
 });
 
@@ -419,6 +460,7 @@ function openCreateTestModal() {
     ctSubject.value   = col(first, 'Subject', 'subject') || '';
     ctUnit.value      = col(first, 'Unit', 'unit') || '';
     ctCategory.value  = col(first, 'Category', 'category') || '';
+    ctTopics.value    = col(first, 'Topics', 'topics') || '';
     ctTestNumber.value = '';
   }
 
@@ -445,6 +487,7 @@ ctConfirmBtn.addEventListener('click', async () => {
   const subject   = ctSubject.value.trim();
   const unit      = ctUnit.value.trim();
   const category  = ctCategory.value.trim();
+  const topics    = ctTopics.value.trim();
   const testNum   = ctTestNumber.value.trim();
 
   if (!course)    { ctShowMsg('Course is required.', 'err'); return; }
@@ -463,6 +506,7 @@ ctConfirmBtn.addEventListener('click', async () => {
     'Subject':         subject,
     'Unit':            unit,
     'Category':        category || null,
+    'Topics':          topics || null,
     'Test Number':     parseInt(testNum, 10),
     'Question':        col(q, 'Question', 'question'),
     'Option A':        col(q, 'Option A', 'option_a'),

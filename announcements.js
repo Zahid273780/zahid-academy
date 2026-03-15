@@ -1,9 +1,10 @@
 import { supabase, initAuthGuard } from './auth-guard.js';
 await initAuthGuard();
 
-const annTitle   = document.getElementById('annTitle');
-const annMessage = document.getElementById('annMessage');
-const annPostBtn = document.getElementById('annPostBtn');
+const annTitle        = document.getElementById('annTitle');
+const annMessage      = document.getElementById('annMessage');
+const annTargetCourse = document.getElementById('annTargetCourse');
+const annPostBtn      = document.getElementById('annPostBtn');
 const annFormMsg = document.getElementById('annFormMsg');
 const annListArea = document.getElementById('annListArea');
 const annCount   = document.getElementById('annCount');
@@ -62,9 +63,12 @@ function render() {
   }
 
   annListArea.innerHTML = list.map(row => {
-    const badge = row.is_active
+    const activeBadge = row.is_active
       ? '<span class="badge-active">Active</span>'
       : '<span class="badge-inactive">Inactive</span>';
+    const courseBadge = row.target_course
+      ? '<span style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:2px 10px;border-radius:4px;font-size:0.72rem;font-weight:700;">🎯 ' + h(row.target_course) + '</span>'
+      : '<span style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;padding:2px 10px;border-radius:4px;font-size:0.72rem;font-weight:700;">📢 All Students</span>';
     const toggleLabel = row.is_active ? 'Deactivate' : 'Activate';
     const toggleClass = row.is_active ? 'active' : 'inactive';
     return (
@@ -72,10 +76,13 @@ function render() {
       + '<div class="ann-row-head">'
       +   '<div style="flex:1;">'
       +     '<div class="ann-row-title">' + h(row.title) + '</div>'
-      +     '<div class="ann-row-meta">' + formatDate(row.created_at) + '</div>'
+      +     '<div class="ann-row-meta" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'
+      +       formatDate(row.created_at)
+      +       courseBadge
+      +     '</div>'
       +   '</div>'
       +   '<div class="ann-row-actions">'
-      +     badge
+      +     activeBadge
       +     '<button class="btn-toggle-ann ' + toggleClass + '" data-id="' + h(String(row.id)) + '" data-active="' + row.is_active + '">' + toggleLabel + '</button>'
       +     '<button class="btn-del-ann" data-id="' + h(String(row.id)) + '">Delete</button>'
       +   '</div>'
@@ -96,7 +103,8 @@ annPostBtn.addEventListener('click', async () => {
   annPostBtn.disabled    = true;
   annPostBtn.textContent = 'Publishing…';
 
-  const { error } = await supabase.from('announcements').insert({ title, message, is_active: true });
+  const target_course = annTargetCourse ? (annTargetCourse.value.trim() || null) : null;
+  const { error } = await supabase.from('announcements').insert({ title, message, is_active: true, target_course });
 
   annPostBtn.disabled    = false;
   annPostBtn.textContent = 'Publish Announcement';
@@ -105,6 +113,7 @@ annPostBtn.addEventListener('click', async () => {
 
   annTitle.value   = '';
   annMessage.value = '';
+  if (annTargetCourse) annTargetCourse.value = '';
   showFormMsg('Announcement published successfully.', 'ok');
   await loadAnnouncements();
 });

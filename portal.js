@@ -143,11 +143,20 @@
   }
 
   /* ── render announcements ── */
+  var studentPackageName = '';
+
+  function annMatchesCourse(ann) {
+    if (!ann.target_course) return true;
+    return (studentPackageName || '').toLowerCase().includes(ann.target_course.toLowerCase());
+  }
+
   function renderAnnouncements(rows) {
     if (!rows || rows.length === 0) return;
+    var filtered = rows.filter(annMatchesCourse);
+    if (!filtered.length) return;
     annSection.style.display = 'block';
     var html = '';
-    rows.forEach(function (row) {
+    filtered.forEach(function (row) {
       var date = row.created_at ? new Date(row.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
       html += '<div class="ann-card">'
         + '<div class="ann-head">'
@@ -229,6 +238,7 @@
           var pkg = sub.package_name || (sub.subscriptions && sub.subscriptions.length > 1
             ? 'Multiple plans'
             : (sub.subscriptions && sub.subscriptions[0] ? sub.subscriptions[0].package_name : '—'));
+          studentPackageName = pkg || '';
           if (subPackage)   subPackage.textContent   = pkg;
           if (subUsed)      subUsed.textContent      = sub.mcqs_used      != null ? sub.mcqs_used      : '0';
           if (subLimit)     subLimit.textContent     = sub.mcq_limit      != null ? sub.mcq_limit      : '0';
@@ -239,6 +249,7 @@
             subMessage.textContent   = sub.message || '';
           }
           subBar.classList.toggle('sub-err', !!sub.message);
+          fetchAnnouncements().then(renderAnnouncements);
 
           var practiceCard = document.querySelector('.portal-card.practice');
           var givetestCard = document.querySelector('.portal-card.givetest');
@@ -257,6 +268,7 @@
           if (subBar) { subBar.style.display = 'block'; subBar.classList.add('show', 'sub-err'); }
           if (subPackage) subPackage.textContent = '—';
           if (subMessage) { subMessage.style.display = 'block'; subMessage.textContent = 'Could not load subscription.'; }
+          fetchAnnouncements().then(renderAnnouncements);
         });
 
       /* stats — fetch motiv messages and analytics in parallel */
@@ -271,8 +283,7 @@
       /* quote of the day */
       fetchAndShowQuote();
 
-      /* announcements */
-      fetchAnnouncements().then(renderAnnouncements);
+      /* announcements are loaded inside subscription .then(), after package_name is known */
     })
     .catch(function () { clearAndRedirect(); });
 

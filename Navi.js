@@ -4,6 +4,29 @@
     var questionStartTime = null, attemptRecords = [];
     var currentTestMeta = {};
 
+    /* ── attempted-tests tracker (localStorage) ── */
+    var ATTEMPTED_KEY = '_navi_done';
+
+    function attemptStoreKey(course, classExam, subject, unit, category, testNum) {
+        return [course, classExam, subject, unit, category || '', String(testNum)].join('||');
+    }
+
+    function markAttempted(course, classExam, subject, unit, category, testNum) {
+        try {
+            var key = attemptStoreKey(course, classExam, subject, unit, category, testNum);
+            var list = JSON.parse(localStorage.getItem(ATTEMPTED_KEY) || '[]');
+            if (!list.includes(key)) { list.push(key); localStorage.setItem(ATTEMPTED_KEY, JSON.stringify(list)); }
+        } catch (e) {}
+    }
+
+    function isAttempted(course, classExam, subject, unit, category, testNum) {
+        try {
+            var key = attemptStoreKey(course, classExam, subject, unit, category, testNum);
+            var list = JSON.parse(localStorage.getItem(ATTEMPTED_KEY) || '[]');
+            return list.includes(key);
+        } catch (e) { return false; }
+    }
+
     var $ = function (id) { return document.getElementById(id); };
 
     function logout() {
@@ -158,18 +181,26 @@
         if (category) subset = subset.filter(function (r) { return mcqVal(r, 'Category') === category; });
 
         var testNums = distinct(subset, function (r) { return mcqVal(r, 'Test Number'); }).sort(function (a, b) { return Number(a) - Number(b); });
-        var area = $('navigationArea'); area.innerHTML = '';
+        var area = $('navigationArea');
+        area.innerHTML = '';
+        area.className = 'grid-container test-grid';
 
         testNums.forEach(function (num) {
             var qs = subset.filter(function (r) { return mcqVal(r, 'Test Number') === num; });
-            var btn = document.createElement('button'); btn.className = 'nav-btn';
-            btn.innerHTML = '<span class="btn-cat">Test #' + num + '</span><span class="btn-range">' + qs.length + ' Questions</span>';
-            btn.onclick = function () { showTestInfo(unit, category, num, qs); };
+            var topics = mcqVal(qs[0], 'Topics') || null;
+            var done = isAttempted(currentPath[0], currentPath[1], currentPath[2], unit, category, num);
+            var btn = document.createElement('button');
+            btn.className = 'nav-btn' + (done ? ' test-done' : '');
+            var topicsHtml = topics
+                ? '<span class="btn-range" style="color:#2563eb;border-color:#bfdbfe;background:#eff6ff;">' + topics + '</span>'
+                : '';
+            btn.innerHTML = '<span class="btn-cat">Test #' + num + '</span>' + topicsHtml + '<span class="btn-range">' + qs.length + ' Questions</span>';
+            btn.onclick = function () { showTestInfo(unit, category, num, qs, topics); };
             area.appendChild(btn);
         });
     }
 
-    function showTestInfo(unit, category, testNum, questions) {
+    function showTestInfo(unit, category, testNum, questions, topics) {
         $('mainSection').classList.add('hidden');
         $('testInfoSection').classList.remove('hidden');
         var quotaErr = document.getElementById('quotaErrorMsg');
@@ -182,13 +213,19 @@
         $('infoTestNo').innerText = testNum;
         $('infoCount').innerText = questions.length;
 
+        var topicsSpan = $('infoTopics');
+        if (topicsSpan) {
+            topicsSpan.innerText = topics || '\u2014';
+        }
+
         currentTestMeta = {
             course: currentPath[0],
             classExam: currentPath[1],
             subject: currentPath[2],
             unit: unit,
             category: category || null,
-            testNumber: testNum
+            testNumber: testNum,
+            topics: topics || null
         };
 
         $('startTestBtn').onclick = async function () {
@@ -291,6 +328,15 @@
         $('resAvgTime').innerText = (totalTime / activeQuestions.length).toFixed(1) + 's';
 
         hasSubmitted = true;
+
+        markAttempted(
+            currentTestMeta.course,
+            currentTestMeta.classExam,
+            currentTestMeta.subject,
+            currentTestMeta.unit,
+            currentTestMeta.category,
+            currentTestMeta.testNumber
+        );
 
         apiCall('/api/submit-test', {
             body: JSON.stringify({
@@ -425,7 +471,9 @@
     window.addEventListener('pagehide', submitPartialResultIfNeeded);
 
     function displayGrid(list, callback) {
-        var area = $('navigationArea'); area.innerHTML = '';
+        var area = $('navigationArea');
+        area.innerHTML = '';
+        area.className = 'grid-container';
         if (list.length === 0) {
             area.innerHTML = '<p class="grid-empty-msg">No items found.</p>';
             return;

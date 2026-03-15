@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -122,7 +122,10 @@
             <input type="number" id="ctTestNumber" placeholder="e.g. 5" min="1" style="width:100%;padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
           </div>
         </div>
-
+        <div style="margin-bottom:10px;">
+          <label style="display:block;font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:3px;">Topics (optional)</label>
+          <input type="text" id="ctTopics" placeholder="e.g. Scalars, Vectors, Projectile Motion" style="width:100%;padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+        </div>
         <div id="ctMsg" style="margin-bottom:10px;font-size:0.85rem;font-weight:600;display:none;padding:8px 12px;border-radius:8px;"></div>
 
         <div style="display:flex;gap:8px;">
@@ -133,10 +136,6 @@
     </div>
   </div>
 
-  <script type="module" src="mcqs.js"></script>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(function(){});
-  }
-</script></body>
+  <script type="module" src="mcqs.js?v=10"></script>
+</body>
 </html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -52,6 +52,16 @@
       <h2>Post new announcement</h2>
       <input type="text" id="annTitle" placeholder="Title — e.g. Mock Test 3 this Saturday!" maxlength="120">
       <textarea id="annMessage" placeholder="Message — e.g. Unit 1 Physics Mock Test will be live from 9 AM. Make sure you are prepared!"></textarea>
+      <label for="annTargetCourse" style="font-size:0.8rem;font-weight:700;color:#475569;display:block;margin-bottom:4px;">Send to</label>
+      <select id="annTargetCourse" style="width:100%;padding:0.6rem 0.75rem;border:1.5px solid #e2e8f0;border-radius:0.5rem;font-size:0.9rem;font-family:inherit;margin-bottom:0.75rem;background:#fff;color:#1e293b;cursor:pointer;">
+        <option value="">📢 All Students</option>
+        <option value="MDCAT">🎯 MDCAT only</option>
+        <option value="ECAT">🎯 ECAT only</option>
+        <option value="9th Class">🎯 9th Class only</option>
+        <option value="10th Class">🎯 10th Class only</option>
+        <option value="11th Class">🎯 11th Class only</option>
+        <option value="12th Class">🎯 12th Class only</option>
+      </select>
       <div id="annFormMsg" style="margin-bottom:0.75rem;font-size:0.85rem;font-weight:600;display:none;padding:8px 12px;border-radius:8px;"></div>
       <button type="button" id="annPostBtn" class="btn btn-primary">Publish Announcement</button>
     </div>
