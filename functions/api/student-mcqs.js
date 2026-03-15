@@ -66,9 +66,6 @@ export async function onRequest(context) {
     .eq('is_active', true)
     .gt('expires_at', new Date().toISOString());
 
-  // #region agent log
-  fetch('http://127.0.0.1:7285/ingest/d55679d7-a851-4a77-98b6-296e3a06a360',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8aa06f'},body:JSON.stringify({sessionId:'8aa06f',location:'student-mcqs.js:subs-raw',message:'raw subscriptions for user',data:{userId,subsCount:subs?subs.length:0,subs:(subs||[]).map(s=>({course:s.course,allowed_subjects:s.allowed_subjects}))},timestamp:Date.now(),hypothesisId:'A,D,E'})}).catch(()=>{});
-  // #endregion
 
   let allowedCourses = null;   // null = unrestricted (all courses)
   let allowedSubjects = null;  // null = unrestricted (all subjects)
@@ -99,9 +96,6 @@ export async function onRequest(context) {
     }
   }
 
-  // #region agent log
-  fetch('http://127.0.0.1:7285/ingest/d55679d7-a851-4a77-98b6-296e3a06a360',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8aa06f'},body:JSON.stringify({sessionId:'8aa06f',location:'student-mcqs.js:filters-computed',message:'computed filter lists',data:{allowedCourses,allowedSubjects},timestamp:Date.now(),hypothesisId:'A,D'})}).catch(()=>{});
-  // #endregion
 
   const { data, error } = await adminClient.from('mcqs').select('*').eq('hide', false);
 
@@ -112,9 +106,8 @@ export async function onRequest(context) {
   let mcqs = data || [];
 
   // #region agent log
-  const courseCountBefore = mcqs.length;
-  const uniqueCoursesInDb = [...new Set(mcqs.map(r=>r['Course']||r.course||''))];
-  fetch('http://127.0.0.1:7285/ingest/d55679d7-a851-4a77-98b6-296e3a06a360',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8aa06f'},body:JSON.stringify({sessionId:'8aa06f',location:'student-mcqs.js:db-fetch',message:'MCQs from DB before filtering',data:{totalMcqs:courseCountBefore,uniqueCourses:uniqueCoursesInDb,hideFalseSample:(mcqs.slice(0,3).map(r=>({id:r.id,Course:r['Course'],hide:r.hide})))},timestamp:Date.now(),hypothesisId:'B,C,D'})}).catch(()=>{});
+  const _dbg_totalBefore = mcqs.length;
+  const _dbg_uniqueCourses = [...new Set(mcqs.map(r=>r['Course']||r.course||''))];
   // #endregion
 
   /* filter by course (subscription course must match MCQ Course) */
@@ -128,8 +121,18 @@ export async function onRequest(context) {
   }
 
   // #region agent log
-  fetch('http://127.0.0.1:7285/ingest/d55679d7-a851-4a77-98b6-296e3a06a360',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8aa06f'},body:JSON.stringify({sessionId:'8aa06f',location:'student-mcqs.js:after-filter',message:'MCQs after all filters',data:{mcqsAfterFilter:mcqs.length,uniqueCoursesAfter:[...new Set(mcqs.map(r=>r['Course']||r.course||''))]},timestamp:Date.now(),hypothesisId:'A,B,C,D,E'})}).catch(()=>{});
+  const _dbg_uniqueAfter = [...new Set(mcqs.map(r=>r['Course']||r.course||''))];
+  const _dbg = {
+    subsCount: (subs||[]).length,
+    subsCoursesRaw: (subs||[]).map(s=>s.course||null),
+    allowedCourses,
+    allowedSubjects,
+    totalMcqsInDb: _dbg_totalBefore,
+    uniqueCoursesInDb: _dbg_uniqueCourses,
+    mcqsAfterFilter: mcqs.length,
+    uniqueCoursesAfterFilter: _dbg_uniqueAfter,
+  };
   // #endregion
 
-  return json({ mcqs });
+  return json({ mcqs, _debug: _dbg });
 }
