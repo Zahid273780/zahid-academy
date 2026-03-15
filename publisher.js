@@ -32,6 +32,7 @@ const etCancelBtn = document.getElementById('etCancelBtn');
 let allTests = [];
 let viewMode = 'all';
 let editingTest = null;
+let selectedTests = new Set();
 
 function showMsg(text, type) {
   msgEl.textContent = text;
@@ -138,20 +139,21 @@ function render() {
   const list = getFiltered();
   testListEl.innerHTML = '';
   emptyMsgEl.style.display = list.length ? 'none' : 'block';
-  if (!list.length) return;
+  if (!list.length) { updateBulkBar(); return; }
 
   const canEdit = canWrite('mcqs');
 
-  list.forEach(test => {
+  list.forEach((test, tIdx) => {
     const isHidden = test.hide;
     const group = document.createElement('div');
     group.className = 'test-group';
 
-    const previewQs = test.mcqs.slice(0, 3);
+    const visibleMcqs = test.mcqs.filter(q => !q.hide);
+    const previewQs = visibleMcqs.slice(0, 3);
     const previewHtml = previewQs.map((q, i) =>
       `<div class="mcq-preview"><span class="q-num">Q${i + 1}.</span><span class="q-text">${esc(col(q, 'Question', 'question'))}</span></div>`
-    ).join('') + (test.mcqs.length > 3
-      ? `<div class="mcq-preview" style="color:#94a3b8;">… and ${test.mcqs.length - 3} more question(s)</div>`
+    ).join('') + (visibleMcqs.length > 3
+      ? `<div class="mcq-preview" style="color:#94a3b8;">… and ${visibleMcqs.length - 3} more question(s)</div>`
       : '');
 
     const toggleBtn = isHidden
@@ -160,9 +162,11 @@ function render() {
     const deleteBtn = `<button class="btn btn-delete" data-action="delete">Delete</button>`;
     const editBtn   = `<button class="btn" data-action="edit" style="background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;">Edit</button>`;
     const btnHtml = canEdit ? editBtn + toggleBtn + deleteBtn : '';
+    const checkHtml = canEdit ? `<input type="checkbox" class="test-group-check" data-tidx="${tIdx}" ${selectedTests.has(test) ? 'checked' : ''}>` : '';
 
     group.innerHTML = `
       <div class="test-group-head">
+        ${checkHtml}
         <div class="test-group-info">
           <div class="test-group-title">
             Test #${esc(String(test.testNum))}
@@ -175,13 +179,21 @@ function render() {
         </div>
         <div class="test-group-actions">
           <span class="badge ${isHidden ? 'badge-hidden' : 'badge-visible'}">${isHidden ? 'Hidden' : 'Published'}</span>
-          <span class="badge badge-count">${test.mcqs.length} MCQs</span>
+          <span class="badge badge-count">${test.mcqs.filter(q=>!q.hide).length} MCQs</span>${test.mcqs.some(q=>q.hide) && test.mcqs.some(q=>!q.hide) ? '<span class="badge" style="background:#fef3c7;color:#b45309;border:1px solid #fde68a;font-size:0.7rem;">⚠ mixed visibility</span>' : ''}
           ${btnHtml}
         </div>
       </div>
       <div class="test-group-body">${previewHtml}</div>
     `;
 
+    const checkEl = group.querySelector('.test-group-check');
+    if (checkEl) {
+      checkEl.addEventListener('change', () => {
+        if (checkEl.checked) selectedTests.add(test);
+        else selectedTests.delete(test);
+        updateBulkBar();
+      });
+    }
     const editBtnEl = group.querySelector('[data-action="edit"]');
     if (editBtnEl) {
       editBtnEl.addEventListener('click', () => openEditModal(test));
@@ -197,6 +209,8 @@ function render() {
 
     testListEl.appendChild(group);
   });
+
+  updateBulkBar();
 }
 
 async function toggleTest(test, btn) {
@@ -246,6 +260,57 @@ async function deleteTest(test, btn) {
 
   allTests = allTests.filter(t => t !== test);
   showMsg(`Test #${test.testNum} deleted (${ids.length} MCQs removed).`, 'ok');
+  updateStats();
+  populateFilters();
+  render();
+}
+
+function updateBulkBar() {
+  let bar = document.getElementById('bulkDeleteBar');
+  if (selectedTests.size === 0) {
+    if (bar) bar.remove();
+    return;
+  }
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'bulkDeleteBar';
+    bar.className = 'bulk-delete-bar';
+    testListEl.parentNode.insertBefore(bar, testListEl);
+  }
+  const totalMcqs = Array.from(selectedTests).reduce((sum, t) => sum + t.mcqs.length, 0);
+  bar.innerHTML = `
+    <span class="bulk-count">${selectedTests.size} test(s) selected (${totalMcqs} MCQs)</span>
+    <button class="btn-bulk-delete">Delete Selected</button>
+    <button class="btn-bulk-cancel">Clear Selection</button>
+  `;
+  bar.querySelector('.btn-bulk-delete').addEventListener('click', bulkDeleteSelected);
+  bar.querySelector('.btn-bulk-cancel').addEventListener('click', () => {
+    selectedTests.clear();
+    render();
+  });
+}
+
+async function bulkDeleteSelected() {
+  const tests = Array.from(selectedTests);
+  const totalMcqs = tests.reduce((sum, t) => sum + t.mcqs.length, 0);
+  if (!confirm(`Delete ${tests.length} test(s) (${totalMcqs} MCQs total)?\nThis cannot be undone.`)) return;
+
+  const allIds = tests.flatMap(t => t.mcqs.map(q => q.id));
+  showMsg('Deleting ' + tests.length + ' test(s)…', '');
+
+  const { error } = await supabase
+    .from('mcqs')
+    .delete()
+    .in('id', allIds);
+
+  if (error) {
+    showMsg('Bulk delete failed: ' + error.message, 'err');
+    return;
+  }
+
+  allTests = allTests.filter(t => !selectedTests.has(t));
+  selectedTests.clear();
+  showMsg(`Deleted ${tests.length} test(s) (${allIds.length} MCQs removed).`, 'ok');
   updateStats();
   populateFilters();
   render();
