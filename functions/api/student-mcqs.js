@@ -66,6 +66,10 @@ export async function onRequest(context) {
     .eq('is_active', true)
     .gt('expires_at', new Date().toISOString());
 
+  // #region agent log
+  fetch('http://127.0.0.1:7285/ingest/d55679d7-a851-4a77-98b6-296e3a06a360',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8aa06f'},body:JSON.stringify({sessionId:'8aa06f',location:'student-mcqs.js:subs-raw',message:'raw subscriptions for user',data:{userId,subsCount:subs?subs.length:0,subs:(subs||[]).map(s=>({course:s.course,allowed_subjects:s.allowed_subjects}))},timestamp:Date.now(),hypothesisId:'A,D,E'})}).catch(()=>{});
+  // #endregion
+
   let allowedCourses = null;   // null = unrestricted (all courses)
   let allowedSubjects = null;  // null = unrestricted (all subjects)
 
@@ -95,6 +99,10 @@ export async function onRequest(context) {
     }
   }
 
+  // #region agent log
+  fetch('http://127.0.0.1:7285/ingest/d55679d7-a851-4a77-98b6-296e3a06a360',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8aa06f'},body:JSON.stringify({sessionId:'8aa06f',location:'student-mcqs.js:filters-computed',message:'computed filter lists',data:{allowedCourses,allowedSubjects},timestamp:Date.now(),hypothesisId:'A,D'})}).catch(()=>{});
+  // #endregion
+
   const { data, error } = await adminClient.from('mcqs').select('*').eq('hide', false);
 
   if (error) {
@@ -102,6 +110,12 @@ export async function onRequest(context) {
   }
 
   let mcqs = data || [];
+
+  // #region agent log
+  const courseCountBefore = mcqs.length;
+  const uniqueCoursesInDb = [...new Set(mcqs.map(r=>r['Course']||r.course||''))];
+  fetch('http://127.0.0.1:7285/ingest/d55679d7-a851-4a77-98b6-296e3a06a360',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8aa06f'},body:JSON.stringify({sessionId:'8aa06f',location:'student-mcqs.js:db-fetch',message:'MCQs from DB before filtering',data:{totalMcqs:courseCountBefore,uniqueCourses:uniqueCoursesInDb,hideFalseSample:(mcqs.slice(0,3).map(r=>({id:r.id,Course:r['Course'],hide:r.hide})))},timestamp:Date.now(),hypothesisId:'B,C,D'})}).catch(()=>{});
+  // #endregion
 
   /* filter by course (subscription course must match MCQ Course) */
   if (allowedCourses && allowedCourses.length > 0) {
@@ -112,6 +126,10 @@ export async function onRequest(context) {
   if (allowedSubjects && allowedSubjects.length > 0) {
     mcqs = mcqs.filter((r) => allowedSubjects.includes(r['Subject'] || r.subject || ''));
   }
+
+  // #region agent log
+  fetch('http://127.0.0.1:7285/ingest/d55679d7-a851-4a77-98b6-296e3a06a360',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8aa06f'},body:JSON.stringify({sessionId:'8aa06f',location:'student-mcqs.js:after-filter',message:'MCQs after all filters',data:{mcqsAfterFilter:mcqs.length,uniqueCoursesAfter:[...new Set(mcqs.map(r=>r['Course']||r.course||''))]},timestamp:Date.now(),hypothesisId:'A,B,C,D,E'})}).catch(()=>{});
+  // #endregion
 
   return json({ mcqs });
 }
