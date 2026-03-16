@@ -35,6 +35,28 @@
         window.location.replace('login.html');
     }
 
+    /* ── nav cache (localStorage, user-scoped, persistent across logins) ── */
+
+    function navCacheKey() {
+        var email = sessionStorage.getItem('_se') || '';
+        return '_navi_cache_' + email;
+    }
+
+    function getNavCache() {
+        try {
+            var raw = localStorage.getItem(navCacheKey());
+            if (!raw) return null;
+            var parsed = JSON.parse(raw);
+            return parsed.data || null;
+        } catch (e) { return null; }
+    }
+
+    function setNavCache(data) {
+        try {
+            localStorage.setItem(navCacheKey(), JSON.stringify({ ts: Date.now(), data: data }));
+        } catch (e) {}
+    }
+
     async function apiCall(endpoint, options) {
         var token = sessionStorage.getItem('_st');
         if (!token) { logout(); return null; }
@@ -81,7 +103,13 @@
                 } catch (e) {}
             }
 
-            var res = await apiCall('/api/verify-student');
+            var results = await Promise.all([
+                apiCall('/api/verify-student'),
+                apiCall('/api/check-subscription')
+            ]);
+            var res = results[0];
+            var subRes = results[1];
+
             if (!res) return;
             var data = await res.json();
             if (!data.valid) { logout(); return; }
@@ -90,7 +118,6 @@
             $('sessionLoader').style.display = 'none';
             $('mainSection').classList.remove('hidden');
 
-            var subRes = await apiCall('/api/check-subscription');
             if (subRes) {
                 var sub = await subRes.json();
                 if (!sub.active) {
@@ -105,11 +132,27 @@
     }
 
     async function loadNav() {
+        var cached = getNavCache();
+        if (cached) {
+            navData = cached;
+            renderCourses();
+            // background revalidate — saves for next load, no re-render
+            apiCall('/api/student-nav').then(function (res) {
+                if (!res) return;
+                return res.json().then(function (data) {
+                    if (!data.error && data.nav) {
+                        setNavCache(data.nav);
+                    }
+                });
+            }).catch(function () {});
+            return;
+        }
         var res = await apiCall('/api/student-nav');
         if (!res) return;
         var data = await res.json();
         if (data.error) { alert('Error loading navigation'); return; }
         navData = data.nav || [];
+        setNavCache(navData);
         renderCourses();
     }
 
