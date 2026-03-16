@@ -32,7 +32,7 @@ function getRowPayload() {
     'Subject': document.getElementById('fieldSubject').value.trim(),
     'Unit': document.getElementById('fieldUnit').value.trim(),
     'Category': document.getElementById('fieldCategory').value.trim() || null,
-    'Range': document.getElementById('fieldRange').value.trim() || null,
+    'Topics': document.getElementById('fieldTopics').value.trim() || null,
     'Test Number': tn === '' ? null : parseInt(tn, 10),
   };
 }
@@ -43,7 +43,7 @@ function fillFormFromRow(row) {
   document.getElementById('fieldSubject').value = row.Subject || '';
   document.getElementById('fieldUnit').value = row.Unit || '';
   document.getElementById('fieldCategory').value = row.Category || '';
-  document.getElementById('fieldRange').value = row.Range || '';
+  document.getElementById('fieldTopics').value = row.Topics || '';
   document.getElementById('fieldTestNumber').value = row['Test Number'] != null ? row['Test Number'] : '';
 }
 
@@ -79,7 +79,7 @@ async function load() {
     'Subject': r.Subject,
     'Unit': r.Unit,
     'Category': r.Category,
-    'Range': r.Range,
+    'Topics': r.Topics,
     'Test Number': r['Test Number'],
   }));
   if (rows.length === 0) {
@@ -97,7 +97,7 @@ async function load() {
         <td>${escapeHtml(r.Subject || '—')}</td>
         <td>${escapeHtml(r.Unit || '—')}</td>
         <td>${escapeHtml(r.Category || '—')}</td>
-        <td>${escapeHtml(r.Range || '—')}</td>
+        <td>${escapeHtml(r.Topics || '—')}</td>
         <td>${tn}</td>
         <td>
           <div class="actions">
@@ -135,7 +135,7 @@ async function deleteRow(row) {
   const colTestNumber = '"Test Number"';
   let q = supabase.from(TABLE).delete().eq('Course', row.Course).eq(colClassExam, row['Class/Exam']).eq('Subject', row.Subject).eq('Unit', row.Unit);
   if (row.Category != null) q = q.eq('Category', row.Category); else q = q.is('Category', null);
-  if (row.Range != null) q = q.eq('Range', row.Range); else q = q.is('Range', null);
+  if (row.Topics != null) q = q.eq('Topics', row.Topics); else q = q.is('Topics', null);
   if (row['Test Number'] != null) q = q.eq(colTestNumber, row['Test Number']); else q = q.is(colTestNumber, null);
   const { error } = await q;
   if (error) {
@@ -156,7 +156,7 @@ form.addEventListener('submit', async (e) => {
     const colTestNumber = '"Test Number"';
     let q = supabase.from(TABLE).update(payload).eq('Course', editingRow.Course).eq(colClassExam, editingRow['Class/Exam']).eq('Subject', editingRow.Subject).eq('Unit', editingRow.Unit);
     if (editingRow.Category != null) q = q.eq('Category', editingRow.Category); else q = q.is('Category', null);
-    if (editingRow.Range != null) q = q.eq('Range', editingRow.Range); else q = q.is('Range', null);
+    if (editingRow.Topics != null) q = q.eq('Topics', editingRow.Topics); else q = q.is('Topics', null);
     if (editingRow['Test Number'] != null) q = q.eq(colTestNumber, editingRow['Test Number']); else q = q.is(colTestNumber, null);
     const { error } = await q;
     if (error) {

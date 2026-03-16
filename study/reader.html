@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <title>Loading… — Shaheen Study Notes</title>
+  <link rel="stylesheet" href="/study/study.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+</head>
+<body>
+
+<nav class="study-nav">
+  <a href="/study/" class="brand">📚 <strong>Shaheen</strong> <span>Study Notes</span></a>
+  <div class="nav-links">
+    <a href="/portal.html">Portal</a>
+    <a href="/Navi.html">Practice MCQs</a>
+    <a href="/study/admin.html" id="adminLink" style="display:none;">✏️ Edit</a>
+    <span id="navUser"></span>
+    <a href="/login.html" id="navLoginBtn" class="login-btn">Login</a>
+  </div>
+</nav>
+
+<div class="study-hero">
+  <div class="breadcrumb-hero" id="heroBreadcrumb">LOADING…</div>
+  <h1 id="heroTitle">Study Notes</h1>
+  <p id="heroSubtitle"></p>
+</div>
+
+<div class="study-page">
+  <div id="stateLoading" class="state-loading"><div class="spinner-ring"></div><p>Loading chapter…</p></div>
+  <div id="stateError" class="state-error hidden">
+    <div class="err-icon">📭</div><h2>Chapter not found</h2>
+    <p>This chapter does not exist or may have been moved.</p><br>
+    <a href="/study/" class="back-btn">← Back to Study Notes</a>
+  </div>
+
+  <div id="mainContent" class="hidden">
+    <nav class="breadcrumb" id="breadcrumb"></nav>
+    <div class="reader-layout">
+      <div>
+        <div class="article-card">
+          <div class="article-content" id="articleBody"></div>
+          <div class="comments-section">
+            <h3>💬 Student Comments <span class="count-badge" id="commentCount">0</span></h3>
+            <div id="commentFormArea"></div>
+            <div class="comment-list" id="commentList"><p class="no-comments">No comments yet. Be the first!</p></div>
+          </div>
+        </div>
+      </div>
+      <aside class="reader-sidebar">
+        <div class="sidebar-card">
+          <h4>In This Chapter</h4>
+          <ul class="toc-list" id="tocList"></ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  const slug = params.get('chapter');
+  if (!slug) { location.href = '/study/'; return; }
+
+  let token = null;
+  let currentUserName = null;
+  let isAdmin = false;
+
+  // Auth
+  (function checkAuth() {
+    try {
+      for (const key of Object.keys(localStorage)) {
+        if (!key.includes('supabase') && !key.includes('sb-')) continue;
+        const obj = JSON.parse(localStorage.getItem(key) || '{}');
+        const t = obj?.access_token || obj?.session?.access_token;
+        const u = obj?.user || obj?.session?.user;
+        if (t && u) {
+          token = t;
+          currentUserName = u.user_metadata?.name || u.email || 'Student';
+          const role = (u.user_metadata?.role || '').toLowerCase();
+          if (['admin','teacher'].includes(role)) isAdmin = true;
+          document.getElementById('navUser').textContent = '👤 ' + currentUserName.split(' ')[0];
+          const lb = document.getElementById('navLoginBtn');
+          lb.textContent = 'Logout'; lb.href='#';
+          lb.addEventListener('click', e => { e.preventDefault(); localStorage.clear(); location.href='/login.html'; });
+          break;
+        }
+      }
+    } catch(e) {}
+    if (isAdmin) {
+      const al = document.getElementById('adminLink');
+      al.style.display = '';
+      al.href = '/study/admin.html';
+    }
+  })();
+
+  // Fetch chapter from Supabase
+  const headers = token ? { Authorization: 'Bearer ' + token } : {};
+  fetch('/api/study-chapter-get?slug=' + encodeURIComponent(slug), { headers })
+    .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+    .then(data => {
+      if (data.error) throw new Error();
+      const ch = data.chapter;
+      document.title = ch.title + ' — Shaheen Study Notes';
+      document.getElementById('heroBreadcrumb').textContent = (ch.course + ' › ' + ch.subject).toUpperCase();
+      document.getElementById('heroTitle').textContent = ch.title;
+      document.getElementById('heroSubtitle').textContent = ch.description || '';
+      document.getElementById('breadcrumb').innerHTML =
+        `<a href="/study/">Study Notes</a><span class="sep">›</span>` +
+        `<a href="/study/#${encodeURIComponent(ch.course)}">${esc(ch.course)}</a><span class="sep">›</span>` +
+        `<a href="/study/#${encodeURIComponent(ch.course)}/${encodeURIComponent(ch.subject)}">${esc(ch.subject)}</a><span class="sep">›</span>` +
+        `<span class="current">${esc(ch.title)}</span>`;
+
+      document.getElementById('stateLoading').classList.add('hidden');
+      document.getElementById('mainContent').classList.remove('hidden');
+
+      renderBlocks(ch.content || []);
+      buildTOC();
+      loadComments();
+      renderCommentForm();
+    })
+    .catch(() => {
+      document.getElementById('stateLoading').classList.add('hidden');
+      document.getElementById('stateError').classList.remove('hidden');
+    });
+
+  // ── Block Renderers ───────────────────────────────────────
+  function renderBlocks(blocks) {
+    const body = document.getElementById('articleBody');
+    const html = blocks.map(b => renderBlock(b)).join('');
+    body.innerHTML = html;
+
+    // Run KaTeX on the whole article
+    renderMathInElement(body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$',  right: '$',  display: false },
+      ],
+      throwOnError: false,
+    });
+  }
+
+  function renderBlock(b) {
+    if (!b || !b.type) return '';
+
+    if (b.type === 'heading') {
+      const tag = b.level === 'h3' ? 'h3' : 'h2';
+      return `<${tag}>${esc(b.text)}</${tag}>`;
+    }
+
+    if (b.type === 'paragraph') {
+      // Split by double newline into separate paragraphs
+      const paras = (b.text || '').split(/\n\n+/).map(p => p.trim()).filter(Boolean);
+      return paras.map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('');
+    }
+
+    if (b.type === 'formula') {
+      const latex = (b.latex || '').trim();
+      const wrapped = latex.startsWith('$$') ? latex : `$$${latex}$$`;
+      return `<div class="formula-block">${wrapped}</div>`;
+    }
+
+    if (b.type === 'image') {
+      if (!b.url) return '';
+      return `<figure class="img-block">
+        <img src="${esc(b.url)}" alt="${esc(b.caption||'')}" loading="lazy">
+        ${b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ''}
+      </figure>`;
+    }
+
+    if (b.type === 'tip') {
+      return `<blockquote class="tip-block"><p>💡 ${esc(b.text)}</p></blockquote>`;
+    }
+
+    if (b.type === 'table') {
+      return renderTable(b.data || '');
+    }
+
+    if (b.type === 'keypoints') {
+      const pts = (b.points || []).filter(p => p && p.trim());
+      if (!pts.length) return '';
+      return `<div class="keypoints-block">
+        <div class="kp-header">⭐ Key Points</div>
+        <ul class="kp-list">
+          ${pts.map(p => `<li>${esc(p)}</li>`).join('')}
+        </ul>
+      </div>`;
+    }
+    return '';
+  }
+
+  function renderTable(data) {
+    const lines = data.trim().split('\n').map(l => l.trim()).filter(Boolean);
+    if (!lines.length) return '';
+    const headers = lines[0].split('|').map(h => h.trim());
+    const rows = lines.slice(1).map(line => line.split('|').map(c => c.trim()));
+    return `<table>
+      <thead><tr>${headers.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead>
+      <tbody>${rows.map(row => `<tr>${row.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table>`;
+  }
+
+  // ── TOC ───────────────────────────────────────────────────
+  function buildTOC() {
+    const headings = document.getElementById('articleBody').querySelectorAll('h2,h3');
+    const toc = document.getElementById('tocList');
+    if (!headings.length) { toc.innerHTML = '<li style="font-family:system-ui;font-size:0.8rem;color:#a8a29e;">No sections</li>'; return; }
+    let idx = 0;
+    toc.innerHTML = Array.from(headings).map(h => {
+      const id = 'sec-' + (idx++); h.id = id;
+      return `<li class="${h.tagName==='H3'?'toc-h3':''}"><a href="#${id}">${esc(h.textContent)}</a></li>`;
+    }).join('');
+  }
+
+  // ── Comments ──────────────────────────────────────────────
+  function loadComments() {
+    fetch('/api/study-comments-get?chapter=' + encodeURIComponent(slug))
+      .then(r => r.json())
+      .then(data => {
+        const comments = data.comments || [];
+        document.getElementById('commentCount').textContent = comments.length;
+        const list = document.getElementById('commentList');
+        if (!comments.length) { list.innerHTML = '<p class="no-comments">No comments yet. Be the first to ask a question!</p>'; return; }
+        list.innerHTML = comments.map(c => {
+          const initials = (c.user_name||'S').slice(0,2).toUpperCase();
+          const date = new Date(c.created_at).toLocaleDateString('en-PK',{day:'numeric',month:'short',year:'numeric'});
+          return `<div class="comment-card">
+            <div class="comment-avatar">${esc(initials)}</div>
+            <div class="comment-body">
+              <div class="comment-meta"><span class="author">${esc(c.user_name)}</span><span>${esc(date)}</span></div>
+              <div class="comment-text">${esc(c.body)}</div>
+            </div>
+          </div>`;
+        }).join('');
+      }).catch(()=>{});
+  }
+
+  function renderCommentForm() {
+    const area = document.getElementById('commentFormArea');
+    if (!token) {
+      area.innerHTML = `<div class="comment-login-prompt"><a href="/login.html">Login</a> to post a question or comment on this chapter.</div>`;
+      return;
+    }
+    area.innerHTML = `<div class="comment-form">
+      <textarea id="commentText" placeholder="Ask a question or share your thoughts…" maxlength="1000"></textarea>
+      <div class="comment-form-footer">
+        <button class="comment-submit" id="commentSubmit">Post Comment</button>
+        <span class="comment-char-count"><span id="charCount">0</span> / 1000</span>
+      </div>
+      <div id="commentMsg" style="margin-top:6px;"></div>
+    </div>`;
+
+    document.getElementById('commentText').addEventListener('input', function() {
+      document.getElementById('charCount').textContent = this.value.length;
+    });
+
+    document.getElementById('commentSubmit').addEventListener('click', async function() {
+      const body = document.getElementById('commentText').value.trim();
+      if (!body) return;
+      const btn = this; const msg = document.getElementById('commentMsg');
+      btn.disabled = true; btn.textContent = 'Posting…'; msg.textContent = '';
+      try {
+        const res = await fetch('/api/study-comments-post', {
+          method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+          body: JSON.stringify({ chapter_slug: slug, comment: body }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error||'Failed');
+        document.getElementById('commentText').value = '';
+        document.getElementById('charCount').textContent = '0';
+        msg.className = 'msg-ok'; msg.textContent = 'Comment posted!';
+        setTimeout(()=>{ msg.textContent=''; }, 3000);
+        loadComments();
+      } catch(err) {
+        msg.className = 'msg-err'; msg.textContent = err.message||'Could not post comment.';
+      } finally { btn.disabled=false; btn.textContent='Post Comment'; }
+    });
+  }
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+})();
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

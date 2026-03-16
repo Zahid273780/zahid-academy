@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -59,11 +59,32 @@
             <option value="">— Category —</option>
           </select>
         </div>
-        <div>
-          <label for="selTestNumber">Test #</label>
-          <select id="selTestNumber" disabled>
-            <option value="">— Test # —</option>
-          </select>
+        <div id="topicsRow" class="full" style="display:none;">
+          <label for="inputTopics">Topics <span style="font-weight:400;color:#64748b;">(optional — e.g. "Cell Biology, Mitosis")</span></label>
+          <input type="text" id="inputTopics" placeholder="Enter topics covered in this test…" style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;transition:border-color 0.2s;" />
+        </div>
+        <div id="testNumRow" class="full" style="display:none;">
+          <label style="margin-bottom:8px;">Test # Assignment</label>
+          <div style="display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 16px;border:2px solid #e2e8f0;border-radius:8px;font-weight:600;font-size:0.85rem;background:#fff;transition:all 0.15s;" id="labelManualMode">
+              <input type="radio" name="testMode" id="radioManual" value="manual" checked style="accent-color:#2563eb;">
+              <span>Manual — pick one test</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 16px;border:2px solid #e2e8f0;border-radius:8px;font-weight:600;font-size:0.85rem;background:#fff;transition:all 0.15s;" id="labelAutoMode">
+              <input type="radio" name="testMode" id="radioAuto" value="auto" style="accent-color:#16a34a;">
+              <span>Auto — sequential by batch of 20</span>
+            </label>
+          </div>
+          <div id="manualTestRow" style="display:flex;align-items:center;gap:10px;">
+            <select id="selTestNumber" disabled>
+              <option value="">— Test # —</option>
+            </select>
+          </div>
+          <div id="autoTestRow" style="display:none;align-items:center;gap:10px;">
+            <label for="startTestNum" style="margin:0;white-space:nowrap;font-size:0.85rem;">Starting Test #</label>
+            <input type="number" id="startTestNum" min="1" value="1" style="width:90px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.95rem;font-family:inherit;">
+            <span style="font-size:0.8rem;color:#64748b;" id="autoTestSummary"></span>
+          </div>
         </div>
       </div>
       <p class="muted" id="mcqCountMsg" style="margin-top:0.5rem;"></p>
@@ -103,19 +124,20 @@
 
       <div id="reviewSection" class="hidden">
         <h2 style="margin-top:1.5rem;">4. Review, edit &amp; import</h2>
-        <div class="review-toolbar">
+        <div class="review-toolbar" style="display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;">
           <button type="button" class="btn btn-ghost btn-sm" id="selectAllBtn">Select all</button>
           <button type="button" class="btn btn-ghost btn-sm" id="deselectAllBtn">Deselect all</button>
           <span class="muted" id="reviewCount"></span>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:0.75rem;">
+            <div id="importTypeNotice" style="padding:8px 14px;border-radius:8px;font-size:0.85rem;font-weight:600;display:none;"></div>
+            <button type="button" class="btn btn-primary" id="importSelectedBtn">Import selected</button>
+          </div>
         </div>
+        <div id="importMsg" style="margin-top:0.5rem;"></div>
         
         <div id="rangeButtonsContainer" style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.5rem; align-items:center;"></div>
         
         <div id="reviewList"></div>
-        <div style="margin-top:1rem;">
-          <div id="importTypeNotice" style="margin-bottom:0.75rem;padding:10px 14px;border-radius:8px;font-size:0.875rem;font-weight:600;display:none;"></div>
-          <button type="button" class="btn btn-primary" id="importSelectedBtn">Import selected</button>
-        </div>
       </div>
     </div>
   </div>

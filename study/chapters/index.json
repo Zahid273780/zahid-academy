@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "mdcat-physics-vectors",
+    "title": "Vectors",
+    "course": "MDCAT",
+    "subject": "Physics",
+    "order": 1,
+    "description": "Scalars, vectors, dot product, cross product and resultant forces."
+  },
+  {
+    "slug": "mdcat-physics-motion",
+    "title": "Motion",
+    "course": "MDCAT",
+    "subject": "Physics",
+    "order": 2,
+    "description": "Linear motion, equations of motion, projectile motion and graphs."
+  },
+  {
+    "slug": "ninth-physics-physical-quantities",
+    "title": "Physical Quantities & Measurement",
+    "course": "9th Class",
+    "subject": "Physics",
+    "order": 1,
+    "description": "Base and derived quantities, SI units, scientific notation and errors."
+  }
+]

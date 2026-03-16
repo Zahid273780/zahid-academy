@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="Navi.css">
 </head>
 <body>
+<script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true;}},true);</script>
 
 <div id="offlineBanner" class="offline-banner" style="display:none;" role="status">
   <span><i class="fas fa-wifi"></i> No internet – some features may not work.</span>
@@ -49,6 +50,7 @@
                 <div class="info-item"><b>Category</b> <span id="infoCat"></span></div>
                 <div class="info-item"><b>Test #</b> <span id="infoTestNo"></span></div>
             </div>
+            <div id="infoTopicsRow" class="info-item" style="margin-bottom: 12px;"><b>Topics</b> <span id="infoTopics"></span></div>
             <div class="info-item" style="margin-bottom: 20px;"><b>Question Count</b> <span id="infoCount" class="info-count"></span></div>
             <button type="button" id="startTestBtn" class="btn-action start-test-btn"><i class="fas fa-play"></i> Start Exam Now</button>
             <div id="quotaErrorMsg" class="quota-error-msg" role="alert">

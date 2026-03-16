@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <title>Study Notes — Shaheen Institute</title>
+  <link rel="stylesheet" href="/study/study.css">
+</head>
+<body>
+
+<nav class="study-nav">
+  <a href="/study/" class="brand">📚 <strong>Shaheen</strong> <span>Study Notes</span></a>
+  <div class="nav-links">
+    <a href="/portal.html">Portal</a>
+    <a href="/Navi.html">Practice MCQs</a>
+    <a href="/study/admin.html" id="adminLink" style="display:none;">✏️ Editor</a>
+    <span id="navUser"></span>
+    <a href="/login.html" id="navLoginBtn" class="login-btn">Login</a>
+  </div>
+</nav>
+
+<div class="study-hero" id="heroArea">
+  <div class="breadcrumb-hero" id="heroBreadcrumb">SELECT A COURSE TO BEGIN</div>
+  <h1 id="heroTitle">Study Notes</h1>
+  <p id="heroSubtitle">Choose your course below to browse subjects and chapters.</p>
+</div>
+
+<div class="study-page" id="mainArea">
+  <div id="stateLoading" class="state-loading"><div class="spinner-ring"></div><p>Loading…</p></div>
+  <div id="stateError" class="state-error hidden"><div class="err-icon">📭</div><h2>Could not load chapters</h2><p>Please refresh the page.</p></div>
+
+  <div id="viewCourses" class="hidden">
+    <p class="section-heading">All Courses</p>
+    <div class="course-grid" id="courseGrid"></div>
+  </div>
+
+  <div id="viewSubjects" class="hidden">
+    <button class="back-btn" id="backToCourses">← All Courses</button>
+    <p class="section-heading" id="subjectHeading"></p>
+    <div class="subject-list" id="subjectList"></div>
+  </div>
+
+  <div id="viewChapters" class="hidden">
+    <button class="back-btn" id="backToSubjects">← Back</button>
+    <p class="section-heading" id="chapterHeading"></p>
+    <div class="chapter-list" id="chapterList"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const COURSE_ICONS = { 'MDCAT':'🏥','ECAT':'⚙️','9th Class':'📖','10th Class':'📗','11th Class':'📘','12th Class':'📙','default':'🎓' };
+  let allChapters = [];
+  let token = null;
+  let isAdmin = false;
+
+  // Auth
+  (function checkAuth() {
+    try {
+      for (const key of Object.keys(localStorage)) {
+        if (!key.includes('supabase') && !key.includes('sb-')) continue;
+        const obj = JSON.parse(localStorage.getItem(key) || '{}');
+        const t = obj?.access_token || obj?.session?.access_token;
+        const u = obj?.user || obj?.session?.user;
+        if (t && u) {
+          token = t;
+          const role = (u.user_metadata?.role || '').toLowerCase();
+          if (['admin','teacher'].includes(role)) isAdmin = true;
+          const name = u.user_metadata?.name || u.email || '';
+          if (name) {
+            document.getElementById('navUser').textContent = '👤 ' + name.split(' ')[0];
+            document.getElementById('navLoginBtn').textContent = 'Logout';
+            document.getElementById('navLoginBtn').href = '#';
+            document.getElementById('navLoginBtn').addEventListener('click', e => { e.preventDefault(); localStorage.clear(); location.href='/login.html'; });
+          }
+          break;
+        }
+      }
+    } catch(e) {}
+    if (isAdmin) document.getElementById('adminLink').style.display = '';
+  })();
+
+  // Load chapters from Supabase
+  const headers = token ? { Authorization: 'Bearer ' + token } : {};
+  fetch('/api/study-chapters-list', { headers })
+    .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+    .then(data => {
+      allChapters = data.chapters || [];
+      document.getElementById('stateLoading').classList.add('hidden');
+      showCoursesView();
+    })
+    .catch(() => {
+      document.getElementById('stateLoading').classList.add('hidden');
+      document.getElementById('stateError').classList.remove('hidden');
+    });
+
+  function unique(arr, key) { return [...new Set(arr.map(c => c[key]))]; }
+
+  function showCoursesView() {
+    updateHero('SELECT A COURSE TO BEGIN','Study Notes','Choose your course below.');
+    hideAll(); document.getElementById('viewCourses').classList.remove('hidden');
+    const courses = unique(allChapters, 'course');
+    document.getElementById('courseGrid').innerHTML = courses.map(course => {
+      const items = allChapters.filter(c => c.course === course);
+      const subjects = unique(items, 'subject');
+      const icon = COURSE_ICONS[course] || COURSE_ICONS['default'];
+      return `<div class="course-card" onclick="showSubjectsView('${esc(course)}')">
+        <span class="course-icon">${icon}</span>
+        <h3>${esc(course)}</h3>
+        <p>${subjects.length} subject${subjects.length!==1?'s':''} · ${items.length} chapter${items.length!==1?'s':''}</p>
+      </div>`;
+    }).join('') || '<p style="font-family:system-ui;color:#94a3b8;padding:20px;">No chapters published yet.</p>';
+  }
+
+  window.showSubjectsView = function(course) {
+    updateHero(course.toUpperCase(), course, 'Select a subject to see all chapters.');
+    hideAll(); document.getElementById('viewSubjects').classList.remove('hidden');
+    document.getElementById('subjectHeading').textContent = course + ' — Subjects';
+    const subjects = unique(allChapters.filter(c => c.course === course), 'subject');
+    document.getElementById('subjectList').innerHTML = subjects.map(sub => {
+      const count = allChapters.filter(c => c.course === course && c.subject === sub).length;
+      return `<div class="subject-item" onclick="showChaptersView('${esc(course)}','${esc(sub)}')">
+        <div><div class="subject-name">${esc(sub)}</div></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="subject-count">${count} chapter${count!==1?'s':''}</span>
+          <span class="arrow">›</span>
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('backToCourses').onclick = showCoursesView;
+  };
+
+  window.showChaptersView = function(course, subject) {
+    updateHero(course + ' › ' + subject, subject, course + ' — ' + subject);
+    hideAll(); document.getElementById('viewChapters').classList.remove('hidden');
+    document.getElementById('chapterHeading').textContent = subject + ' — Chapters';
+    const chapters = allChapters.filter(c => c.course === course && c.subject === subject)
+      .sort((a,b) => (a.order||0)-(b.order||0));
+    document.getElementById('chapterList').innerHTML = chapters.map((ch,i) => {
+      const draftBadge = !ch.published && isAdmin ? '<span style="background:#fef3c7;color:#92400e;font-size:0.7rem;padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:700;">DRAFT</span>' : '';
+      return `<a class="chapter-card" href="/study/reader.html?chapter=${encodeURIComponent(ch.slug)}">
+        <div class="chapter-num">${i+1}</div>
+        <div class="chapter-info">
+          <div class="chapter-title">${esc(ch.title)}${draftBadge}</div>
+          <div class="chapter-desc">${esc(ch.description||'')}</div>
+        </div>
+        <div class="chapter-arrow">›</div>
+      </a>`;
+    }).join('');
+    document.getElementById('backToSubjects').onclick = () => showSubjectsView(course);
+  };
+
+  function hideAll() { ['viewCourses','viewSubjects','viewChapters'].forEach(id => document.getElementById(id).classList.add('hidden')); }
+  function updateHero(crumb,title,subtitle) {
+    document.getElementById('heroBreadcrumb').textContent = crumb;
+    document.getElementById('heroTitle').textContent = title;
+    document.getElementById('heroSubtitle').textContent = subtitle;
+    document.title = title + ' — Shaheen Study Notes';
+  }
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+})();
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

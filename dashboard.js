@@ -22,8 +22,9 @@ var NAV_CATEGORIES = [
   {
     id: 'curriculum', label: 'Curriculum', icon: 'fas fa-book-open',
     items: [
-      { href: 'course-structure.html', label: 'Course Structure', icon: 'fas fa-sitemap', table: 'page:course-structure' },
-      { href: 'subjects.html',         label: 'Subjects', icon: 'fas fa-bookmark', table: 'page:subjects' },
+      { href: 'course-structure.html', label: 'Course Structure', icon: 'fas fa-sitemap',     table: 'page:course-structure' },
+      { href: 'subjects.html',         label: 'Subjects',         icon: 'fas fa-bookmark',    table: 'page:subjects' },
+      { href: 'study/admin.html',      label: 'Study Notes',      icon: 'fas fa-book-reader', table: 'page:course-structure' },
     ]
   },
   {
@@ -54,6 +55,7 @@ var QUICK_ACCESS = [
   { href: 'users.html',          label: 'Users',          icon: 'fas fa-users-cog',      table: 'page:users' },
   { href: 'subscriptions.html',  label: 'Subscriptions',  icon: 'fas fa-ticket-alt',     table: 'page:subscriptions' },
   { href: 'rbac.html',           label: 'Access Control', icon: 'fas fa-shield-alt',     table: 'page:rbac' },
+  { href: 'study/admin.html',    label: 'Study Notes',    icon: 'fas fa-book-reader',    table: 'page:course-structure' },
 ];
 
 async function boot() {

@@ -48,6 +48,8 @@
     .btn-publish:hover { background: #15803d; }
     .btn-unpublish { background: #d97706; color: #fff; }
     .btn-unpublish:hover { background: #b45309; }
+    .btn-delete { background: #dc2626; color: #fff; }
+    .btn-delete:hover { background: #b91c1c; }
 
     .test-group-body { padding: 0.75rem 1.25rem; }
     .mcq-preview { padding: 0.4rem 0; font-size: 0.84rem; color: #475569; border-bottom: 1px solid #f1f5f9; }
@@ -56,6 +58,13 @@
     .mcq-preview .q-text { color: #1e293b; }
 
     .empty-msg { text-align: center; padding: 2.5rem; color: #94a3b8; font-size: 0.9rem; }
+
+    .bulk-delete-bar { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .bulk-delete-bar .bulk-count { font-size: 0.9rem; font-weight: 700; color: #b91c1c; }
+    .bulk-delete-bar .btn-bulk-delete { background: #dc2626; color: #fff; padding: 0.4rem 1rem; border: none; border-radius: 0.375rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .bulk-delete-bar .btn-bulk-delete:hover { background: #b91c1c; }
+    .bulk-delete-bar .btn-bulk-cancel { background: #fff; color: #64748b; padding: 0.4rem 1rem; border: 1.5px solid #e2e8f0; border-radius: 0.375rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .test-group-check { width: 18px; height: 18px; accent-color: #dc2626; cursor: pointer; flex-shrink: 0; }
 
     .view-toggle { display: flex; gap: 0; margin-bottom: 1rem; }
     .view-toggle button {

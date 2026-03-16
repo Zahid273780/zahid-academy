@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter Editor — Shaheen Admin</title>
+  <link rel="stylesheet" href="/study/study.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <style>
+    /* ── Admin-specific styles ── */
+    body { background: #f1f5f9; }
+    .admin-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 80px; display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 900px) { .admin-wrap { grid-template-columns: 1fr; } }
+
+    /* Sidebar: chapter list */
+    .admin-sidebar { position: sticky; top: 72px; }
+    .sidebar-panel { background: #fff; border: 1.5px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+    .sidebar-panel .panel-head { background: #1e3a8a; color: #fff; padding: 14px 16px; font-family: system-ui,sans-serif; font-weight: 700; font-size: 0.875rem; display: flex; justify-content: space-between; align-items: center; }
+    .sidebar-panel .panel-head button { background: rgba(255,255,255,0.2); border: none; color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 600; }
+    .sidebar-panel .panel-head button:hover { background: rgba(255,255,255,0.35); }
+    .chapter-sidebar-list { max-height: 70vh; overflow-y: auto; }
+    .chapter-sidebar-item { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s; font-family: system-ui,sans-serif; }
+    .chapter-sidebar-item:hover { background: #eff6ff; }
+    .chapter-sidebar-item.active { background: #dbeafe; border-left: 3px solid #2563eb; }
+    .chapter-sidebar-item .cs-title { font-size: 0.875rem; font-weight: 600; color: #1e293b; }
+    .chapter-sidebar-item .cs-meta { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+    .chapter-sidebar-item .cs-draft { display: inline-block; background: #fef3c7; color: #92400e; font-size: 0.65rem; padding: 1px 6px; border-radius: 4px; margin-left: 4px; font-weight: 700; }
+    .sidebar-empty { padding: 24px 16px; text-align: center; font-family: system-ui,sans-serif; font-size: 0.8rem; color: #94a3b8; }
+
+    /* Editor panel */
+    .editor-panel { background: #fff; border: 1.5px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+    .editor-head { background: #1e3a8a; color: #fff; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .editor-head h2 { font-family: system-ui,sans-serif; font-size: 1rem; font-weight: 700; margin: 0; }
+    .editor-body { padding: 24px; }
+
+    /* Meta fields */
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+    @media (max-width: 600px) { .meta-grid { grid-template-columns: 1fr; } }
+    .meta-grid .full { grid-column: 1 / -1; }
+    .field-group label { display: block; font-family: system-ui,sans-serif; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .field-group input, .field-group select, .field-group textarea {
+      width: 100%; padding: 9px 12px; border: 2px solid #e2e8f0; border-radius: 8px;
+      font-family: system-ui,sans-serif; font-size: 0.875rem; background: #f8fafc;
+      color: #1e293b; transition: border-color 0.15s;
+    }
+    .field-group input:focus, .field-group select:focus, .field-group textarea:focus {
+      outline: none; border-color: #2563eb; background: #fff;
+    }
+
+    /* Add block bar */
+    .add-block-bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 16px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; margin-bottom: 20px; }
+    .add-block-bar span { font-family: system-ui,sans-serif; font-size: 0.75rem; font-weight: 700; color: #64748b; align-self: center; margin-right: 4px; }
+    .add-btn { background: #fff; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 7px 14px; font-family: system-ui,sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: #334155; transition: all 0.15s; white-space: nowrap; }
+    .add-btn:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+    .add-btn.add-kp { border-color: #d97706; color: #d97706; }
+    .add-btn.add-kp:hover { background: #fef3c7; }
+
+    /* Block cards */
+    .block-list { display: flex; flex-direction: column; gap: 12px; min-height: 60px; }
+    .block-card { border: 1.5px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #fff; }
+    .block-card .block-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .block-type-badge { font-family: system-ui,sans-serif; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .badge-heading   { background: #dbeafe; color: #1d4ed8; }
+    .badge-paragraph { background: #f0fdf4; color: #166534; }
+    .badge-formula   { background: #ede9fe; color: #5b21b6; }
+    .badge-image     { background: #fff7ed; color: #c2410c; }
+    .badge-tip       { background: #fef3c7; color: #92400e; }
+    .badge-table     { background: #f0f9ff; color: #0369a1; }
+    .badge-keypoints { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .block-actions { margin-left: auto; display: flex; gap: 4px; }
+    .block-actions button { background: none; border: 1px solid #e2e8f0; border-radius: 5px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer; color: #64748b; transition: all 0.15s; }
+    .block-actions button:hover { background: #f1f5f9; color: #334155; }
+    .block-actions .del-btn:hover { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+    .block-body { padding: 12px 14px; }
+    .block-body textarea, .block-body input[type="text"], .block-body input[type="url"], .block-body select {
+      width: 100%; padding: 8px 10px; border: 1.5px solid #e2e8f0; border-radius: 6px;
+      font-family: system-ui,sans-serif; font-size: 0.875rem; background: #fafafa;
+      resize: vertical; transition: border-color 0.15s;
+    }
+    .block-body textarea:focus, .block-body input:focus { outline: none; border-color: #2563eb; background: #fff; }
+    .block-body label { font-family: system-ui,sans-serif; font-size: 0.75rem; font-weight: 600; color: #64748b; display: block; margin-bottom: 4px; margin-top: 8px; }
+    .block-body label:first-child { margin-top: 0; }
+    .block-body .formula-hint { font-family: system-ui,sans-serif; font-size: 0.72rem; color: #7c3aed; margin-top: 4px; }
+    .kp-row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
+    .kp-row input { flex: 1; }
+    .kp-del { background: #fef2f2; border: 1px solid #fca5a5; color: #dc2626; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8rem; flex-shrink: 0; }
+    .kp-add { background: #eff6ff; border: 1.5px solid #bfdbfe; color: #2563eb; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 0.8rem; font-weight: 600; margin-top: 4px; }
+    .table-hint { font-family: system-ui,sans-serif; font-size: 0.72rem; color: #0369a1; margin-top: 4px; }
+
+    /* Action bar */
+    .action-bar { display: flex; gap: 12px; padding: 16px 24px; border-top: 1px solid #e2e8f0; background: #f8fafc; flex-wrap: wrap; align-items: center; }
+    .btn-draft { background: #fff; border: 2px solid #e2e8f0; color: #475569; padding: 10px 22px; border-radius: 8px; font-family: system-ui,sans-serif; font-weight: 700; font-size: 0.875rem; cursor: pointer; transition: all 0.15s; }
+    .btn-draft:hover { border-color: #94a3b8; color: #1e293b; }
+    .btn-publish { background: #16a34a; border: 2px solid #16a34a; color: #fff; padding: 10px 22px; border-radius: 8px; font-family: system-ui,sans-serif; font-weight: 700; font-size: 0.875rem; cursor: pointer; transition: all 0.15s; }
+    .btn-publish:hover { background: #15803d; border-color: #15803d; }
+    .btn-delete { background: #fef2f2; border: 2px solid #fca5a5; color: #dc2626; padding: 10px 18px; border-radius: 8px; font-family: system-ui,sans-serif; font-weight: 700; font-size: 0.875rem; cursor: pointer; margin-left: auto; }
+    .btn-delete:hover { background: #fee2e2; }
+    .action-msg { font-family: system-ui,sans-serif; font-size: 0.85rem; align-self: center; }
+    .action-msg.ok  { color: #16a34a; font-weight: 600; }
+    .action-msg.err { color: #dc2626; font-weight: 600; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* Auth gate */
+    .auth-gate { max-width: 400px; margin: 80px auto; background: #fff; border-radius: 14px; padding: 40px; text-align: center; font-family: system-ui,sans-serif; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    .auth-gate h2 { color: #1e293b; margin-bottom: 8px; }
+    .auth-gate p { color: #64748b; font-size: 0.9rem; margin-bottom: 20px; }
+    .auth-gate a { display: inline-block; background: #2563eb; color: #fff; padding: 10px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<nav class="study-nav">
+  <a href="/study/" class="brand">📚 <strong>Shaheen</strong> <span>Admin</span></a>
+  <div class="nav-links">
+    <a href="/study/">Student View</a>
+    <a href="/dashboard.html">Dashboard</a>
+    <span id="navUser"></span>
+  </div>
+</nav>
+
+<!-- Auth gate -->
+<div id="authGate" class="auth-gate" style="display:none;">
+  <h2>🔒 Admin Only</h2>
+  <p>You must be logged in as an admin or teacher to access the chapter editor.</p>
+  <a href="/login.html">Go to Login</a>
+</div>
+
+<!-- Main Admin UI -->
+<div id="adminUI" style="display:none;">
+  <div class="admin-wrap">
+
+    <!-- Sidebar: existing chapters -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-panel">
+        <div class="panel-head">
+          <span>All Chapters</span>
+          <button onclick="newChapter()">+ New</button>
+        </div>
+        <div class="chapter-sidebar-list" id="chapterSidebarList">
+          <div class="sidebar-empty">Loading…</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Editor -->
+    <div class="editor-panel">
+      <div class="editor-head">
+        <h2 id="editorHeading">New Chapter</h2>
+      </div>
+      <div class="editor-body">
+
+        <!-- Metadata -->
+        <div class="meta-grid">
+          <div class="field-group">
+            <label>Course *</label>
+            <input type="text" id="fieldCourse" placeholder="MDCAT, ECAT, 9th Class…" list="courseOptions">
+            <datalist id="courseOptions">
+              <option value="MDCAT">
+              <option value="ECAT">
+              <option value="9th Class">
+              <option value="10th Class">
+              <option value="11th Class">
+              <option value="12th Class">
+            </datalist>
+          </div>
+          <div class="field-group">
+            <label>Subject *</label>
+            <input type="text" id="fieldSubject" placeholder="Physics, Chemistry, Biology…">
+          </div>
+          <div class="field-group full">
+            <label>Chapter Title *</label>
+            <input type="text" id="fieldTitle" placeholder="e.g. Vectors" oninput="autoSlug()">
+          </div>
+          <div class="field-group full">
+            <label>Short Description</label>
+            <input type="text" id="fieldDescription" placeholder="One line summary shown in chapter list">
+          </div>
+          <div class="field-group">
+            <label>Order (1, 2, 3…)</label>
+            <input type="number" id="fieldOrder" value="1" min="1">
+          </div>
+          <div class="field-group">
+            <label>URL Slug (auto)</label>
+            <input type="text" id="fieldSlug" placeholder="mdcat-physics-vectors">
+          </div>
+        </div>
+
+        <!-- Block toolbar -->
+        <div class="add-block-bar">
+          <span>Add:</span>
+          <button class="add-btn" onclick="addBlock('heading')">📌 Heading</button>
+          <button class="add-btn" onclick="addBlock('paragraph')">📝 Paragraph</button>
+          <button class="add-btn" onclick="addBlock('formula')">🔢 Formula</button>
+          <button class="add-btn" onclick="addBlock('image')">🖼️ Image</button>
+          <button class="add-btn" onclick="addBlock('tip')">💡 Tip Box</button>
+          <button class="add-btn" onclick="addBlock('table')">📊 Table</button>
+          <button class="add-btn add-kp" onclick="addBlock('keypoints')">⭐ Key Points</button>
+        </div>
+
+        <!-- Block list -->
+        <div class="block-list" id="blockList">
+          <div style="text-align:center;padding:32px;font-family:system-ui;color:#94a3b8;font-size:0.9rem;">
+            Click a button above to add your first block.
+          </div>
+        </div>
+      </div>
+
+      <!-- Action bar -->
+      <div class="action-bar">
+        <button class="btn-draft" id="saveDraftBtn" onclick="saveChapter(false)">💾 Save Draft</button>
+        <button class="btn-publish" id="publishBtn" onclick="saveChapter(true)">🚀 Publish</button>
+        <span id="actionMsg" class="action-msg"></span>
+        <button class="btn-delete" id="deleteBtn" onclick="deleteChapter()" style="display:none;">🗑 Delete</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script>
+(function () {
+  let token = null;
+  let blocks = [];
+  let editingSlug = null;
+  let allChapters = [];
+
+  // ── Auth ──────────────────────────────────────────────────
+  (function init() {
+    try {
+      for (const key of Object.keys(localStorage)) {
+        if (!key.includes('supabase') && !key.includes('sb-')) continue;
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        const obj = JSON.parse(raw);
+        const t = obj?.access_token || obj?.session?.access_token;
+        const u = obj?.user || obj?.session?.user;
+        if (t && u) {
+          token = t;
+          const name = u.user_metadata?.name || u.email || 'Admin';
+          document.getElementById('navUser').textContent = '👤 ' + name.split(' ')[0];
+          break;
+        }
+      }
+    } catch (e) {}
+
+    if (!token) {
+      document.getElementById('authGate').style.display = 'block';
+      return;
+    }
+
+    // Verify role via API (chapters list with token = returns drafts if admin/teacher)
+    fetch('/api/study-chapters-list', { headers: { Authorization: 'Bearer ' + token } })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { document.getElementById('authGate').style.display = 'block'; return; }
+        document.getElementById('adminUI').style.display = 'block';
+        allChapters = data.chapters || [];
+        renderSidebar();
+        newChapter();
+      })
+      .catch(() => { document.getElementById('authGate').style.display = 'block'; });
+  })();
+
+  // ── Sidebar ───────────────────────────────────────────────
+  function renderSidebar() {
+    const list = document.getElementById('chapterSidebarList');
+    if (!allChapters.length) {
+      list.innerHTML = '<div class="sidebar-empty">No chapters yet.<br>Click + New to create one.</div>';
+      return;
+    }
+    list.innerHTML = allChapters.map(ch => `
+      <div class="chapter-sidebar-item ${editingSlug === ch.slug ? 'active' : ''}"
+           onclick="loadChapter('${esc(ch.slug)}')">
+        <div class="cs-title">${esc(ch.title)}${!ch.published ? '<span class="cs-draft">DRAFT</span>' : ''}</div>
+        <div class="cs-meta">${esc(ch.course)} › ${esc(ch.subject)}</div>
+      </div>`).join('');
+  }
+
+  // ── New Chapter ───────────────────────────────────────────
+  window.newChapter = function () {
+    editingSlug = null;
+    blocks = [];
+    document.getElementById('fieldCourse').value = '';
+    document.getElementById('fieldSubject').value = '';
+    document.getElementById('fieldTitle').value = '';
+    document.getElementById('fieldDescription').value = '';
+    document.getElementById('fieldOrder').value = '1';
+    document.getElementById('fieldSlug').value = '';
+    document.getElementById('editorHeading').textContent = 'New Chapter';
+    document.getElementById('deleteBtn').style.display = 'none';
+    document.getElementById('actionMsg').textContent = '';
+    renderBlocks();
+    renderSidebar();
+  };
+
+  // ── Load Chapter ──────────────────────────────────────────
+  window.loadChapter = function (slug) {
+    setMsg('Loading…', '');
+    fetch('/api/study-chapter-get?slug=' + encodeURIComponent(slug), {
+      headers: { Authorization: 'Bearer ' + token }
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { setMsg(data.error, 'err'); return; }
+        const ch = data.chapter;
+        editingSlug = ch.slug;
+        blocks = Array.isArray(ch.content) ? ch.content : [];
+        document.getElementById('fieldCourse').value = ch.course || '';
+        document.getElementById('fieldSubject').value = ch.subject || '';
+        document.getElementById('fieldTitle').value = ch.title || '';
+        document.getElementById('fieldDescription').value = ch.description || '';
+        document.getElementById('fieldOrder').value = ch.order || 1;
+        document.getElementById('fieldSlug').value = ch.slug || '';
+        document.getElementById('editorHeading').textContent = 'Edit: ' + ch.title;
+        document.getElementById('deleteBtn').style.display = 'block';
+        setMsg('', '');
+        renderBlocks();
+        renderSidebar();
+      })
+      .catch(() => setMsg('Failed to load chapter', 'err'));
+  };
+
+  // ── Auto slug ─────────────────────────────────────────────
+  window.autoSlug = function () {
+    if (editingSlug) return; // don't overwrite when editing
+    const course = document.getElementById('fieldCourse').value.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const subject = document.getElementById('fieldSubject').value.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const title = document.getElementById('fieldTitle').value.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const parts = [course, subject, title].filter(Boolean);
+    document.getElementById('fieldSlug').value = parts.join('-');
+  };
+
+  // ── Add Block ─────────────────────────────────────────────
+  window.addBlock = function (type) {
+    let block = { type };
+    if (type === 'heading')   block = { type, level: 'h2', text: '' };
+    if (type === 'paragraph') block = { type, text: '' };
+    if (type === 'formula')   block = { type, latex: '' };
+    if (type === 'image')     block = { type, url: '', caption: '' };
+    if (type === 'tip')       block = { type, text: '' };
+    if (type === 'table')     block = { type, data: '' };
+    if (type === 'keypoints') block = { type, points: [''] };
+    blocks.push(block);
+    renderBlocks();
+    // Scroll to last block
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.block-card');
+      if (cards.length) cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 50);
+  };
+
+  // ── Render Blocks ─────────────────────────────────────────
+  function renderBlocks() {
+    const list = document.getElementById('blockList');
+    if (!blocks.length) {
+      list.innerHTML = '<div style="text-align:center;padding:32px;font-family:system-ui;color:#94a3b8;font-size:0.9rem;">Click a button above to add your first block.</div>';
+      return;
+    }
+
+    list.innerHTML = blocks.map((b, i) => `
+      <div class="block-card" data-idx="${i}">
+        <div class="block-header">
+          <span class="block-type-badge badge-${b.type}">${blockLabel(b.type)}</span>
+          <div class="block-actions">
+            ${i > 0 ? `<button onclick="moveBlock(${i},-1)" title="Move up">↑</button>` : ''}
+            ${i < blocks.length - 1 ? `<button onclick="moveBlock(${i},1)" title="Move down">↓</button>` : ''}
+            <button class="del-btn" onclick="removeBlock(${i})">✕ Delete</button>
+          </div>
+        </div>
+        <div class="block-body">${blockEditor(b, i)}</div>
+      </div>`).join('');
+
+    // Re-attach listeners for keypoints
+    blocks.forEach((b, i) => {
+      if (b.type !== 'keypoints') return;
+      list.querySelectorAll(`[data-idx="${i}"] .kp-input`).forEach((inp, ki) => {
+        inp.addEventListener('input', () => { blocks[i].points[ki] = inp.value; });
+      });
+    });
+  }
+
+  function blockLabel(type) {
+    return { heading:'Heading', paragraph:'Paragraph', formula:'Formula', image:'Image', tip:'Tip Box', table:'Table', keypoints:'Key Points' }[type] || type;
+  }
+
+  function blockEditor(b, i) {
+    if (b.type === 'heading') return `
+      <label>Level</label>
+      <select onchange="blocks[${i}].level=this.value">
+        <option value="h2" ${b.level==='h2'?'selected':''}>H2 — Section</option>
+        <option value="h3" ${b.level==='h3'?'selected':''}>H3 — Sub-section</option>
+      </select>
+      <label>Heading Text</label>
+      <input type="text" value="${esc(b.text)}" placeholder="Section heading…" oninput="blocks[${i}].text=this.value">`;
+
+    if (b.type === 'paragraph') return `
+      <label>Text (supports inline math: $formula$)</label>
+      <textarea rows="5" placeholder="Type or paste your paragraph here…" oninput="blocks[${i}].text=this.value">${esc(b.text)}</textarea>`;
+
+    if (b.type === 'formula') return `
+      <label>LaTeX Formula</label>
+      <textarea rows="3" placeholder="e.g.  F = ma  or  \\frac{v^2-u^2}{2s}" oninput="blocks[${i}].latex=this.value">${esc(b.latex)}</textarea>
+      <div class="formula-hint">Wrap in $$ for display: <code>$$F = ma$$</code> — or leave plain LaTeX</div>`;
+
+    if (b.type === 'image') return `
+      <label>Image URL</label>
+      <input type="url" value="${esc(b.url)}" placeholder="https://…/image.jpg" oninput="blocks[${i}].url=this.value">
+      <label>Caption (optional)</label>
+      <input type="text" value="${esc(b.caption)}" placeholder="e.g. Vector diagram showing resultant force" oninput="blocks[${i}].caption=this.value">`;
+
+    if (b.type === 'tip') return `
+      <label>Tip / Important Note</label>
+      <textarea rows="3" placeholder="e.g. Remember: perpendicular vectors have dot product = 0" oninput="blocks[${i}].text=this.value">${esc(b.text)}</textarea>`;
+
+    if (b.type === 'table') return `
+      <label>Table Data (first line = headers, use | to separate columns)</label>
+      <textarea rows="6" placeholder="Header 1 | Header 2 | Header 3\nValue 1 | Value 2 | Value 3\nValue A | Value B | Value C" oninput="blocks[${i}].data=this.value">${esc(b.data)}</textarea>
+      <div class="table-hint">Each line = one row. Use | between columns. First line = header row.</div>`;
+
+    if (b.type === 'keypoints') {
+      const pts = b.points && b.points.length ? b.points : [''];
+      return `
+        <label>Key Points (one per line)</label>
+        <div id="kpList_${i}">
+          ${pts.map((p, ki) => `
+            <div class="kp-row">
+              <input type="text" class="kp-input" value="${esc(p)}" placeholder="Key point ${ki+1}…">
+              <button class="kp-del" onclick="removeKP(${i},${ki})">✕</button>
+            </div>`).join('')}
+        </div>
+        <button class="kp-add" onclick="addKP(${i})">+ Add Point</button>`;
+    }
+    return '';
+  }
+
+  // ── Block operations ──────────────────────────────────────
+  window.removeBlock = function (i) { blocks.splice(i, 1); renderBlocks(); };
+  window.moveBlock = function (i, dir) {
+    const j = i + dir;
+    if (j < 0 || j >= blocks.length) return;
+    [blocks[i], blocks[j]] = [blocks[j], blocks[i]];
+    renderBlocks();
+  };
+  window.addKP = function (i) {
+    // Sync current input values first
+    syncKP(i);
+    blocks[i].points.push('');
+    renderBlocks();
+  };
+  window.removeKP = function (i, ki) {
+    syncKP(i);
+    blocks[i].points.splice(ki, 1);
+    if (!blocks[i].points.length) blocks[i].points = [''];
+    renderBlocks();
+  };
+  function syncKP(i) {
+    const inputs = document.querySelectorAll(`[data-idx="${i}"] .kp-input`);
+    blocks[i].points = Array.from(inputs).map(inp => inp.value);
+  }
+
+  // ── Collect data from DOM ─────────────────────────────────
+  function collectBlocks() {
+    // Sync all live inputs back to blocks array
+    blocks.forEach((b, i) => {
+      const card = document.querySelector(`[data-idx="${i}"]`);
+      if (!card) return;
+      if (b.type === 'heading') {
+        b.level = card.querySelector('select')?.value || 'h2';
+        b.text  = card.querySelector('input[type="text"]')?.value || '';
+      } else if (b.type === 'paragraph') {
+        b.text = card.querySelector('textarea')?.value || '';
+      } else if (b.type === 'formula') {
+        b.latex = card.querySelector('textarea')?.value || '';
+      } else if (b.type === 'image') {
+        const inputs = card.querySelectorAll('input');
+        b.url     = inputs[0]?.value || '';
+        b.caption = inputs[1]?.value || '';
+      } else if (b.type === 'tip') {
+        b.text = card.querySelector('textarea')?.value || '';
+      } else if (b.type === 'table') {
+        b.data = card.querySelector('textarea')?.value || '';
+      } else if (b.type === 'keypoints') {
+        syncKP(i);
+      }
+    });
+    return blocks.filter(b => {
+      if (b.type === 'heading' || b.type === 'paragraph' || b.type === 'tip') return b.text?.trim();
+      if (b.type === 'formula') return b.latex?.trim();
+      if (b.type === 'image')   return b.url?.trim();
+      if (b.type === 'table')   return b.data?.trim();
+      if (b.type === 'keypoints') return b.points?.some(p => p.trim());
+      return false;
+    });
+  }
+
+  // ── Save ──────────────────────────────────────────────────
+  window.saveChapter = async function (publish) {
+    const course = document.getElementById('fieldCourse').value.trim();
+    const subject = document.getElementById('fieldSubject').value.trim();
+    const title = document.getElementById('fieldTitle').value.trim();
+    const slug = document.getElementById('fieldSlug').value.trim() ||
+      [course, subject, title].map(s => s.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')).filter(Boolean).join('-');
+
+    if (!course || !subject || !title) {
+      setMsg('Please fill in Course, Subject and Title.', 'err'); return;
+    }
+
+    const content = collectBlocks();
+
+    const btn = publish ? document.getElementById('publishBtn') : document.getElementById('saveDraftBtn');
+    btn.disabled = true;
+    setMsg('Saving…', '');
+
+    try {
+      const res = await fetch('/api/study-chapter-save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({
+          slug,
+          title,
+          course,
+          subject,
+          order: parseInt(document.getElementById('fieldOrder').value, 10) || 1,
+          description: document.getElementById('fieldDescription').value.trim(),
+          content,
+          published: publish,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Save failed');
+
+      editingSlug = data.slug;
+      document.getElementById('fieldSlug').value = data.slug;
+      document.getElementById('editorHeading').textContent = 'Edit: ' + title;
+      document.getElementById('deleteBtn').style.display = 'block';
+      setMsg(publish ? '✅ Published!' : '✅ Saved as draft', 'ok');
+
+      // Refresh sidebar
+      fetch('/api/study-chapters-list', { headers: { Authorization: 'Bearer ' + token } })
+        .then(r => r.json()).then(d => { allChapters = d.chapters || []; renderSidebar(); });
+    } catch (err) {
+      setMsg(err.message, 'err');
+    } finally { btn.disabled = false; }
+  };
+
+  // ── Delete ────────────────────────────────────────────────
+  window.deleteChapter = async function () {
+    if (!editingSlug) return;
+    if (!confirm('Delete "' + editingSlug + '"? This cannot be undone.')) return;
+    setMsg('Deleting…', '');
+    try {
+      const res = await fetch('/api/study-chapter-save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ action: 'delete', slug: editingSlug }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      allChapters = allChapters.filter(c => c.slug !== editingSlug);
+      newChapter();
+      setMsg('Deleted.', 'ok');
+    } catch (err) { setMsg(err.message, 'err'); }
+  };
+
+  function setMsg(text, type) {
+    const el = document.getElementById('actionMsg');
+    el.textContent = text;
+    el.className = 'action-msg' + (type ? ' ' + type : '');
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+})();
+</script>
+</body>
+</html>

@@ -33,24 +33,31 @@ textarea { min-height: 2.5rem; resize: vertical; }
 .toolbar .count { font-size: 0.875rem; color: #475569; font-weight: 600; }
 .toolbar .bulk-select { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; color: #64748b; }
 
-/* NEW: Custom Scrollable List Container (Inspired by Q3.html) */
+/* --- CUSTOM SCROLLABLE LIST FOR MCQs --- */
 .scrollable-list {
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: 12px;
   max-height: 500px;
   overflow-y: auto;
-  margin-bottom: 20px;
-  background: #fff;
-  padding: 10px;
+  background: #f8fafc;
+  padding: 12px;
 }
-/* Custom Scrollbar for the list */
 .scrollable-list::-webkit-scrollbar { width: 8px; }
 .scrollable-list::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
 .scrollable-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
 .scrollable-list::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-.mcq-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; margin-bottom: 0.75rem; }
-.mcq-card-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.75rem; border-bottom: 1px solid #e5e7eb; }
+.mcq-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: all 0.2s ease; }
+.mcq-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+/* --- NEW HIGHLIGHT STYLING FOR SELECTED MCQs --- */
+.mcq-card.selected {
+  background: #eff6ff;
+  border: 2px solid #2563eb;
+}
+.mcq-card.selected .mcq-card-head { border-bottom-color: #bfdbfe; }
+
+.mcq-card-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 0.75rem; border-bottom: 1px solid #e5e7eb; }
 .mcq-card-head .mcq-num { font-weight: 700; font-size: 0.8rem; color: #2563eb; min-width: 1.8rem; }
 .mcq-card-head .card-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
 .btn-edit { padding: 0.25rem 0.5rem; font-size: 0.75rem; background: #dbeafe; color: #1d4ed8; border: none; border-radius: 0.25rem; cursor: pointer; }

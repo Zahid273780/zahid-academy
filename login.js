@@ -26,26 +26,46 @@
 
     // Prefill from recent signup, if present
     try {
-        var signupUser = sessionStorage.getItem('signup_username');
-        var signupPass = sessionStorage.getItem('signup_password');
-        if (signupUser && userInput) userInput.value = signupUser;
-        if (signupPass && passInput) passInput.value = signupPass;
-        // Clear after prefilling
-        sessionStorage.removeItem('signup_username');
-        sessionStorage.removeItem('signup_password');
+        var savedUser = sessionStorage.getItem('signup_username');
+        var savedPass = sessionStorage.getItem('signup_password');
+        if (savedUser && savedPass) {
+            userInput.value = savedUser;
+            passInput.value = savedPass;
+            showMsg('Account created successfully. Please sign in.', 'ok');
+            sessionStorage.removeItem('signup_username');
+            sessionStorage.removeItem('signup_password');
+        }
     } catch (_) {}
 
     async function studentLogin(email, password) {
-        var createClient = (await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm')).createClient;
-        var supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        var result = await supabase.auth.signInWithPassword({ email: email, password: password });
-        if (result.error) {
-            return { ok: false, error: result.error.message || 'Login failed' };
+        var res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY
+            },
+            body: JSON.stringify({ email: email, password: password })
+        });
+        var data = await res.json();
+        if (!res.ok) {
+            return { ok: false, error: data.error_description || data.msg || 'Invalid credentials' };
         }
-        if (!result.data || !result.data.session || !result.data.session.access_token) {
-            return { ok: false, error: 'Could not start session' };
+        
+        var profileRes = await fetch(SUPABASE_URL + '/rest/v1/users?id=eq.' + data.user.id + '&select=role', {
+            method: 'GET',
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': 'Bearer ' + data.access_token
+            }
+        });
+        var profileData = await profileRes.json();
+        var role = (profileData && profileData[0] && profileData[0].role) ? profileData[0].role.toLowerCase() : '';
+        
+        if (role !== 'student') {
+            return { ok: false, error: 'Staff must login via Admin Portal.' };
         }
-        return { ok: true, session: result.data.session };
+        
+        return { ok: true, session: data };
     }
 
     form.addEventListener('submit', async function (e) {

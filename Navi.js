@@ -1,5 +1,5 @@
 (function () {
-    var allMcqs = [], currentPath = [], activeQuestions = [], userAnswers = [];
+    var navData = [], currentPath = [], activeQuestions = [], userAnswers = [];
     var currentIndex = 0, score = 0, startTime, timerInterval;
     var questionStartTime = null, attemptRecords = [];
     var currentTestMeta = {};
@@ -98,18 +98,18 @@
                     return;
                 }
             }
-            await loadMcqs();
+            await loadNav();
         } catch (e) {
             logout();
         }
     }
 
-    async function loadMcqs() {
-        var res = await apiCall('/api/student-mcqs');
+    async function loadNav() {
+        var res = await apiCall('/api/student-nav');
         if (!res) return;
         var data = await res.json();
-        if (data.error) { alert('Error loading data'); return; }
-        allMcqs = data.mcqs || [];
+        if (data.error) { alert('Error loading navigation'); return; }
+        navData = data.nav || [];
         renderCourses();
     }
 
@@ -138,36 +138,36 @@
     function renderCourses() {
         resetUI(); currentPath = [];
         $('breadcrumb').innerHTML = '<i class="fas fa-home"></i> Select Course';
-        var courses = distinct(allMcqs, function (r) { return mcqVal(r, 'Course'); });
+        var courses = distinct(navData, function (r) { return mcqVal(r, 'Course'); });
         displayGrid(courses, function (val) { currentPath = [val]; renderClasses(val); });
     }
 
     function renderClasses(course) {
         $('breadcrumb').innerText = 'Home > ' + course;
-        var subset = allMcqs.filter(function (r) { return mcqVal(r, 'Course') === course; });
+        var subset = navData.filter(function (r) { return mcqVal(r, 'Course') === course; });
         var classes = distinct(subset, function (r) { return mcqVal(r, 'Class/Exam'); });
         displayGrid(classes, function (val) { currentPath = [course, val]; renderSubjects(val); });
     }
 
     function renderSubjects(classExam) {
         $('breadcrumb').innerText = 'Home > ' + currentPath[0] + ' > ' + classExam;
-        var subset = allMcqs.filter(function (r) { return mcqVal(r, 'Course') === currentPath[0] && mcqVal(r, 'Class/Exam') === classExam; });
+        var subset = navData.filter(function (r) { return mcqVal(r, 'Course') === currentPath[0] && mcqVal(r, 'Class/Exam') === classExam; });
         var subjects = distinct(subset, function (r) { return mcqVal(r, 'Subject'); });
         displayGrid(subjects, function (val) { currentPath = [currentPath[0], classExam, val]; renderUnits(val); });
     }
 
     function renderUnits(subject) {
         $('breadcrumb').innerText = 'Home > ' + currentPath[0] + ' > ' + currentPath[1] + ' > ' + subject;
-        var subset = allMcqs.filter(function (r) { return mcqVal(r, 'Course') === currentPath[0] && mcqVal(r, 'Class/Exam') === currentPath[1] && mcqVal(r, 'Subject') === subject; });
+        var subset = navData.filter(function (r) { return mcqVal(r, 'Course') === currentPath[0] && mcqVal(r, 'Class/Exam') === currentPath[1] && mcqVal(r, 'Subject') === subject; });
         var units = distinct(subset, function (r) { return mcqVal(r, 'Unit'); });
         displayGrid(units, function (val) { currentPath = currentPath.slice(0, 3).concat([val]); renderCategories(val); });
     }
 
     function renderCategories(unit) {
         $('breadcrumb').innerText = 'Home > ' + currentPath[0] + ' > ' + currentPath[1] + ' > ' + currentPath[2] + ' > ' + unit;
-        var subset = allMcqs.filter(function (r) { return mcqVal(r, 'Course') === currentPath[0] && mcqVal(r, 'Class/Exam') === currentPath[1] && mcqVal(r, 'Subject') === currentPath[2] && mcqVal(r, 'Unit') === unit; });
+        var subset = navData.filter(function (r) { return mcqVal(r, 'Course') === currentPath[0] && mcqVal(r, 'Class/Exam') === currentPath[1] && mcqVal(r, 'Subject') === currentPath[2] && mcqVal(r, 'Unit') === unit; });
         var categories = distinct(subset, function (r) { return mcqVal(r, 'Category'); });
-        if (categories.length === 0) { renderTests(unit, null); return; }
+        if (categories.length === 0 || (categories.length === 1 && !categories[0])) { renderTests(unit, null); return; }
         displayGrid(categories, function (val) { currentPath = currentPath.slice(0, 4).concat([val]); renderTests(unit, val); });
     }
 
@@ -175,32 +175,34 @@
         var crumb = 'Home > ' + currentPath[0] + ' > ' + currentPath[1] + ' > ' + currentPath[2] + ' > ' + unit + (category ? ' > ' + category : '');
         $('breadcrumb').innerText = crumb;
 
-        var subset = allMcqs.filter(function (r) {
+        var subset = navData.filter(function (r) {
             return mcqVal(r, 'Course') === currentPath[0] && mcqVal(r, 'Class/Exam') === currentPath[1] && mcqVal(r, 'Subject') === currentPath[2] && mcqVal(r, 'Unit') === unit;
         });
         if (category) subset = subset.filter(function (r) { return mcqVal(r, 'Category') === category; });
 
-        var testNums = distinct(subset, function (r) { return mcqVal(r, 'Test Number'); }).sort(function (a, b) { return Number(a) - Number(b); });
+        subset.sort(function (a, b) { return Number(mcqVal(a, 'Test Number')) - Number(mcqVal(b, 'Test Number')); });
+
         var area = $('navigationArea');
         area.innerHTML = '';
         area.className = 'grid-container test-grid';
 
-        testNums.forEach(function (num) {
-            var qs = subset.filter(function (r) { return mcqVal(r, 'Test Number') === num; });
-            var topics = mcqVal(qs[0], 'Topics') || null;
+        subset.forEach(function (entry) {
+            var num = mcqVal(entry, 'Test Number');
+            var topics = mcqVal(entry, 'Topics') || null;
+            var count = entry.count;
             var done = isAttempted(currentPath[0], currentPath[1], currentPath[2], unit, category, num);
             var btn = document.createElement('button');
             btn.className = 'nav-btn' + (done ? ' test-done' : '');
             var topicsHtml = topics
                 ? '<span class="btn-range" style="color:#2563eb;border-color:#bfdbfe;background:#eff6ff;">' + topics + '</span>'
                 : '';
-            btn.innerHTML = '<span class="btn-cat">Test #' + num + '</span>' + topicsHtml + '<span class="btn-range">' + qs.length + ' Questions</span>';
-            btn.onclick = function () { showTestInfo(unit, category, num, qs, topics); };
+            btn.innerHTML = '<span class="btn-cat">Test #' + num + '</span>' + topicsHtml + '<span class="btn-range">' + count + ' Questions</span>';
+            btn.onclick = function () { showTestInfo(unit, category, num, count, topics); };
             area.appendChild(btn);
         });
     }
 
-    function showTestInfo(unit, category, testNum, questions, topics) {
+    function showTestInfo(unit, category, testNum, count, topics) {
         $('mainSection').classList.add('hidden');
         $('testInfoSection').classList.remove('hidden');
         var quotaErr = document.getElementById('quotaErrorMsg');
@@ -211,7 +213,7 @@
         $('infoUnit').innerText = unit;
         $('infoCat').innerText = category || '\u2014';
         $('infoTestNo').innerText = testNum;
-        $('infoCount').innerText = questions.length;
+        $('infoCount').innerText = count;
 
         var topicsSpan = $('infoTopics');
         if (topicsSpan) {
@@ -231,7 +233,7 @@
         $('startTestBtn').onclick = async function () {
             var res = await apiCall('/api/reserve-mcqs', {
                 body: JSON.stringify({
-                    mcqCount: questions.length,
+                    mcqCount: count,
                     course: currentTestMeta.course,
                     classExam: currentTestMeta.classExam,
                     subject: currentTestMeta.subject,
@@ -255,7 +257,26 @@
             }
             document.getElementById('quotaErrorMsg').classList.remove('show');
             $('testInfoSection').classList.add('hidden');
-            startQuiz(questions);
+
+            /* ── fetch actual MCQ content on-demand ── */
+            var mcqRes = await apiCall('/api/student-mcqs', {
+                body: JSON.stringify({
+                    course: currentTestMeta.course,
+                    classExam: currentTestMeta.classExam,
+                    subject: currentTestMeta.subject,
+                    unit: unit,
+                    category: category || null,
+                    testNumber: testNum
+                })
+            });
+            if (!mcqRes) return;
+            var mcqData = await mcqRes.json().catch(function () { return {}; });
+            if (mcqData.error || !mcqData.mcqs || mcqData.mcqs.length === 0) {
+                alert('Failed to load questions. Please try again.');
+                $('mainSection').classList.remove('hidden');
+                return;
+            }
+            startQuiz(mcqData.mcqs);
         };
     }
 

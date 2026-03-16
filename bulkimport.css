@@ -164,6 +164,9 @@ textarea { min-height: 14rem; resize: vertical; line-height: 1.6; }
 }
 #msg.err { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 #msg.ok { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+#importMsg { padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; }
+#importMsg.err { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+#importMsg.ok { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
 
 /* --- Review Section & MCQs --- */
 .cascade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }

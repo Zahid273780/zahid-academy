@@ -292,6 +292,9 @@ body {
 .portal-card.results::before   { background: var(--success); }
 .portal-card.results:hover     { border-color: var(--success); }
 
+.portal-card.study-notes::before { background: #7c3aed; }
+.portal-card.study-notes:hover   { border-color: #7c3aed; }
+
 .portal-icon {
   width: 70px; height: 70px;
   border-radius: 50%;
@@ -303,6 +306,7 @@ body {
 .portal-card.givetest      .portal-icon { background: #fffbeb; color: var(--amber); }
 .portal-card.mistake-bucket .portal-icon { background: #ede9fe; color: var(--purple); }
 .portal-card.results       .portal-icon { background: #ecfdf5; color: var(--success); }
+.portal-card.study-notes   .portal-icon { background: #f5f3ff; color: #7c3aed; }
 
 .portal-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
 .portal-card p  { font-size: 0.82rem; color: #64748b; line-height: 1.4; }
