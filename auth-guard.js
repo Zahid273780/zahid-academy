@@ -10,6 +10,7 @@ var _authPerms = {};
 
 var PAGE_TABLE_MAP = {
   'dashboard.html':        'page:dashboard',
+  'Navi_for_admin.html':   'page:dashboard',
   'user-form.html':        'page:user-form',
   'import-users.html':     'page:import-users',
   'users.html':            'page:users',

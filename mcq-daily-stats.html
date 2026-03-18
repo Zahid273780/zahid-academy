@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Daily MCQ Stats</title>
+  <link rel="stylesheet" href="mcq-daily-stats.css">
+</head>
+<body>
+  <div class="page">
+    <p class="nav"><a href="dashboard.html" class="back-link">&#8592; Back to Dashboard</a></p>
+
+    <div class="card">
+      <h1>Daily MCQ Stats</h1>
+      <p class="lead">See how many MCQs were added on each day.</p>
+
+      <div class="filters">
+        <div>
+          <label for="fromDate">From</label>
+          <input id="fromDate" type="date">
+        </div>
+        <div>
+          <label for="toDate">To</label>
+          <input id="toDate" type="date">
+        </div>
+        <div class="actions">
+          <button id="applyBtn" class="btn btn-primary" type="button">Apply</button>
+          <button id="last30Btn" class="btn" type="button">Last 30 Days</button>
+        </div>
+      </div>
+      <div id="msg" class="msg"></div>
+    </div>
+
+    <div class="dash">
+      <div class="dash-card blue">
+        <div class="dash-label">Today</div>
+        <div class="dash-val" id="statToday">--</div>
+      </div>
+      <div class="dash-card green">
+        <div class="dash-label">In Range</div>
+        <div class="dash-val" id="statTotal">--</div>
+      </div>
+      <div class="dash-card amber">
+        <div class="dash-label">Active Days</div>
+        <div class="dash-val" id="statDays">--</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Total MCQs Added</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="2" class="loading">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="mcq-daily-stats.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Student Signup Forms</title>
+  <link rel="stylesheet" href="student-signups.css">
+</head>
+<body>
+  <div class="page">
+    <p class="nav">
+      <a href="dashboard.html" class="back-link">&#8592; Back to Dashboard</a>
+    </p>
+
+    <div class="card">
+      <h1>Student Signup Forms</h1>
+      <p class="lead">View submitted student records with date, name and number filters.</p>
+
+      <div class="filters">
+        <div class="field">
+          <label for="filterDate">Date</label>
+          <input id="filterDate" type="date">
+        </div>
+        <div class="field">
+          <label for="filterName">Name</label>
+          <input id="filterName" type="text" placeholder="Search by name">
+        </div>
+        <div class="field">
+          <label for="filterNumber">Number</label>
+          <input id="filterNumber" type="text" inputmode="tel" placeholder="Mobile or WhatsApp">
+        </div>
+        <div class="actions">
+          <button id="applyBtn" class="btn btn-primary" type="button">Apply Filters</button>
+          <button id="todayBtn" class="btn" type="button">Today</button>
+        </div>
+      </div>
+
+      <div class="meta-row">
+        <span id="countLabel">0 records</span>
+      </div>
+
+      <div id="msg" class="msg"></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Username</th>
+              <th>Mobile</th>
+              <th>WhatsApp</th>
+              <th>Email</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="6" class="loading">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="student-signups.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    }
+  </script>
+</body>
+</html>

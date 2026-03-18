@@ -289,6 +289,9 @@ body {
 .portal-card.mistake-bucket::before { background: var(--purple); }
 .portal-card.mistake-bucket:hover   { border-color: var(--purple); }
 
+.portal-card.important-bucket::before { background: #f59e0b; }
+.portal-card.important-bucket:hover   { border-color: #f59e0b; }
+
 .portal-card.results::before   { background: var(--success); }
 .portal-card.results:hover     { border-color: var(--success); }
 
@@ -305,6 +308,7 @@ body {
 .portal-card.practice      .portal-icon { background: #eff6ff; color: var(--primary); }
 .portal-card.givetest      .portal-icon { background: #fffbeb; color: var(--amber); }
 .portal-card.mistake-bucket .portal-icon { background: #ede9fe; color: var(--purple); }
+.portal-card.important-bucket .portal-icon { background: #fffbeb; color: #d97706; }
 .portal-card.results       .portal-icon { background: #ecfdf5; color: var(--success); }
 .portal-card.study-notes   .portal-icon { background: #f5f3ff; color: #7c3aed; }
 

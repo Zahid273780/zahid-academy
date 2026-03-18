@@ -120,6 +120,9 @@ export async function onRequest(context) {
     id: authUser.user.id,
     name,
     email,
+    username,
+    mobile,
+    whatsapp,
     role: 'student',
     roll: null,
   });

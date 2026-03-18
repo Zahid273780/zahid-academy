@@ -114,6 +114,7 @@ body {
 .nav-btn:hover { border-color: var(--primary); background: #eff6ff; transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1); }
 .btn-cat { font-weight: 700; font-size: 17px; color: #334155; }
 .btn-range { font-size: 13px; color: #64748b; background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px dashed #cbd5e1; }
+.btn-relevant { color: #166534; background: #f0fdf4; border-color: #86efac; font-weight: 700; }
 
 /* Blue tick on attempted tests */
 .nav-btn.test-done {
@@ -155,6 +156,36 @@ body {
 .option-btn:hover { border-color: #cbd5e1; background: #f8fafc; }
 .option-btn.selected { border-color: var(--primary); background: #eff6ff; color: var(--primary-dark); font-weight: 600; }
 
+.question-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.question-action-btn {
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #334155;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.question-action-btn.important { color: #7c3aed; border-color: #ddd6fe; background: #f5f3ff; }
+.question-action-btn.not-relevant { color: #b45309; border-color: #fde68a; background: #fffbeb; }
+.question-action-btn.delete { color: #dc2626; border-color: #fecaca; background: #fef2f2; }
+.question-action-btn.delete:hover { background: #fee2e2; border-color: #fca5a5; }
+
+.question-action-msg {
+    min-height: 18px;
+    margin: 8px 2px 0;
+    font-size: 13px;
+    color: #475569;
+    font-weight: 600;
+}
+
 .btn-action { background: var(--primary); color: white; border: none; padding: 18px 30px; border-radius: 12px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 10px; font-size: 16px; }
 
 .res-card { background: #f8fafc; padding: 20px; border-radius: 15px; text-align: center; border-bottom: 4px solid var(--primary); }
@@ -175,6 +206,8 @@ body {
 .mistake-bucket-area.show { display: block; }
 .add-to-bucket-btn { background: #7c3aed !important; margin-bottom: 10px; }
 .mistake-bucket-msg { font-size: 14px; margin-top: 8px; }
+.important-bucket-btn { background: #7c3aed !important; margin-bottom: 10px; }
+.not-relevant-bucket-btn { background: #b45309 !important; margin-bottom: 10px; }
 .go-home-btn { background: var(--text) !important; margin-top: 15px; }
 
 .mistake-item { border-left: 5px solid var(--error); background: #fef2f2; padding: 20px; margin-bottom: 15px; border-radius: 0 12px 12px 0; }

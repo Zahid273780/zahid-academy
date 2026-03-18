@@ -74,7 +74,8 @@ export async function onRequest(context) {
     .eq('id', userId)
     .single();
 
-  if (!userProfile || (userProfile.role || '').toLowerCase() !== 'student') {
+  const submitterRole = (userProfile ? userProfile.role || '' : '').toLowerCase();
+  if (!userProfile || !['student', 'admin'].includes(submitterRole)) {
     return json({ error: 'Access denied' }, 403);
   }
 

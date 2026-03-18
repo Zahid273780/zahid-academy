@@ -72,7 +72,7 @@
             </label>
             <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 16px;border:2px solid #e2e8f0;border-radius:8px;font-weight:600;font-size:0.85rem;background:#fff;transition:all 0.15s;" id="labelAutoMode">
               <input type="radio" name="testMode" id="radioAuto" value="auto" style="accent-color:#16a34a;">
-              <span>Auto — sequential by batch of 20</span>
+              <span>Auto — sequential by custom batch size</span>
             </label>
           </div>
           <div id="manualTestRow" style="display:flex;align-items:center;gap:10px;">
@@ -83,6 +83,8 @@
           <div id="autoTestRow" style="display:none;align-items:center;gap:10px;">
             <label for="startTestNum" style="margin:0;white-space:nowrap;font-size:0.85rem;">Starting Test #</label>
             <input type="number" id="startTestNum" min="1" value="1" style="width:90px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.95rem;font-family:inherit;">
+            <label for="batchSize" style="margin:0;white-space:nowrap;font-size:0.85rem;">MCQs per test</label>
+            <input type="number" id="batchSize" min="1" value="20" style="width:100px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.95rem;font-family:inherit;">
             <span style="font-size:0.8rem;color:#64748b;" id="autoTestSummary"></span>
           </div>
         </div>

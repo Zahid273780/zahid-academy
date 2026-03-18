@@ -41,6 +41,16 @@
     </div>
 
     <div class="card">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
+        <div>
+          <label for="searchCourse">Search Course / Subject / Unit</label>
+          <input type="text" id="searchCourse" class="pub-search" placeholder="e.g. MDCAT, Physics, Vectors…" autocomplete="off">
+        </div>
+        <div>
+          <label for="searchTopics">Search Topics / Test No.</label>
+          <input type="text" id="searchTopics" class="pub-search" placeholder="e.g. Projectile Motion, 5…" autocomplete="off">
+        </div>
+      </div>
       <div class="cascade-grid" style="margin-bottom: 1rem;">
         <div>
           <label for="selCourse">Course</label>
@@ -64,14 +74,18 @@
         </div>
       </div>
 
-      <div class="view-toggle">
-        <button id="viewAll" class="active">All</button>
-        <button id="viewPublished">Published</button>
-        <button id="viewHidden">Hidden</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;">
+        <div class="view-toggle" style="margin-bottom:0;">
+          <button id="viewAll" class="active">All</button>
+          <button id="viewPublished">Published</button>
+          <button id="viewHidden">Hidden</button>
+        </div>
+        <button id="sortToggle" class="btn sort-toggle-btn">⬇ Newest First</button>
       </div>
 
       <div id="msg"></div>
       <div id="testList"></div>
+      <div id="pageNav" class="page-nav"></div>
       <div id="emptyMsg" class="empty-msg" style="display:none;">No tests match your filters.</div>
     </div>
   </div>

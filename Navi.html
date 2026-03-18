@@ -34,6 +34,7 @@
             <div id="breadcrumb" class="breadcrumb"><i class="fas fa-home"></i> Home</div>
             <div class="nav-bar-right">
                 <span id="userBadge" class="user-badge"></span>
+                <button id="importantBucketBtn" type="button" class="portal-link"><i class="fas fa-star"></i> Important</button>
                 <a href="portal.html" class="portal-link"><i class="fas fa-th-large"></i> Portal</a>
                 <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
@@ -70,6 +71,11 @@
         </div>
         <h2 id="questionText" class="question-text"></h2>
         <div id="optionsArea"></div>
+        <div id="questionActions" class="question-actions">
+            <button id="markImportantBtn" type="button" class="question-action-btn important"><i class="fas fa-star"></i> Important</button>
+            <button id="markNotRelevantBtn" type="button" class="question-action-btn not-relevant"><i class="fas fa-ban"></i> Not Relevant</button>
+        </div>
+        <p id="questionActionMsg" class="question-action-msg"></p>
     </div>
 
     <div id="resultArea" class="hidden">
@@ -83,6 +89,10 @@
         <div id="mistakeBucketArea" class="mistake-bucket-area">
             <button id="addToMistakeBucketBtn" type="button" class="btn-action add-to-bucket-btn"><i class="fas fa-bucket"></i> Add to Mistake Bucket</button>
             <p id="mistakeBucketMsg" class="mistake-bucket-msg"></p>
+        </div>
+        <div id="practiceBucketsArea" class="mistake-bucket-area show">
+            <button id="practiceImportantBtn" type="button" class="btn-action important-bucket-btn"><i class="fas fa-star"></i> Practice Important Bucket</button>
+            <p id="practiceBucketMsg" class="mistake-bucket-msg"></p>
         </div>
         <button id="goHomeBtn" class="btn-action go-home-btn"><i class="fas fa-home"></i> Back to Home</button>
     </div>

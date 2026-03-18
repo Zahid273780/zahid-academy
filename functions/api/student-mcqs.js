@@ -13,6 +13,12 @@ function json(body, status = 200) {
   });
 }
 
+function isMissingTableError(error) {
+  const message = (error && error.message ? String(error.message) : '').toLowerCase();
+  const code = error && error.code ? String(error.code) : '';
+  return code === '42P01' || message.includes('does not exist') || message.includes('relation');
+}
+
 
 export async function onRequest(context) {
   const req = context.request;
@@ -128,5 +134,44 @@ export async function onRequest(context) {
     from += PAGE_SIZE;
   }
 
-  return json({ mcqs });
+  const hasContext = course && classExam && subject && unit && testNumber !== undefined && testNumber !== null;
+  if (!hasContext) {
+    return json({ mcqs });
+  }
+
+  let exclusionQuery = adminClient
+    .from('student_not_relevant_mcqs')
+    .select('mcq_id')
+    .eq('user_id', userId)
+    .eq('course', course)
+    .eq('class_exam', classExam)
+    .eq('subject', subject)
+    .eq('unit', unit)
+    .eq('test_number', Number(testNumber));
+
+  if (category != null && String(category).trim() !== '') {
+    exclusionQuery = exclusionQuery.eq('category', String(category).trim());
+  } else {
+    exclusionQuery = exclusionQuery.is('category', null);
+  }
+
+  const { data: excludedRows, error: excludedErr } = await exclusionQuery;
+  if (excludedErr) {
+    if (isMissingTableError(excludedErr)) {
+      return json({ mcqs, setupRequired: true, setupMessage: 'Run student-not-relevant-table.sql to enable Not Relevant filtering.' });
+    }
+    return json({ error: 'Failed to load Not Relevant exclusions' }, 500);
+  }
+
+  const excluded = new Set((excludedRows || []).map((r) => String(r.mcq_id || '').trim()).filter(Boolean));
+  if (!excluded.size) {
+    return json({ mcqs });
+  }
+
+  const filtered = (mcqs || []).filter((row) => {
+    const rowId = row?.id != null ? String(row.id).trim() : '';
+    return rowId && !excluded.has(rowId);
+  });
+
+  return json({ mcqs: filtered });
 }

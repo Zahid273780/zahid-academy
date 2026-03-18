@@ -6,6 +6,8 @@ var NAV_CATEGORIES = [
     items: [
       { href: 'admission.html', label: 'Admission', icon: 'fas fa-file-signature', table: 'page:admission' },
       { href: 'students.html',  label: 'Student List', icon: 'fas fa-list-ul', table: 'page:students' },
+      { href: 'student-signups.html', label: 'Student Signup Forms', icon: 'fas fa-id-card', table: 'page:students' },
+      { href: 'mcq-daily-stats.html', label: 'Daily MCQ Stats', icon: 'fas fa-calendar-day', table: 'page:manage-mcqs' },
       { href: 'attendance.html', label: 'Attendance', icon: 'fas fa-clipboard-check', table: 'page:attendance' },
       { href: 'attendance-reports.html', label: 'Attendance Reports', icon: 'fas fa-chart-bar', table: 'page:attendance' },
     ]
@@ -15,6 +17,7 @@ var NAV_CATEGORIES = [
     items: [
       { href: 'bulkimport.html', label: 'Import MCQs', icon: 'fas fa-file-import', table: 'page:import-mcqs' },
       { href: 'mcqs.html',       label: 'Manage MCQs', icon: 'fas fa-tasks', table: 'page:manage-mcqs' },
+      { href: 'Navi_for_admin.html', label: 'Admin Practice', icon: 'fas fa-clipboard-check', table: 'page:dashboard' },
       { href: 'publisher.html',  label: 'Publisher', icon: 'fas fa-bullhorn', table: 'page:publisher' },
       { href: 'results.html',    label: 'Results', icon: 'fas fa-chart-bar', table: 'page:results' },
     ]
@@ -48,7 +51,10 @@ var NAV_CATEGORIES = [
 var QUICK_ACCESS = [
   { href: 'admission.html',      label: 'Admission',      icon: 'fas fa-file-signature', table: 'page:admission' },
   { href: 'students.html',       label: 'Students',       icon: 'fas fa-user-graduate',  table: 'page:students' },
+  { href: 'student-signups.html',label: 'Signup Forms',   icon: 'fas fa-id-card',        table: 'page:students' },
+  { href: 'mcq-daily-stats.html',label: 'MCQ Daily Stats',icon: 'fas fa-calendar-day',   table: 'page:manage-mcqs' },
   { href: 'mcqs.html',           label: 'Manage MCQs',    icon: 'fas fa-tasks',          table: 'page:manage-mcqs' },
+  { href: 'Navi_for_admin.html', label: 'Admin Practice', icon: 'fas fa-clipboard-check',table: 'page:dashboard' },
   { href: 'results.html',        label: 'Results',        icon: 'fas fa-chart-bar',      table: 'page:results' },
   { href: 'publisher.html',      label: 'Publisher',      icon: 'fas fa-broadcast-tower',table: 'page:publisher' },
   { href: 'announcements.html',  label: 'Announcements',  icon: 'fas fa-bullhorn',       table: 'page:announcements' },

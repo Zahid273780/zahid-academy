@@ -3,6 +3,8 @@
     var currentIndex = 0, score = 0, startTime, timerInterval;
     var questionStartTime = null, attemptRecords = [];
     var currentTestMeta = {};
+    var isBucketPractice = false;
+    var notRelevantCountByTestKey = new Map();
 
     /* ── attempted-tests tracker (localStorage) ── */
     var ATTEMPTED_KEY = '_navi_done';
@@ -55,6 +57,35 @@
         try {
             localStorage.setItem(navCacheKey(), JSON.stringify({ ts: Date.now(), data: data }));
         } catch (e) {}
+    }
+
+    function testContextKey(course, classExam, subject, unit, category, testNumber) {
+        return [
+            course || '',
+            classExam || '',
+            subject || '',
+            unit || '',
+            category || '',
+            String(testNumber || '')
+        ].join('||');
+    }
+
+    function indexNotRelevant(items) {
+        notRelevantCountByTestKey = new Map();
+        var rows = Array.isArray(items) ? items : [];
+        rows.forEach(function (r) {
+            var key = testContextKey(r.course, r.class_exam, r.subject, r.unit, r.category, r.test_number);
+            notRelevantCountByTestKey.set(key, (notRelevantCountByTestKey.get(key) || 0) + 1);
+        });
+    }
+
+    async function loadNotRelevantIndex() {
+        var res = await apiCall('/api/student-not-relevant', { body: JSON.stringify({}) });
+        if (!res) return;
+        var data = await res.json().catch(function () { return {}; });
+        if (data && !data.error) {
+            indexNotRelevant(data.items || []);
+        }
     }
 
     async function apiCall(endpoint, options) {
@@ -115,16 +146,35 @@
             if (!data.valid) { logout(); return; }
 
             $('userBadge').textContent = data.email || sessionStorage.getItem('_se') || '';
-            $('sessionLoader').style.display = 'none';
-            $('mainSection').classList.remove('hidden');
 
             if (subRes) {
                 var sub = await subRes.json();
                 if (!sub.active) {
+                    $('sessionLoader').style.display = 'none';
+                    $('mainSection').classList.remove('hidden');
                     $('mainSection').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Subscription required</h3><p>' + (sub.message || 'You cannot take tests right now. Contact your administrator.') + '</p><a href="portal.html">Back to Portal</a></div>';
                     return;
                 }
             }
+
+            var openImportantDirect = false;
+            try {
+                var params = new URLSearchParams(window.location.search || '');
+                openImportantDirect = (params.get('bucket') || '').toLowerCase() === 'important';
+            } catch (e) {}
+
+            if (openImportantDirect) {
+                var started = await startBucketPractice('important');
+                $('sessionLoader').style.display = 'none';
+                if (!started) {
+                    $('mainSection').classList.remove('hidden');
+                    await loadNav();
+                }
+                return;
+            }
+
+            $('sessionLoader').style.display = 'none';
+            $('mainSection').classList.remove('hidden');
             await loadNav();
         } catch (e) {
             logout();
@@ -132,6 +182,8 @@
     }
 
     async function loadNav() {
+        await loadNotRelevantIndex();
+
         var cached = getNavCache();
         if (cached) {
             navData = cached;
@@ -176,6 +228,17 @@
         if (v !== undefined && v !== null) return v;
         var withUnderscore = (key + '').replace(/\s+/g, '_').toLowerCase();
         return r[withUnderscore];
+    }
+
+    function setQuestionActionMsg(text, isError) {
+        var msg = $('questionActionMsg');
+        if (!msg) return;
+        msg.textContent = text || '';
+        msg.style.color = isError ? 'var(--error)' : '#475569';
+    }
+
+    function currentQuestion() {
+        return activeQuestions[currentIndex] || null;
     }
 
     function renderCourses() {
@@ -233,16 +296,65 @@
             var num = mcqVal(entry, 'Test Number');
             var topics = mcqVal(entry, 'Topics') || null;
             var count = entry.count;
+            var key = testContextKey(currentPath[0], currentPath[1], currentPath[2], unit, category || null, num);
+            var notRelevantCount = notRelevantCountByTestKey.get(key) || 0;
+            var relevantCount = Math.max(0, Number(count || 0) - notRelevantCount);
             var done = isAttempted(currentPath[0], currentPath[1], currentPath[2], unit, category, num);
             var btn = document.createElement('button');
             btn.className = 'nav-btn' + (done ? ' test-done' : '');
             var topicsHtml = topics
                 ? '<span class="btn-range" style="color:#2563eb;border-color:#bfdbfe;background:#eff6ff;">' + topics + '</span>'
                 : '';
-            btn.innerHTML = '<span class="btn-cat">Test #' + num + '</span>' + topicsHtml + '<span class="btn-range">' + count + ' Questions</span>';
+            var relevantHtml = '<span class="btn-range btn-relevant">Relevant: ' + relevantCount + '</span>';
+            btn.innerHTML = '<span class="btn-cat">Test #' + num + '</span>' + topicsHtml + '<span class="btn-range">' + count + ' Questions</span>' + relevantHtml;
             btn.onclick = function () { showTestInfo(unit, category, num, count, topics); };
             area.appendChild(btn);
         });
+    }
+
+    async function startBucketPractice(type) {
+        var endpoint = type === 'important' ? '/api/student-important' : '/api/student-not-relevant';
+        var testLabel = type === 'important' ? 'Important Bucket' : 'Not Relevant Bucket';
+
+        var listRes = await apiCall(endpoint, { body: JSON.stringify({}) });
+        if (!listRes) return false;
+        var listData = await listRes.json().catch(function () { return {}; });
+        var list = Array.isArray(listData.mcqs) ? listData.mcqs : [];
+
+        if (!list.length) {
+            alert('No MCQs found in ' + testLabel + '.');
+            return false;
+        }
+
+        var reserveRes = await apiCall('/api/reserve-mcqs', {
+            body: JSON.stringify({
+                mcqCount: list.length,
+                testType: testLabel
+            })
+        });
+
+        if (!reserveRes) return false;
+        var reserveData = await reserveRes.json().catch(function () { return {}; });
+        if (!reserveRes.ok || reserveData.error) {
+            alert((reserveData.error && String(reserveData.error).trim()) ? reserveData.error : 'Not enough MCQs remaining.');
+            return false;
+        }
+
+        currentTestMeta = {
+            course: null,
+            classExam: null,
+            subject: null,
+            unit: null,
+            category: null,
+            testNumber: null,
+            topics: null,
+            testType: testLabel
+        };
+
+        $('mainSection').classList.add('hidden');
+        $('testInfoSection').classList.add('hidden');
+        startQuiz(list, { bucketMode: true });
+        return true;
     }
 
     function showTestInfo(unit, category, testNum, count, topics) {
@@ -274,34 +386,6 @@
         };
 
         $('startTestBtn').onclick = async function () {
-            var res = await apiCall('/api/reserve-mcqs', {
-                body: JSON.stringify({
-                    mcqCount: count,
-                    course: currentTestMeta.course,
-                    classExam: currentTestMeta.classExam,
-                    subject: currentTestMeta.subject,
-                    unit: unit,
-                    category: category || null,
-                    testNumber: testNum,
-                    testType: 'Practice Test'
-                })
-            });
-            if (!res) return;
-            var data = await res.json().catch(function () { return {}; });
-            if (!res.ok || data.error) {
-                var msgEl = document.getElementById('quotaErrorMsg');
-                var textEl = document.getElementById('quotaErrorText');
-                if (msgEl && textEl) {
-                    textEl.textContent = (data.error && String(data.error).trim()) ? data.error : 'Not enough MCQs! Upgrade to unlock all questions.';
-                    msgEl.classList.add('show');
-                    msgEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                return;
-            }
-            document.getElementById('quotaErrorMsg').classList.remove('show');
-            $('testInfoSection').classList.add('hidden');
-
-            /* ── fetch actual MCQ content on-demand ── */
             var mcqRes = await apiCall('/api/student-mcqs', {
                 body: JSON.stringify({
                     course: currentTestMeta.course,
@@ -313,24 +397,63 @@
                 })
             });
             if (!mcqRes) return;
+
             var mcqData = await mcqRes.json().catch(function () { return {}; });
-            if (mcqData.error || !mcqData.mcqs || mcqData.mcqs.length === 0) {
-                alert('Failed to load questions. Please try again.');
-                $('mainSection').classList.remove('hidden');
+            var relevantCount = Array.isArray(mcqData.mcqs) ? mcqData.mcqs.length : 0;
+
+            if (mcqData.error || relevantCount === 0) {
+                var msgEl = document.getElementById('quotaErrorMsg');
+                var textEl = document.getElementById('quotaErrorText');
+                if (msgEl && textEl) {
+                    textEl.textContent = (mcqData.error && String(mcqData.error).trim()) ? mcqData.error : 'No relevant MCQs available for this test. They may all be in Not Relevant.';
+                    msgEl.classList.add('show');
+                    msgEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
                 return;
             }
+
+            var reserveRes = await apiCall('/api/reserve-mcqs', {
+                body: JSON.stringify({
+                    mcqCount: relevantCount,
+                    course: currentTestMeta.course,
+                    classExam: currentTestMeta.classExam,
+                    subject: currentTestMeta.subject,
+                    unit: unit,
+                    category: category || null,
+                    testNumber: testNum,
+                    testType: 'Practice Test'
+                })
+            });
+
+            if (!reserveRes) return;
+            var reserveData = await reserveRes.json().catch(function () { return {}; });
+            if (!reserveRes.ok || reserveData.error) {
+                var quotaMsgEl = document.getElementById('quotaErrorMsg');
+                var quotaTextEl = document.getElementById('quotaErrorText');
+                if (quotaMsgEl && quotaTextEl) {
+                    quotaTextEl.textContent = (reserveData.error && String(reserveData.error).trim()) ? reserveData.error : 'Not enough MCQs remaining.';
+                    quotaMsgEl.classList.add('show');
+                    quotaMsgEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+
+            document.getElementById('quotaErrorMsg').classList.remove('show');
+            $('testInfoSection').classList.add('hidden');
             startQuiz(mcqData.mcqs);
         };
     }
 
     var hasSubmitted = false;
 
-    function startQuiz(questions) {
+    function startQuiz(questions, opts) {
         activeQuestions = shuffleArray(questions.slice());
         currentIndex = 0; score = 0; userAnswers = [];
         attemptRecords = []; questionStartTime = null;
         startTime = Date.now();
         hasSubmitted = false;
+        isBucketPractice = Boolean(opts && opts.bucketMode);
+        setQuestionActionMsg('', false);
         $('quizSection').classList.remove('hidden');
 
         timerInterval = setInterval(function () {
@@ -346,6 +469,7 @@
     function showQuestion() {
         questionStartTime = Date.now();
         var q = activeQuestions[currentIndex];
+        setQuestionActionMsg('', false);
         $('quizProgress').innerText = 'Question ' + (currentIndex + 1) + ' of ' + activeQuestions.length;
         $('questionText').innerText = mcqVal(q, 'Question') || '';
         var area = $('optionsArea'); area.innerHTML = '';
@@ -375,6 +499,79 @@
             };
             area.appendChild(btn);
         });
+
+        if ($('markImportantBtn')) {
+            $('markImportantBtn').onclick = markCurrentImportant;
+        }
+        if ($('markNotRelevantBtn')) {
+            $('markNotRelevantBtn').onclick = markCurrentNotRelevant;
+        }
+    }
+
+    async function markCurrentImportant() {
+        var q = currentQuestion();
+        if (!q || q.id == null) {
+            setQuestionActionMsg('Unable to mark this question as Important.', true);
+            return;
+        }
+
+        var res = await apiCall('/api/student-important-add', {
+            body: JSON.stringify({ mcq_id: String(q.id) })
+        });
+
+        if (!res) return;
+        var data = await res.json().catch(function () { return {}; });
+        if (!res.ok || data.error) {
+            setQuestionActionMsg(data.error || 'Failed to save Important question.', true);
+            return;
+        }
+
+        setQuestionActionMsg('Added to Important bucket.', false);
+    }
+
+    async function markCurrentNotRelevant() {
+        if (isBucketPractice) {
+            setQuestionActionMsg('Not Relevant is only for normal Navi tests.', true);
+            return;
+        }
+
+        var q = currentQuestion();
+        if (!q || q.id == null) {
+            setQuestionActionMsg('Unable to mark this question as Not Relevant.', true);
+            return;
+        }
+
+        var payload = {
+            mcq_id: String(q.id),
+            course: currentTestMeta.course,
+            classExam: currentTestMeta.classExam,
+            subject: currentTestMeta.subject,
+            unit: currentTestMeta.unit,
+            category: currentTestMeta.category,
+            testNumber: currentTestMeta.testNumber
+        };
+
+        var res = await apiCall('/api/student-not-relevant-add', {
+            body: JSON.stringify(payload)
+        });
+
+        if (!res) return;
+        var data = await res.json().catch(function () { return {}; });
+        if (!res.ok || data.error) {
+            setQuestionActionMsg(data.error || 'Failed to save Not Relevant question.', true);
+            return;
+        }
+
+        activeQuestions.splice(currentIndex, 1);
+        if (!activeQuestions.length) {
+            showResults();
+            return;
+        }
+        if (currentIndex >= activeQuestions.length) {
+            currentIndex = activeQuestions.length - 1;
+        }
+        showQuestion();
+        setQuestionActionMsg('Marked Not Relevant and removed from this test.', false);
     }
 
     function showResults() {
@@ -393,45 +590,47 @@
 
         hasSubmitted = true;
 
-        markAttempted(
-            currentTestMeta.course,
-            currentTestMeta.classExam,
-            currentTestMeta.subject,
-            currentTestMeta.unit,
-            currentTestMeta.category,
-            currentTestMeta.testNumber
-        );
+        if (!isBucketPractice) {
+            markAttempted(
+                currentTestMeta.course,
+                currentTestMeta.classExam,
+                currentTestMeta.subject,
+                currentTestMeta.unit,
+                currentTestMeta.category,
+                currentTestMeta.testNumber
+            );
 
-        apiCall('/api/submit-test', {
-            body: JSON.stringify({
-                course: currentTestMeta.course,
-                classExam: currentTestMeta.classExam,
-                subject: currentTestMeta.subject,
-                unit: currentTestMeta.unit,
-                category: currentTestMeta.category,
-                testNumber: currentTestMeta.testNumber,
-                totalMarks: activeQuestions.length,
-                obtainedMarks: score,
-                totalTimeSeconds: totalTime,
-                testType: 'Practice Test'
-            })
-        }).catch(function () {});
-
-        if (attemptRecords.length > 0 && currentTestMeta) {
-            apiCall('/api/save-attempts', {
+            apiCall('/api/submit-test', {
                 body: JSON.stringify({
-                    attempts: attemptRecords,
-                    testContext: {
-                        course: currentTestMeta.course,
-                        classExam: currentTestMeta.classExam,
-                        subject: currentTestMeta.subject,
-                        unit: currentTestMeta.unit,
-                        category: currentTestMeta.category,
-                        testNumber: currentTestMeta.testNumber,
-                        testType: 'Practice Test'
-                    }
+                    course: currentTestMeta.course,
+                    classExam: currentTestMeta.classExam,
+                    subject: currentTestMeta.subject,
+                    unit: currentTestMeta.unit,
+                    category: currentTestMeta.category,
+                    testNumber: currentTestMeta.testNumber,
+                    totalMarks: activeQuestions.length,
+                    obtainedMarks: score,
+                    totalTimeSeconds: totalTime,
+                    testType: 'Practice Test'
                 })
             }).catch(function () {});
+
+            if (attemptRecords.length > 0 && currentTestMeta) {
+                apiCall('/api/save-attempts', {
+                    body: JSON.stringify({
+                        attempts: attemptRecords,
+                        testContext: {
+                            course: currentTestMeta.course,
+                            classExam: currentTestMeta.classExam,
+                            subject: currentTestMeta.subject,
+                            unit: currentTestMeta.unit,
+                            category: currentTestMeta.category,
+                            testNumber: currentTestMeta.testNumber,
+                            testType: 'Practice Test'
+                        }
+                    })
+                }).catch(function () {});
+            }
         }
 
         var mistakeList = $('mistakeList');
@@ -569,6 +768,8 @@
     $('goHomeBtn').onclick = renderCourses;
     $('breadcrumb').onclick = renderCourses;
     $('backToMenuBtn').onclick = function () { $('testInfoSection').classList.add('hidden'); $('mainSection').classList.remove('hidden'); renderCourses(); };
+    if ($('importantBucketBtn')) $('importantBucketBtn').onclick = function () { startBucketPractice('important'); };
+    if ($('practiceImportantBtn')) $('practiceImportantBtn').onclick = function () { startBucketPractice('important'); };
 
     init();
 })();

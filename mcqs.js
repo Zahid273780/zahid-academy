@@ -44,6 +44,7 @@ const ctCancelBtn  = document.getElementById('ctCancelBtn');
 
 let allMcqs  = [];
 let filtered = [];
+const PAGE_SIZE = 1000;
 
 /* ─── helpers ─────────────────────────────────────── */
 
@@ -83,11 +84,28 @@ function populateSel(sel, placeholder, values, keepVal) {
 
 async function loadMcqs() {
   showMsg('Loading…', '');
-  const { data, error } = await supabase
-    .from('mcqs').select('*')
-    .order('Course').order('Subject').order('Unit').order('"Test Number"');
-  if (error) { showMsg('Error: ' + error.message, 'err'); return; }
-  allMcqs = data || [];
+  let from = 0;
+  let rows = [];
+
+  while (true) {
+    const { data, error } = await supabase
+      .from('mcqs')
+      .select('*')
+      .order('Course')
+      .order('Subject')
+      .order('Unit')
+      .order('"Test Number"')
+      .range(from, from + PAGE_SIZE - 1);
+
+    if (error) { showMsg('Error: ' + error.message, 'err'); return; }
+
+    const chunk = data || [];
+    rows = rows.concat(chunk);
+    if (chunk.length < PAGE_SIZE) break;
+    from += PAGE_SIZE;
+  }
+
+  allMcqs = rows;
   showMsg('', '');
   buildFilters();
   applyFilters();

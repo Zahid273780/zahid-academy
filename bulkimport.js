@@ -36,10 +36,12 @@ const labelAutoMode = document.getElementById('labelAutoMode');
 const manualTestRow = document.getElementById('manualTestRow');
 const autoTestRow = document.getElementById('autoTestRow');
 const startTestNumInput = document.getElementById('startTestNum');
+const batchSizeInput = document.getElementById('batchSize');
 const autoTestSummary = document.getElementById('autoTestSummary');
 
 let autoTestMode = false;
 let rangeTestMap = [];
+let autoStartLookupSeq = 0;
 const importMsgEl = document.getElementById('importMsg');
 
 function showImportMsg(text, type) {
@@ -101,6 +103,63 @@ function currentFilter() {
     unit: selUnit.value || null,
     category: selCategory.value || null,
   };
+}
+
+async function fetchNextStartingTestNumber(filter) {
+  const PAGE_SIZE = 1000;
+  let from = 0;
+  let maxTestNumber = 0;
+  let hasTestNumber = false;
+
+  while (true) {
+    let q = supabase.from('mcqs').select('"Test Number"');
+    q = q.eq('Course', filter.course);
+    q = q.filter('"Class/Exam"', 'eq', filter.classExam);
+    q = q.eq('Subject', filter.subject);
+    q = q.eq('Unit', filter.unit);
+    if (filter.category) {
+      q = q.eq('Category', filter.category);
+    } else {
+      q = q.is('Category', null);
+    }
+    q = q.range(from, from + PAGE_SIZE - 1);
+
+    const { data, error } = await q;
+    if (error) throw new Error(error.message || 'Failed to read existing tests');
+
+    const rows = data || [];
+    for (const row of rows) {
+      const value = Number.parseInt(row['Test Number'], 10);
+      if (Number.isFinite(value) && value > 0) {
+        hasTestNumber = true;
+        if (value > maxTestNumber) maxTestNumber = value;
+      }
+    }
+
+    if (rows.length < PAGE_SIZE) break;
+    from += PAGE_SIZE;
+  }
+
+  return hasTestNumber ? (maxTestNumber + 1) : 1;
+}
+
+async function autoFillStartingTestNumber() {
+  if (!autoTestMode || !startTestNumInput) return;
+  const f = currentFilter();
+  if (!f.course || !f.classExam || !f.subject || !f.unit) return;
+
+  const requestSeq = ++autoStartLookupSeq;
+  try {
+    const next = await fetchNextStartingTestNumber(f);
+    if (requestSeq !== autoStartLookupSeq) return;
+    startTestNumInput.value = String(next);
+  } catch (error) {
+    if (requestSeq !== autoStartLookupSeq) return;
+    console.warn('Auto start test-number lookup failed:', error);
+    if (!startTestNumInput.value || Number.parseInt(startTestNumInput.value, 10) < 1) {
+      startTestNumInput.value = '1';
+    }
+  }
 }
 
 function showMsg(text, type) {
@@ -305,9 +364,14 @@ function optionHtml(letter, text, correctLetter) {
   );
 }
 
+function getBatchSize() {
+  const value = parseInt(batchSizeInput ? batchSizeInput.value : '20', 10);
+  return value > 0 ? value : 20;
+}
+
 function buildRangeTestMap(forceReset) {
   if (!autoTestMode || parsedMcqs.length === 0) { rangeTestMap = []; return; }
-  const chunkSize = 20;
+  const chunkSize = getBatchSize();
   const chunks = Math.ceil(parsedMcqs.length / chunkSize);
   const startNum = parseInt(startTestNumInput ? startTestNumInput.value : '1', 10) || 1;
   const oldMap = forceReset ? [] : rangeTestMap.slice();
@@ -326,10 +390,10 @@ function updateAutoSummary() {
   if (!autoTestMode || rangeTestMap.length === 0) { autoTestSummary.textContent = ''; return; }
   const first = rangeTestMap[0].testNum;
   const last = rangeTestMap[rangeTestMap.length - 1].testNum;
-  autoTestSummary.textContent = '\u2192 ' + rangeTestMap.length + ' batches \u2192 Tests ' + first + '..' + last;
+  autoTestSummary.textContent = '\u2192 ' + rangeTestMap.length + ' batches of ' + getBatchSize() + ' \u2192 Tests ' + first + '..' + last;
 }
 
-// THIS BUILDS THE 20-MCQ BATCH BUTTONS AND AUTO-REPAIRS MISSING HTML
+// Build batch buttons using the selected MCQs-per-test size.
 function updateBatchButtons() {
   let rangeContainer = document.getElementById('rangeButtonsContainer');
   
@@ -343,7 +407,7 @@ function updateBatchButtons() {
   rangeContainer.innerHTML = '';
   if (parsedMcqs.length === 0) return;
 
-  const chunkSize = 20;
+  const chunkSize = getBatchSize();
   const chunks = Math.ceil(parsedMcqs.length / chunkSize);
 
   if (autoTestMode) buildRangeTestMap(false);
@@ -682,6 +746,15 @@ async function handleImportSelected() {
   } else {
     showImportMsg('Imported ' + rows.length + ' questions into MCQs.', 'ok');
   }
+
+  if (autoTestMode) {
+    await autoFillStartingTestNumber();
+    buildRangeTestMap(true);
+    if (parsedMcqs.length > 0) {
+      updateBatchButtons();
+      renderPreview();
+    }
+  }
 }
 
 (async function init() {
@@ -694,10 +767,18 @@ async function handleImportSelected() {
   selUnit.addEventListener('change', () => { updateCategoryAndTestOptions(); });
 
   // Category selected → reveal both Topics AND Test # rows
-  selCategory.addEventListener('change', () => {
+  selCategory.addEventListener('change', async () => {
     if (!selCategory.disabled) {
       showTopicsRow();
       showTestNumRow();
+    }
+    if (autoTestMode) {
+      await autoFillStartingTestNumber();
+      buildRangeTestMap(true);
+      if (parsedMcqs.length > 0) {
+        updateBatchButtons();
+        renderPreview();
+      }
     }
     updateParseButton();
   });
@@ -731,7 +812,7 @@ async function handleImportSelected() {
   });
 
   // Auto/Manual test mode toggle
-  function updateTestModeUI() {
+  async function updateTestModeUI() {
     autoTestMode = radioAuto && radioAuto.checked;
     if (manualTestRow) manualTestRow.style.display = autoTestMode ? 'none' : 'flex';
     if (autoTestRow) autoTestRow.style.display = autoTestMode ? 'flex' : 'none';
@@ -743,7 +824,10 @@ async function handleImportSelected() {
       labelAutoMode.style.borderColor = autoTestMode ? '#16a34a' : '#e2e8f0';
       labelAutoMode.style.background = autoTestMode ? '#f0fdf4' : '#fff';
     }
-    if (autoTestMode) buildRangeTestMap(true);
+    if (autoTestMode) {
+      await autoFillStartingTestNumber();
+      buildRangeTestMap(true);
+    }
     if (parsedMcqs.length > 0) {
       updateBatchButtons();
       renderPreview();
@@ -755,6 +839,17 @@ async function handleImportSelected() {
     startTestNumInput.addEventListener('change', () => {
       const v = parseInt(startTestNumInput.value, 10);
       if (!v || v < 1) { startTestNumInput.value = 1; }
+      buildRangeTestMap(true);
+      if (parsedMcqs.length > 0) {
+        updateBatchButtons();
+        renderPreview();
+      }
+    });
+  }
+  if (batchSizeInput) {
+    batchSizeInput.addEventListener('change', () => {
+      const v = parseInt(batchSizeInput.value, 10);
+      if (!v || v < 1) { batchSizeInput.value = 20; }
       buildRangeTestMap(true);
       if (parsedMcqs.length > 0) {
         updateBatchButtons();

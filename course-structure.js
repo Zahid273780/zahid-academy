@@ -10,10 +10,83 @@ const cancelEdit = document.getElementById('cancelEdit');
 const tbody = document.getElementById('tbody');
 const emptyEl = document.getElementById('empty');
 const msgEl = document.getElementById('msg');
+const tableSearch = document.getElementById('tableSearch');
+
+const SORT_KEYS = ['Course', 'Class/Exam', 'Subject', 'Unit', 'Category', 'Topics', 'Test Number'];
+const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
+
+let allRows = [];
+let searchTerm = '';
+let sessionNewSignatures = [];
+const defaultEmptyText = emptyEl.textContent;
 
 function showMsg(text, type) {
   msgEl.textContent = text;
   msgEl.className = type || '';
+}
+
+function rowSignature(row) {
+  return SORT_KEYS.map((key) => {
+    const value = row[key];
+    return value == null ? '' : String(value).trim();
+  }).join('|');
+}
+
+function removeNewSignature(signature) {
+  sessionNewSignatures = sessionNewSignatures.filter((s) => s !== signature);
+}
+
+function normalizeValue(value) {
+  if (value == null) return '';
+  return String(value).trim();
+}
+
+function naturalCompareRows(a, b) {
+  for (const key of SORT_KEYS) {
+    const aValue = normalizeValue(a[key]);
+    const bValue = normalizeValue(b[key]);
+
+    if (!aValue && bValue) return 1;
+    if (aValue && !bValue) return -1;
+
+    const cmp = collator.compare(aValue, bValue);
+    if (cmp !== 0) return cmp;
+  }
+  return 0;
+}
+
+function getOrderedRows(rows) {
+  const newRows = [];
+  const existingRows = [];
+
+  for (const row of rows) {
+    const sig = rowSignature(row);
+    const newIndex = sessionNewSignatures.indexOf(sig);
+    if (newIndex >= 0) {
+      newRows.push({ row, newIndex });
+    } else {
+      existingRows.push(row);
+    }
+  }
+
+  newRows.sort((a, b) => a.newIndex - b.newIndex);
+  existingRows.sort(naturalCompareRows);
+
+  return [...newRows.map((item) => item.row), ...existingRows];
+}
+
+function matchesSearch(row, term) {
+  if (!term) return true;
+  const haystack = SORT_KEYS
+    .map((key) => normalizeValue(row[key]).toLowerCase())
+    .join(' ');
+  return haystack.includes(term);
+}
+
+function getDisplayRows() {
+  const orderedRows = getOrderedRows(allRows);
+  if (!searchTerm) return orderedRows;
+  return orderedRows.filter((row) => matchesSearch(row, searchTerm));
 }
 
 function clearForm() {
@@ -66,29 +139,22 @@ function copyToForm(row) {
   setTimeout(() => showMsg('', ''), 3000);
 }
 
-async function load() {
-  const { data, error } = await supabase.from(TABLE).select('*').order('Course');
-  if (error) {
-    showMsg('Error loading: ' + error.message, 'err');
-    tbody.innerHTML = '';
-    return;
-  }
-  const rows = (data || []).map(r => ({
-    'Course': r.Course,
-    'Class/Exam': r['Class/Exam'],
-    'Subject': r.Subject,
-    'Unit': r.Unit,
-    'Category': r.Category,
-    'Topics': r.Topics,
-    'Test Number': r['Test Number'],
-  }));
-  if (rows.length === 0) {
+function renderRows() {
+  const displayRows = getDisplayRows();
+
+  if (displayRows.length === 0) {
     tbody.innerHTML = '';
     emptyEl.classList.remove('hidden');
+    emptyEl.textContent = allRows.length === 0
+      ? defaultEmptyText
+      : 'No matching course structures found.';
     return;
   }
+
   emptyEl.classList.add('hidden');
-  tbody.innerHTML = rows.map(r => {
+  emptyEl.textContent = defaultEmptyText;
+
+  tbody.innerHTML = displayRows.map(r => {
     const tn = r['Test Number'] != null ? r['Test Number'] : '—';
     return `
       <tr>
@@ -98,7 +164,7 @@ async function load() {
         <td>${escapeHtml(r.Unit || '—')}</td>
         <td>${escapeHtml(r.Category || '—')}</td>
         <td>${escapeHtml(r.Topics || '—')}</td>
-        <td>${tn}</td>
+        <td>${escapeHtml(String(tn))}</td>
         <td>
           <div class="actions">
             <button type="button" class="btn btn-copy btn-sm" data-copy title="Copy to form">Copy</button>
@@ -111,17 +177,37 @@ async function load() {
   }).join('');
 
   tbody.querySelectorAll('[data-copy]').forEach((btn, i) => {
-    btn.addEventListener('click', () => copyToForm(rows[i]));
+    btn.addEventListener('click', () => copyToForm(displayRows[i]));
   });
   tbody.querySelectorAll('[data-edit]').forEach((btn, i) => {
-    btn.addEventListener('click', () => setEdit(rows[i]));
+    btn.addEventListener('click', () => setEdit(displayRows[i]));
   });
   tbody.querySelectorAll('[data-delete]').forEach((btn, i) => {
     btn.addEventListener('click', () => {
       if (!confirm('Delete this course structure?')) return;
-      deleteRow(rows[i]);
+      deleteRow(displayRows[i]);
     });
   });
+}
+
+async function load() {
+  const { data, error } = await supabase.from(TABLE).select('*');
+  if (error) {
+    showMsg('Error loading: ' + error.message, 'err');
+    allRows = [];
+    tbody.innerHTML = '';
+    return;
+  }
+  allRows = (data || []).map(r => ({
+    'Course': r.Course,
+    'Class/Exam': r['Class/Exam'],
+    'Subject': r.Subject,
+    'Unit': r.Unit,
+    'Category': r.Category,
+    'Topics': r.Topics,
+    'Test Number': r['Test Number'],
+  }));
+  renderRows();
 }
 
 function escapeHtml(s) {
@@ -142,6 +228,7 @@ async function deleteRow(row) {
     showMsg('Delete failed: ' + error.message, 'err');
     return;
   }
+  removeNewSignature(rowSignature(row));
   showMsg('Deleted.', 'ok');
   load();
   setTimeout(() => showMsg('', ''), 2000);
@@ -152,6 +239,8 @@ form.addEventListener('submit', async (e) => {
   const payload = getRowPayload();
 
   if (editingRow) {
+    const oldSignature = rowSignature(editingRow);
+    const wasNew = sessionNewSignatures.includes(oldSignature);
     const colClassExam = '"Class/Exam"';
     const colTestNumber = '"Test Number"';
     let q = supabase.from(TABLE).update(payload).eq('Course', editingRow.Course).eq(colClassExam, editingRow['Class/Exam']).eq('Subject', editingRow.Subject).eq('Unit', editingRow.Unit);
@@ -163,6 +252,10 @@ form.addEventListener('submit', async (e) => {
       showMsg('Update failed: ' + error.message, 'err');
       return;
     }
+    removeNewSignature(oldSignature);
+    if (wasNew) {
+      sessionNewSignatures.unshift(rowSignature(payload));
+    }
     showMsg('Updated.', 'ok');
   } else {
     const { error } = await supabase.from(TABLE).insert(payload);
@@ -170,6 +263,7 @@ form.addEventListener('submit', async (e) => {
       showMsg('Save failed: ' + error.message, 'err');
       return;
     }
+    sessionNewSignatures.unshift(rowSignature(payload));
     showMsg('Saved.', 'ok');
   }
   clearForm();
@@ -178,5 +272,12 @@ form.addEventListener('submit', async (e) => {
 });
 
 cancelEdit.addEventListener('click', clearForm);
+
+if (tableSearch) {
+  tableSearch.addEventListener('input', (e) => {
+    searchTerm = String(e.target.value || '').trim().toLowerCase();
+    renderRows();
+  });
+}
 
 load();

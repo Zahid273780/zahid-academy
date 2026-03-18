@@ -64,7 +64,8 @@ export async function onRequest(context) {
     .eq('id', userId)
     .single();
 
-  if (!profile || (profile.role || '').toLowerCase() !== 'student') {
+  const saverRole = (profile ? profile.role || '' : '').toLowerCase();
+  if (!profile || !['student', 'admin'].includes(saverRole)) {
     return json({ error: 'Access denied' }, 403);
   }
 
@@ -115,7 +116,7 @@ export async function onRequest(context) {
   }
 
   const incorrectMcqIds = valid.filter((a) => !a.is_correct).map((a) => a.mcq_id);
-  if (incorrectMcqIds.length > 0) {
+  if (saverRole !== 'admin' && incorrectMcqIds.length > 0) {
     const rpc = await adminClient.rpc('add_mistakes', {
       p_user_id: userId,
       p_mcq_ids: incorrectMcqIds,

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Zahid Academy | Test Portal</title>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="Navi.css">
+</head>
+<body>
+<script>window.addEventListener('error',function(e){if(e.filename&&e.filename.indexOf('share-modal')!==-1){e.preventDefault();e.stopPropagation();return true;}},true);</script>
+
+<div id="offlineBanner" class="offline-banner" style="display:none;" role="status">
+  <span><i class="fas fa-wifi"></i> No internet – some features may not work.</span>
+  <button type="button" class="offline-retry" onclick="window.location.reload()">Retry</button>
+</div>
+
+<div id="sessionLoader">
+    <div class="spinner"></div>
+    <p class="session-loader-msg">Zahid Academy - Loading...</p>
+</div>
+
+<div class="container">
+    <div id="mainSection" class="hidden">
+        <div class="academy-header"><h1>Zahid Academy</h1><p>Student Examination Portal</p></div>
+        <div class="nav-bar">
+            <div id="breadcrumb" class="breadcrumb"><i class="fas fa-home"></i> Home</div>
+            <div class="nav-bar-right">
+                <span id="userBadge" class="user-badge"></span>
+                <button id="importantBucketBtn" type="button" class="portal-link"><i class="fas fa-star"></i> Important</button>
+                <a href="portal.html" class="portal-link"><i class="fas fa-th-large"></i> Portal</a>
+                <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+        <div id="navigationArea" class="grid-container"></div>
+    </div>
+
+    <div id="testInfoSection" class="hidden">
+        <div class="info-card">
+            <h2><i class="fas fa-clipboard-check"></i> Examination Ready!</h2>
+            <div class="info-grid">
+                <div class="info-item"><b>Course</b> <span id="infoCourse"></span></div>
+                <div class="info-item"><b>Class / Exam</b> <span id="infoClass"></span></div>
+                <div class="info-item"><b>Subject</b> <span id="infoSub"></span></div>
+                <div class="info-item"><b>Unit</b> <span id="infoUnit"></span></div>
+                <div class="info-item"><b>Category</b> <span id="infoCat"></span></div>
+                <div class="info-item"><b>Test #</b> <span id="infoTestNo"></span></div>
+            </div>
+            <div id="infoTopicsRow" class="info-item" style="margin-bottom: 12px;"><b>Topics</b> <span id="infoTopics"></span></div>
+            <div class="info-item" style="margin-bottom: 20px;"><b>Question Count</b> <span id="infoCount" class="info-count"></span></div>
+            <button type="button" id="startTestBtn" class="btn-action start-test-btn"><i class="fas fa-play"></i> Start Exam Now</button>
+            <div id="quotaErrorMsg" class="quota-error-msg" role="alert">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="quotaErrorText"></span>
+            </div>
+            <button id="backToMenuBtn" class="back-to-menu-btn"><i class="fas fa-arrow-left"></i> Return to Menu</button>
+        </div>
+    </div>
+
+    <div id="quizSection" class="hidden">
+        <div class="quiz-top">
+            <span id="quizProgress" class="quiz-progress"></span>
+            <span id="quizTimer" class="quiz-timer"></span>
+        </div>
+        <h2 id="questionText" class="question-text"></h2>
+        <div id="optionsArea"></div>
+        <div id="questionActions" class="question-actions">
+            <button id="markImportantBtn" type="button" class="question-action-btn important"><i class="fas fa-star"></i> Important</button>
+            <button id="markNotRelevantBtn" type="button" class="question-action-btn not-relevant"><i class="fas fa-ban"></i> Not Relevant</button>
+        </div>
+        <p id="questionActionMsg" class="question-action-msg"></p>
+    </div>
+
+    <div id="resultArea" class="hidden">
+        <h2 class="result-title"><i class="fas fa-chart-bar"></i> Performance Report</h2>
+        <div class="result-cards">
+            <div class="res-card"><span class="res-label">Score</span><span id="resScore" class="res-val"></span></div>
+            <div class="res-card"><span class="res-label">Total Time</span><span id="resTotalTime" class="res-val"></span></div>
+            <div class="res-card"><span class="res-label">Avg/Q</span><span id="resAvgTime" class="res-val"></span></div>
+        </div>
+        <div id="mistakeList"></div>
+        <div id="mistakeBucketArea" class="mistake-bucket-area">
+            <button id="addToMistakeBucketBtn" type="button" class="btn-action add-to-bucket-btn"><i class="fas fa-bucket"></i> Add to Mistake Bucket</button>
+            <p id="mistakeBucketMsg" class="mistake-bucket-msg"></p>
+        </div>
+        <div id="practiceBucketsArea" class="mistake-bucket-area show">
+            <button id="practiceImportantBtn" type="button" class="btn-action important-bucket-btn"><i class="fas fa-star"></i> Practice Important Bucket</button>
+            <p id="practiceBucketMsg" class="mistake-bucket-msg"></p>
+        </div>
+        <button id="goHomeBtn" class="btn-action go-home-btn"><i class="fas fa-home"></i> Back to Home</button>
+    </div>
+</div>
+
+<script src="Navi.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  }
+  (function() {
+    var el = document.getElementById('offlineBanner');
+    if (!el) return;
+    function show() { el.style.display = 'flex'; }
+    function hide() { el.style.display = 'none'; }
+    function checkOnline() {
+      fetch('/manifest.json?_=' + Date.now(), { method: 'HEAD', cache: 'no-store' })
+        .then(function(r) { if (r.ok) hide(); else show(); })
+        .catch(function() { show(); });
+    }
+    checkOnline();
+    window.addEventListener('offline', show);
+    window.addEventListener('online', function() { hide(); checkOnline(); });
+  })();
+</script></body>
+</html>
