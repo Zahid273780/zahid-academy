@@ -148,6 +148,9 @@ Deno.serve(async (req: Request) => {
     id: authUser.user.id,
     name,
     email,
+    username,
+    mobile,
+    whatsapp,
     role: 'student',
     roll: null,
   });
